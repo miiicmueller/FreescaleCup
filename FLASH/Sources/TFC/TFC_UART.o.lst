@@ -16,1006 +16,1367 @@
   16              		.cfi_sections	.debug_frame
   17              		.comm	SDA_SERIAL_OUTGOING_QUEUE,12,4
   18              		.comm	SDA_SERIAL_INCOMING_QUEUE,12,4
-  19              		.comm	SDA_SERIAL_OUTGOING_QUEUE_Storage,2048,4
-  20              		.comm	SDA_SERIAL_INCOMING_QUEUE_Storage,128,4
-  21              		.section	.text.TFC_InitUARTs,"ax",%progbits
-  22              		.align	2
-  23              		.global	TFC_InitUARTs
-  24              		.code	16
-  25              		.thumb_func
-  27              	TFC_InitUARTs:
-  28              	.LFB0:
-  29              		.file 1 "../Sources/TFC/TFC_UART.c"
+  19              		.comm	XBEE_SERIAL_OUTGOING_QUEUE,12,4
+  20              		.comm	XBEE_SERIAL_INCOMING_QUEUE,12,4
+  21              		.comm	SDA_SERIAL_OUTGOING_QUEUE_Storage,2048,4
+  22              		.comm	SDA_SERIAL_INCOMING_QUEUE_Storage,128,4
+  23              		.comm	XBEE_SERIAL_OUTGOING_QUEUE_Storage,2048,4
+  24              		.comm	XBEE_SERIAL_INCOMING_QUEUE_Storage,128,4
+  25              		.section	.text.TFC_InitUARTs,"ax",%progbits
+  26              		.align	2
+  27              		.global	TFC_InitUARTs
+  28              		.code	16
+  29              		.thumb_func
+  31              	TFC_InitUARTs:
+  32              	.LFB0:
+  33              		.file 1 "../Sources/TFC/TFC_UART.c"
    1:../Sources/TFC/TFC_UART.c **** #include "TFC\TFC.h"
    2:../Sources/TFC/TFC_UART.c **** 
-   3:../Sources/TFC/TFC_UART.c **** void uart0_init (int sysclk, int baud);
-   4:../Sources/TFC/TFC_UART.c **** 
-   5:../Sources/TFC/TFC_UART.c **** ByteQueue SDA_SERIAL_OUTGOING_QUEUE;
-   6:../Sources/TFC/TFC_UART.c **** ByteQueue SDA_SERIAL_INCOMING_QUEUE;
-   7:../Sources/TFC/TFC_UART.c **** 
+   3:../Sources/TFC/TFC_UART.c **** void uart0_init(int sysclk, int baud);
+   4:../Sources/TFC/TFC_UART.c **** void uart2_init(int sysclk, int baud);
+   5:../Sources/TFC/TFC_UART.c **** 
+   6:../Sources/TFC/TFC_UART.c **** ByteQueue SDA_SERIAL_OUTGOING_QUEUE;
+   7:../Sources/TFC/TFC_UART.c **** ByteQueue SDA_SERIAL_INCOMING_QUEUE;
    8:../Sources/TFC/TFC_UART.c **** 
-   9:../Sources/TFC/TFC_UART.c **** uint8_t SDA_SERIAL_OUTGOING_QUEUE_Storage[SDA_SERIAL_OUTGOING_QUEUE_SIZE];
-  10:../Sources/TFC/TFC_UART.c **** uint8_t SDA_SERIAL_INCOMING_QUEUE_Storage[SDA_SERIAL_INCOMING_QUEUE_SIZE];
+   9:../Sources/TFC/TFC_UART.c **** ByteQueue XBEE_SERIAL_OUTGOING_QUEUE;
+  10:../Sources/TFC/TFC_UART.c **** ByteQueue XBEE_SERIAL_INCOMING_QUEUE;
   11:../Sources/TFC/TFC_UART.c **** 
-  12:../Sources/TFC/TFC_UART.c **** 
-  13:../Sources/TFC/TFC_UART.c **** void TFC_InitUARTs()
-  14:../Sources/TFC/TFC_UART.c **** {
-  30              		.loc 1 14 0
-  31              		.cfi_startproc
-  32 0000 80B5     		push	{r7, lr}
-  33              	.LCFI0:
-  34              		.cfi_def_cfa_offset 8
-  35              		.cfi_offset 7, -8
-  36              		.cfi_offset 14, -4
-  37 0002 00AF     		add	r7, sp, #0
-  38              	.LCFI1:
-  39              		.cfi_def_cfa_register 7
-  15:../Sources/TFC/TFC_UART.c **** 	SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
-  40              		.loc 1 15 0
-  41 0004 274A     		ldr	r2, .L2
-  42 0006 2749     		ldr	r1, .L2
-  43 0008 274B     		ldr	r3, .L2+4
-  44 000a CB58     		ldr	r3, [r1, r3]
-  45 000c 8021     		mov	r1, #128
-  46 000e 8900     		lsl	r1, r1, #2
-  47 0010 1943     		orr	r1, r3
-  48 0012 254B     		ldr	r3, .L2+4
-  49 0014 D150     		str	r1, [r2, r3]
-  16:../Sources/TFC/TFC_UART.c **** 
-  17:../Sources/TFC/TFC_UART.c **** 	InitByteQueue(&SDA_SERIAL_OUTGOING_QUEUE,SDA_SERIAL_OUTGOING_QUEUE_SIZE,SDA_SERIAL_OUTGOING_QUEUE_
-  50              		.loc 1 17 0
-  51 0016 2549     		ldr	r1, .L2+8
-  52 0018 8023     		mov	r3, #128
-  53 001a 1A01     		lsl	r2, r3, #4
-  54 001c 244B     		ldr	r3, .L2+12
-  55 001e 081C     		mov	r0, r1
-  56 0020 111C     		mov	r1, r2
-  57 0022 1A1C     		mov	r2, r3
-  58 0024 FFF7FEFF 		bl	InitByteQueue
-  18:../Sources/TFC/TFC_UART.c **** 	InitByteQueue(&SDA_SERIAL_INCOMING_QUEUE,SDA_SERIAL_INCOMING_QUEUE_SIZE,SDA_SERIAL_INCOMING_QUEUE_
-  59              		.loc 1 18 0
-  60 0028 224A     		ldr	r2, .L2+16
-  61 002a 234B     		ldr	r3, .L2+20
-  62 002c 101C     		mov	r0, r2
-  63 002e 8021     		mov	r1, #128
-  64 0030 1A1C     		mov	r2, r3
-  65 0032 FFF7FEFF 		bl	InitByteQueue
-  19:../Sources/TFC/TFC_UART.c **** 	
-  20:../Sources/TFC/TFC_UART.c **** 	PORTA_PCR1 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;   
-  66              		.loc 1 20 0
-  67 0036 214B     		ldr	r3, .L2+24
-  68 0038 9022     		mov	r2, #144
-  69 003a 9200     		lsl	r2, r2, #2
-  70 003c 5A60     		str	r2, [r3, #4]
-  21:../Sources/TFC/TFC_UART.c **** 	PORTA_PCR2 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;  
-  71              		.loc 1 21 0
-  72 003e 1F4B     		ldr	r3, .L2+24
-  73 0040 9022     		mov	r2, #144
-  74 0042 9200     		lsl	r2, r2, #2
-  75 0044 9A60     		str	r2, [r3, #8]
-  22:../Sources/TFC/TFC_UART.c **** 	
-  23:../Sources/TFC/TFC_UART.c **** 	//Select PLL/2 Clock
-  24:../Sources/TFC/TFC_UART.c **** 	SIM_SOPT2 &= ~(3<<26);
-  76              		.loc 1 24 0
-  77 0046 174A     		ldr	r2, .L2
-  78 0048 1649     		ldr	r1, .L2
-  79 004a 1D4B     		ldr	r3, .L2+28
-  80 004c C958     		ldr	r1, [r1, r3]
-  81 004e 1D4B     		ldr	r3, .L2+32
-  82 0050 1940     		and	r1, r3
-  83 0052 1B4B     		ldr	r3, .L2+28
-  84 0054 D150     		str	r1, [r2, r3]
-  25:../Sources/TFC/TFC_UART.c **** 	SIM_SOPT2 |= SIM_SOPT2_UART0SRC(1); 
-  85              		.loc 1 25 0
-  86 0056 134A     		ldr	r2, .L2
-  87 0058 1249     		ldr	r1, .L2
-  88 005a 194B     		ldr	r3, .L2+28
-  89 005c CB58     		ldr	r3, [r1, r3]
-  90 005e 8021     		mov	r1, #128
-  91 0060 C904     		lsl	r1, r1, #19
-  92 0062 1943     		orr	r1, r3
-  93 0064 164B     		ldr	r3, .L2+28
-  94 0066 D150     		str	r1, [r2, r3]
-  26:../Sources/TFC/TFC_UART.c **** 	SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
-  95              		.loc 1 26 0
-  96 0068 0E4A     		ldr	r2, .L2
-  97 006a 0E49     		ldr	r1, .L2
-  98 006c 144B     		ldr	r3, .L2+28
-  99 006e CB58     		ldr	r3, [r1, r3]
- 100 0070 8021     		mov	r1, #128
- 101 0072 4902     		lsl	r1, r1, #9
- 102 0074 1943     		orr	r1, r3
- 103 0076 124B     		ldr	r3, .L2+28
- 104 0078 D150     		str	r1, [r2, r3]
-  27:../Sources/TFC/TFC_UART.c **** 	
-  28:../Sources/TFC/TFC_UART.c **** 	//We have to feed this function the clock in KHz!
-  29:../Sources/TFC/TFC_UART.c ****      uart0_init (CORE_CLOCK/2/1000, SDA_SERIAL_BAUD);
- 105              		.loc 1 29 0
- 106 007a 134A     		ldr	r2, .L2+36
- 107 007c E123     		mov	r3, #225
- 108 007e 5B02     		lsl	r3, r3, #9
- 109 0080 101C     		mov	r0, r2
- 110 0082 191C     		mov	r1, r3
- 111 0084 FFF7FEFF 		bl	uart0_init
-  30:../Sources/TFC/TFC_UART.c **** 	 //Enable recieve interrupts
-  31:../Sources/TFC/TFC_UART.c ****      
-  32:../Sources/TFC/TFC_UART.c ****      UART0_C2 |= UART_C2_RIE_MASK;
- 112              		.loc 1 32 0
- 113 0088 104B     		ldr	r3, .L2+40
- 114 008a 104A     		ldr	r2, .L2+40
- 115 008c D278     		ldrb	r2, [r2, #3]
- 116 008e D2B2     		uxtb	r2, r2
- 117 0090 2021     		mov	r1, #32
- 118 0092 0A43     		orr	r2, r1
- 119 0094 D2B2     		uxtb	r2, r2
- 120 0096 DA70     		strb	r2, [r3, #3]
-  33:../Sources/TFC/TFC_UART.c ****      enable_irq(INT_UART0-16);
- 121              		.loc 1 33 0
- 122 0098 0C20     		mov	r0, #12
- 123 009a FFF7FEFF 		bl	enable_irq
-  34:../Sources/TFC/TFC_UART.c **** 	
-  35:../Sources/TFC/TFC_UART.c **** }
- 124              		.loc 1 35 0
- 125 009e BD46     		mov	sp, r7
- 126              		@ sp needed for prologue
- 127 00a0 80BD     		pop	{r7, pc}
- 128              	.L3:
- 129 00a2 C046     		.align	2
- 130              	.L2:
- 131 00a4 00700440 		.word	1074032640
- 132 00a8 38100000 		.word	4152
- 133 00ac 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE
- 134 00b0 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE_Storage
- 135 00b4 00000000 		.word	SDA_SERIAL_INCOMING_QUEUE
- 136 00b8 00000000 		.word	SDA_SERIAL_INCOMING_QUEUE_Storage
- 137 00bc 00900440 		.word	1074040832
- 138 00c0 04100000 		.word	4100
- 139 00c4 FFFFFFF3 		.word	-201326593
- 140 00c8 C05D0000 		.word	24000
- 141 00cc 00A00640 		.word	1074176000
- 142              		.cfi_endproc
- 143              	.LFE0:
- 145              		.section	.text.TFC_UART_Process,"ax",%progbits
- 146              		.align	2
- 147              		.global	TFC_UART_Process
- 148              		.code	16
- 149              		.thumb_func
- 151              	TFC_UART_Process:
- 152              	.LFB1:
-  36:../Sources/TFC/TFC_UART.c **** 
-  37:../Sources/TFC/TFC_UART.c **** void TFC_UART_Process()
-  38:../Sources/TFC/TFC_UART.c **** {
- 153              		.loc 1 38 0
- 154              		.cfi_startproc
- 155 0000 80B5     		push	{r7, lr}
- 156              	.LCFI2:
- 157              		.cfi_def_cfa_offset 8
- 158              		.cfi_offset 7, -8
- 159              		.cfi_offset 14, -4
- 160 0002 00AF     		add	r7, sp, #0
- 161              	.LCFI3:
- 162              		.cfi_def_cfa_register 7
-  39:../Sources/TFC/TFC_UART.c **** 	if(BytesInQueue(&SDA_SERIAL_OUTGOING_QUEUE)>0 && (UART0_S1 & UART_S1_TDRE_MASK))
- 163              		.loc 1 39 0
- 164 0004 0C4B     		ldr	r3, .L6
- 165 0006 181C     		mov	r0, r3
- 166 0008 FFF7FEFF 		bl	BytesInQueue
- 167 000c 031C     		mov	r3, r0
- 168 000e 002B     		cmp	r3, #0
- 169 0010 0FD0     		beq	.L4
- 170              		.loc 1 39 0 is_stmt 0
- 171 0012 0A4B     		ldr	r3, .L6+4
- 172 0014 1B79     		ldrb	r3, [r3, #4]
- 173 0016 DBB2     		uxtb	r3, r3
- 174 0018 DBB2     		uxtb	r3, r3
- 175 001a 5BB2     		sxtb	r3, r3
- 176 001c 002B     		cmp	r3, #0
- 177 001e 08DA     		bge	.L4
-  40:../Sources/TFC/TFC_UART.c **** 			UART0_C2 |= UART_C2_TIE_MASK; //Enable Transmitter Interrupts
- 178              		.loc 1 40 0 is_stmt 1
- 179 0020 064B     		ldr	r3, .L6+4
- 180 0022 064A     		ldr	r2, .L6+4
- 181 0024 D278     		ldrb	r2, [r2, #3]
- 182 0026 D2B2     		uxtb	r2, r2
- 183 0028 8021     		mov	r1, #128
- 184 002a 4942     		neg	r1, r1
- 185 002c 0A43     		orr	r2, r1
- 186 002e D2B2     		uxtb	r2, r2
- 187 0030 DA70     		strb	r2, [r3, #3]
- 188              	.L4:
-  41:../Sources/TFC/TFC_UART.c **** }
- 189              		.loc 1 41 0
- 190 0032 BD46     		mov	sp, r7
- 191              		@ sp needed for prologue
- 192 0034 80BD     		pop	{r7, pc}
- 193              	.L7:
- 194 0036 C046     		.align	2
- 195              	.L6:
- 196 0038 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE
- 197 003c 00A00640 		.word	1074176000
- 198              		.cfi_endproc
- 199              	.LFE1:
- 201              		.section	.text.UART0_IRQHandler,"ax",%progbits
- 202              		.align	2
- 203              		.global	UART0_IRQHandler
- 204              		.code	16
- 205              		.thumb_func
- 207              	UART0_IRQHandler:
- 208              	.LFB2:
+  12:../Sources/TFC/TFC_UART.c **** uint8_t SDA_SERIAL_OUTGOING_QUEUE_Storage[SDA_SERIAL_OUTGOING_QUEUE_SIZE];
+  13:../Sources/TFC/TFC_UART.c **** uint8_t SDA_SERIAL_INCOMING_QUEUE_Storage[SDA_SERIAL_INCOMING_QUEUE_SIZE];
+  14:../Sources/TFC/TFC_UART.c **** 
+  15:../Sources/TFC/TFC_UART.c **** uint8_t XBEE_SERIAL_OUTGOING_QUEUE_Storage[XBEE_SERIAL_OUTGOING_QUEUE_SIZE];
+  16:../Sources/TFC/TFC_UART.c **** uint8_t XBEE_SERIAL_INCOMING_QUEUE_Storage[XBEE_SERIAL_INCOMING_QUEUE_SIZE];
+  17:../Sources/TFC/TFC_UART.c **** 
+  18:../Sources/TFC/TFC_UART.c **** void TFC_InitUARTs() {
+  34              		.loc 1 18 0
+  35              		.cfi_startproc
+  36 0000 80B5     		push	{r7, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  41 0002 00AF     		add	r7, sp, #0
+  42              	.LCFI1:
+  43              		.cfi_def_cfa_register 7
+  19:../Sources/TFC/TFC_UART.c **** 	SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
+  44              		.loc 1 19 0
+  45 0004 344A     		ldr	r2, .L2
+  46 0006 3449     		ldr	r1, .L2
+  47 0008 344B     		ldr	r3, .L2+4
+  48 000a CB58     		ldr	r3, [r1, r3]
+  49 000c 8021     		mov	r1, #128
+  50 000e 8900     		lsl	r1, r1, #2
+  51 0010 1943     		orr	r1, r3
+  52 0012 324B     		ldr	r3, .L2+4
+  53 0014 D150     		str	r1, [r2, r3]
+  20:../Sources/TFC/TFC_UART.c **** 
+  21:../Sources/TFC/TFC_UART.c **** 	InitByteQueue(&SDA_SERIAL_OUTGOING_QUEUE, SDA_SERIAL_OUTGOING_QUEUE_SIZE,
+  54              		.loc 1 21 0
+  55 0016 3249     		ldr	r1, .L2+8
+  56 0018 8023     		mov	r3, #128
+  57 001a 1A01     		lsl	r2, r3, #4
+  58 001c 314B     		ldr	r3, .L2+12
+  59 001e 081C     		mov	r0, r1
+  60 0020 111C     		mov	r1, r2
+  61 0022 1A1C     		mov	r2, r3
+  62 0024 FFF7FEFF 		bl	InitByteQueue
+  22:../Sources/TFC/TFC_UART.c **** 			SDA_SERIAL_OUTGOING_QUEUE_Storage);
+  23:../Sources/TFC/TFC_UART.c **** 	InitByteQueue(&SDA_SERIAL_INCOMING_QUEUE, SDA_SERIAL_INCOMING_QUEUE_SIZE,
+  63              		.loc 1 23 0
+  64 0028 2F4A     		ldr	r2, .L2+16
+  65 002a 304B     		ldr	r3, .L2+20
+  66 002c 101C     		mov	r0, r2
+  67 002e 8021     		mov	r1, #128
+  68 0030 1A1C     		mov	r2, r3
+  69 0032 FFF7FEFF 		bl	InitByteQueue
+  24:../Sources/TFC/TFC_UART.c **** 			SDA_SERIAL_INCOMING_QUEUE_Storage);
+  25:../Sources/TFC/TFC_UART.c **** 
+  26:../Sources/TFC/TFC_UART.c **** 	PORTA_PCR1 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
+  70              		.loc 1 26 0
+  71 0036 2E4B     		ldr	r3, .L2+24
+  72 0038 9022     		mov	r2, #144
+  73 003a 9200     		lsl	r2, r2, #2
+  74 003c 5A60     		str	r2, [r3, #4]
+  27:../Sources/TFC/TFC_UART.c **** 	PORTA_PCR2 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
+  75              		.loc 1 27 0
+  76 003e 2C4B     		ldr	r3, .L2+24
+  77 0040 9022     		mov	r2, #144
+  78 0042 9200     		lsl	r2, r2, #2
+  79 0044 9A60     		str	r2, [r3, #8]
+  28:../Sources/TFC/TFC_UART.c **** 
+  29:../Sources/TFC/TFC_UART.c **** 	//Sortie UART 2
+  30:../Sources/TFC/TFC_UART.c **** 	PORTD_PCR2 = PORT_PCR_MUX(3) | PORT_PCR_DSE_MASK;
+  80              		.loc 1 30 0
+  81 0046 2B4B     		ldr	r3, .L2+28
+  82 0048 D022     		mov	r2, #208
+  83 004a 9200     		lsl	r2, r2, #2
+  84 004c 9A60     		str	r2, [r3, #8]
+  31:../Sources/TFC/TFC_UART.c **** 	PORTD_PCR3 = PORT_PCR_MUX(3) | PORT_PCR_DSE_MASK;
+  85              		.loc 1 31 0
+  86 004e 294B     		ldr	r3, .L2+28
+  87 0050 D022     		mov	r2, #208
+  88 0052 9200     		lsl	r2, r2, #2
+  89 0054 DA60     		str	r2, [r3, #12]
+  32:../Sources/TFC/TFC_UART.c **** 
+  33:../Sources/TFC/TFC_UART.c **** 	//Select PLL/2 Clock
+  34:../Sources/TFC/TFC_UART.c **** 	SIM_SOPT2 &= ~(3 << 26);
+  90              		.loc 1 34 0
+  91 0056 204A     		ldr	r2, .L2
+  92 0058 1F49     		ldr	r1, .L2
+  93 005a 274B     		ldr	r3, .L2+32
+  94 005c C958     		ldr	r1, [r1, r3]
+  95 005e 274B     		ldr	r3, .L2+36
+  96 0060 1940     		and	r1, r3
+  97 0062 254B     		ldr	r3, .L2+32
+  98 0064 D150     		str	r1, [r2, r3]
+  35:../Sources/TFC/TFC_UART.c **** 	SIM_SOPT2 |= SIM_SOPT2_UART0SRC(1);
+  99              		.loc 1 35 0
+ 100 0066 1C4A     		ldr	r2, .L2
+ 101 0068 1B49     		ldr	r1, .L2
+ 102 006a 234B     		ldr	r3, .L2+32
+ 103 006c CB58     		ldr	r3, [r1, r3]
+ 104 006e 8021     		mov	r1, #128
+ 105 0070 C904     		lsl	r1, r1, #19
+ 106 0072 1943     		orr	r1, r3
+ 107 0074 204B     		ldr	r3, .L2+32
+ 108 0076 D150     		str	r1, [r2, r3]
+  36:../Sources/TFC/TFC_UART.c **** 	SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
+ 109              		.loc 1 36 0
+ 110 0078 174A     		ldr	r2, .L2
+ 111 007a 1749     		ldr	r1, .L2
+ 112 007c 1E4B     		ldr	r3, .L2+32
+ 113 007e CB58     		ldr	r3, [r1, r3]
+ 114 0080 8021     		mov	r1, #128
+ 115 0082 4902     		lsl	r1, r1, #9
+ 116 0084 1943     		orr	r1, r3
+ 117 0086 1C4B     		ldr	r3, .L2+32
+ 118 0088 D150     		str	r1, [r2, r3]
+  37:../Sources/TFC/TFC_UART.c **** 
+  38:../Sources/TFC/TFC_UART.c **** 	//We have to feed this function the clock in KHz!
+  39:../Sources/TFC/TFC_UART.c **** 	uart0_init(CORE_CLOCK / 2 / 1000, SDA_SERIAL_BAUD);
+ 119              		.loc 1 39 0
+ 120 008a 1D4A     		ldr	r2, .L2+40
+ 121 008c E123     		mov	r3, #225
+ 122 008e 5B02     		lsl	r3, r3, #9
+ 123 0090 101C     		mov	r0, r2
+ 124 0092 191C     		mov	r1, r3
+ 125 0094 FFF7FEFF 		bl	uart0_init
+  40:../Sources/TFC/TFC_UART.c **** 	//We have to feed this function the clock in KHz!
+  41:../Sources/TFC/TFC_UART.c **** 	uart2_init(PERIPHERAL_BUS_CLOCK / 1000, XBEE_SERIAL_BAUD);
+ 126              		.loc 1 41 0
+ 127 0098 194A     		ldr	r2, .L2+40
+ 128 009a 9623     		mov	r3, #150
+ 129 009c 9B01     		lsl	r3, r3, #6
+ 130 009e 101C     		mov	r0, r2
+ 131 00a0 191C     		mov	r1, r3
+ 132 00a2 FFF7FEFF 		bl	uart2_init
   42:../Sources/TFC/TFC_UART.c **** 
-  43:../Sources/TFC/TFC_UART.c **** 
-  44:../Sources/TFC/TFC_UART.c **** void UART0_IRQHandler()
-  45:../Sources/TFC/TFC_UART.c **** {
- 209              		.loc 1 45 0
- 210              		.cfi_startproc
- 211 0000 80B5     		push	{r7, lr}
- 212              	.LCFI4:
- 213              		.cfi_def_cfa_offset 8
- 214              		.cfi_offset 7, -8
- 215              		.cfi_offset 14, -4
- 216 0002 82B0     		sub	sp, sp, #8
- 217              	.LCFI5:
- 218              		.cfi_def_cfa_offset 16
- 219 0004 00AF     		add	r7, sp, #0
- 220              	.LCFI6:
- 221              		.cfi_def_cfa_register 7
-  46:../Sources/TFC/TFC_UART.c **** 	uint8_t Temp;
-  47:../Sources/TFC/TFC_UART.c **** 		
-  48:../Sources/TFC/TFC_UART.c **** 	if(UART0_S1 & UART_S1_RDRF_MASK)
- 222              		.loc 1 48 0
- 223 0006 194B     		ldr	r3, .L12
- 224 0008 1B79     		ldrb	r3, [r3, #4]
- 225 000a DBB2     		uxtb	r3, r3
- 226 000c 1A1C     		mov	r2, r3
- 227 000e 2023     		mov	r3, #32
- 228 0010 1340     		and	r3, r2
- 229 0012 07D0     		beq	.L9
-  49:../Sources/TFC/TFC_UART.c **** 	{
-  50:../Sources/TFC/TFC_UART.c **** 		ByteEnqueue(&SDA_SERIAL_INCOMING_QUEUE,UART0_D);
- 230              		.loc 1 50 0
- 231 0014 154B     		ldr	r3, .L12
- 232 0016 DB79     		ldrb	r3, [r3, #7]
- 233 0018 DBB2     		uxtb	r3, r3
- 234 001a 154A     		ldr	r2, .L12+4
- 235 001c 101C     		mov	r0, r2
- 236 001e 191C     		mov	r1, r3
- 237 0020 FFF7FEFF 		bl	ByteEnqueue
- 238              	.L9:
-  51:../Sources/TFC/TFC_UART.c **** 	}
-  52:../Sources/TFC/TFC_UART.c **** 	if(UART0_S1 & UART_S1_TDRE_MASK)
- 239              		.loc 1 52 0
- 240 0024 114B     		ldr	r3, .L12
- 241 0026 1B79     		ldrb	r3, [r3, #4]
- 242 0028 DBB2     		uxtb	r3, r3
- 243 002a DBB2     		uxtb	r3, r3
- 244 002c 5BB2     		sxtb	r3, r3
- 245 002e 002B     		cmp	r3, #0
- 246 0030 19DA     		bge	.L8
-  53:../Sources/TFC/TFC_UART.c **** 	{
-  54:../Sources/TFC/TFC_UART.c **** 		if(BytesInQueue(&SDA_SERIAL_OUTGOING_QUEUE)>0)
- 247              		.loc 1 54 0
- 248 0032 104B     		ldr	r3, .L12+8
- 249 0034 181C     		mov	r0, r3
- 250 0036 FFF7FEFF 		bl	BytesInQueue
- 251 003a 031C     		mov	r3, r0
- 252 003c 002B     		cmp	r3, #0
- 253 003e 0AD0     		beq	.L11
-  55:../Sources/TFC/TFC_UART.c **** 		{
-  56:../Sources/TFC/TFC_UART.c **** 			ByteDequeue(&SDA_SERIAL_OUTGOING_QUEUE,&Temp);
- 254              		.loc 1 56 0
- 255 0040 0C4A     		ldr	r2, .L12+8
- 256 0042 FB1D     		add	r3, r7, #7
- 257 0044 101C     		mov	r0, r2
- 258 0046 191C     		mov	r1, r3
- 259 0048 FFF7FEFF 		bl	ByteDequeue
-  57:../Sources/TFC/TFC_UART.c **** 			UART0_D = Temp;
- 260              		.loc 1 57 0
- 261 004c 074B     		ldr	r3, .L12
- 262 004e FA1D     		add	r2, r7, #7
- 263 0050 1278     		ldrb	r2, [r2]
- 264 0052 DA71     		strb	r2, [r3, #7]
- 265 0054 07E0     		b	.L8
- 266              	.L11:
-  58:../Sources/TFC/TFC_UART.c **** 		}
-  59:../Sources/TFC/TFC_UART.c **** 		else
-  60:../Sources/TFC/TFC_UART.c **** 		{
-  61:../Sources/TFC/TFC_UART.c **** 			//if there is nothing left in the queue then disable interrupts
-  62:../Sources/TFC/TFC_UART.c **** 			UART0_C2 &= ~UART_C2_TIE_MASK; //Disable the  Interrupts
- 267              		.loc 1 62 0
- 268 0056 054B     		ldr	r3, .L12
- 269 0058 044A     		ldr	r2, .L12
- 270 005a D278     		ldrb	r2, [r2, #3]
- 271 005c D1B2     		uxtb	r1, r2
- 272 005e 7F22     		mov	r2, #127
- 273 0060 0A40     		and	r2, r1
- 274 0062 D2B2     		uxtb	r2, r2
- 275 0064 DA70     		strb	r2, [r3, #3]
- 276              	.L8:
-  63:../Sources/TFC/TFC_UART.c **** 		}
+  43:../Sources/TFC/TFC_UART.c **** 	//Enable recieve interrupts
+  44:../Sources/TFC/TFC_UART.c **** 
+  45:../Sources/TFC/TFC_UART.c **** 	UART0_C2 |= UART_C2_RIE_MASK;
+ 133              		.loc 1 45 0
+ 134 00a6 174B     		ldr	r3, .L2+44
+ 135 00a8 164A     		ldr	r2, .L2+44
+ 136 00aa D278     		ldrb	r2, [r2, #3]
+ 137 00ac D2B2     		uxtb	r2, r2
+ 138 00ae 2021     		mov	r1, #32
+ 139 00b0 0A43     		orr	r2, r1
+ 140 00b2 D2B2     		uxtb	r2, r2
+ 141 00b4 DA70     		strb	r2, [r3, #3]
+  46:../Sources/TFC/TFC_UART.c **** 	enable_irq(INT_UART0 - 16);
+ 142              		.loc 1 46 0
+ 143 00b6 0C20     		mov	r0, #12
+ 144 00b8 FFF7FEFF 		bl	enable_irq
+  47:../Sources/TFC/TFC_UART.c **** 
+  48:../Sources/TFC/TFC_UART.c **** 	UART2_C2 |= UART_C2_RIE_MASK;
+ 145              		.loc 1 48 0
+ 146 00bc 124B     		ldr	r3, .L2+48
+ 147 00be 124A     		ldr	r2, .L2+48
+ 148 00c0 D278     		ldrb	r2, [r2, #3]
+ 149 00c2 D2B2     		uxtb	r2, r2
+ 150 00c4 2021     		mov	r1, #32
+ 151 00c6 0A43     		orr	r2, r1
+ 152 00c8 D2B2     		uxtb	r2, r2
+ 153 00ca DA70     		strb	r2, [r3, #3]
+  49:../Sources/TFC/TFC_UART.c **** 	enable_irq(INT_UART2 - 16);
+ 154              		.loc 1 49 0
+ 155 00cc 0E20     		mov	r0, #14
+ 156 00ce FFF7FEFF 		bl	enable_irq
+  50:../Sources/TFC/TFC_UART.c **** 
+  51:../Sources/TFC/TFC_UART.c **** }
+ 157              		.loc 1 51 0
+ 158 00d2 BD46     		mov	sp, r7
+ 159              		@ sp needed for prologue
+ 160 00d4 80BD     		pop	{r7, pc}
+ 161              	.L3:
+ 162 00d6 C046     		.align	2
+ 163              	.L2:
+ 164 00d8 00700440 		.word	1074032640
+ 165 00dc 38100000 		.word	4152
+ 166 00e0 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE
+ 167 00e4 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE_Storage
+ 168 00e8 00000000 		.word	SDA_SERIAL_INCOMING_QUEUE
+ 169 00ec 00000000 		.word	SDA_SERIAL_INCOMING_QUEUE_Storage
+ 170 00f0 00900440 		.word	1074040832
+ 171 00f4 00C00440 		.word	1074053120
+ 172 00f8 04100000 		.word	4100
+ 173 00fc FFFFFFF3 		.word	-201326593
+ 174 0100 C05D0000 		.word	24000
+ 175 0104 00A00640 		.word	1074176000
+ 176 0108 00C00640 		.word	1074184192
+ 177              		.cfi_endproc
+ 178              	.LFE0:
+ 180              		.section	.text.TFC_UART_Process,"ax",%progbits
+ 181              		.align	2
+ 182              		.global	TFC_UART_Process
+ 183              		.code	16
+ 184              		.thumb_func
+ 186              	TFC_UART_Process:
+ 187              	.LFB1:
+  52:../Sources/TFC/TFC_UART.c **** 
+  53:../Sources/TFC/TFC_UART.c **** void TFC_UART_Process() {
+ 188              		.loc 1 53 0
+ 189              		.cfi_startproc
+ 190 0000 80B5     		push	{r7, lr}
+ 191              	.LCFI2:
+ 192              		.cfi_def_cfa_offset 8
+ 193              		.cfi_offset 7, -8
+ 194              		.cfi_offset 14, -4
+ 195 0002 00AF     		add	r7, sp, #0
+ 196              	.LCFI3:
+ 197              		.cfi_def_cfa_register 7
+  54:../Sources/TFC/TFC_UART.c **** 	if (BytesInQueue(&SDA_SERIAL_OUTGOING_QUEUE) > 0
+ 198              		.loc 1 54 0
+ 199 0004 0C4B     		ldr	r3, .L6
+ 200 0006 181C     		mov	r0, r3
+ 201 0008 FFF7FEFF 		bl	BytesInQueue
+ 202 000c 031C     		mov	r3, r0
+ 203 000e 002B     		cmp	r3, #0
+ 204 0010 0FD0     		beq	.L4
+  55:../Sources/TFC/TFC_UART.c **** 			&& (UART0_S1 & UART_S1_TDRE_MASK))
+ 205              		.loc 1 55 0
+ 206 0012 0A4B     		ldr	r3, .L6+4
+ 207 0014 1B79     		ldrb	r3, [r3, #4]
+ 208 0016 DBB2     		uxtb	r3, r3
+ 209 0018 DBB2     		uxtb	r3, r3
+ 210 001a 5BB2     		sxtb	r3, r3
+ 211 001c 002B     		cmp	r3, #0
+ 212 001e 08DA     		bge	.L4
+  56:../Sources/TFC/TFC_UART.c **** 		UART0_C2 |= UART_C2_TIE_MASK; //Enable Transmitter Interrupts
+ 213              		.loc 1 56 0
+ 214 0020 064B     		ldr	r3, .L6+4
+ 215 0022 064A     		ldr	r2, .L6+4
+ 216 0024 D278     		ldrb	r2, [r2, #3]
+ 217 0026 D2B2     		uxtb	r2, r2
+ 218 0028 8021     		mov	r1, #128
+ 219 002a 4942     		neg	r1, r1
+ 220 002c 0A43     		orr	r2, r1
+ 221 002e D2B2     		uxtb	r2, r2
+ 222 0030 DA70     		strb	r2, [r3, #3]
+ 223              	.L4:
+  57:../Sources/TFC/TFC_UART.c **** }
+ 224              		.loc 1 57 0
+ 225 0032 BD46     		mov	sp, r7
+ 226              		@ sp needed for prologue
+ 227 0034 80BD     		pop	{r7, pc}
+ 228              	.L7:
+ 229 0036 C046     		.align	2
+ 230              	.L6:
+ 231 0038 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE
+ 232 003c 00A00640 		.word	1074176000
+ 233              		.cfi_endproc
+ 234              	.LFE1:
+ 236              		.section	.text.UART0_IRQHandler,"ax",%progbits
+ 237              		.align	2
+ 238              		.global	UART0_IRQHandler
+ 239              		.code	16
+ 240              		.thumb_func
+ 242              	UART0_IRQHandler:
+ 243              	.LFB2:
+  58:../Sources/TFC/TFC_UART.c **** 
+  59:../Sources/TFC/TFC_UART.c **** void UART0_IRQHandler() {
+ 244              		.loc 1 59 0
+ 245              		.cfi_startproc
+ 246 0000 80B5     		push	{r7, lr}
+ 247              	.LCFI4:
+ 248              		.cfi_def_cfa_offset 8
+ 249              		.cfi_offset 7, -8
+ 250              		.cfi_offset 14, -4
+ 251 0002 82B0     		sub	sp, sp, #8
+ 252              	.LCFI5:
+ 253              		.cfi_def_cfa_offset 16
+ 254 0004 00AF     		add	r7, sp, #0
+ 255              	.LCFI6:
+ 256              		.cfi_def_cfa_register 7
+  60:../Sources/TFC/TFC_UART.c **** 	uint8_t Temp;
+  61:../Sources/TFC/TFC_UART.c **** 
+  62:../Sources/TFC/TFC_UART.c **** 	if (UART0_S1 & UART_S1_RDRF_MASK) {
+ 257              		.loc 1 62 0
+ 258 0006 194B     		ldr	r3, .L12
+ 259 0008 1B79     		ldrb	r3, [r3, #4]
+ 260 000a DBB2     		uxtb	r3, r3
+ 261 000c 1A1C     		mov	r2, r3
+ 262 000e 2023     		mov	r3, #32
+ 263 0010 1340     		and	r3, r2
+ 264 0012 07D0     		beq	.L9
+  63:../Sources/TFC/TFC_UART.c **** 		ByteEnqueue(&SDA_SERIAL_INCOMING_QUEUE, UART0_D);
+ 265              		.loc 1 63 0
+ 266 0014 154B     		ldr	r3, .L12
+ 267 0016 DB79     		ldrb	r3, [r3, #7]
+ 268 0018 DBB2     		uxtb	r3, r3
+ 269 001a 154A     		ldr	r2, .L12+4
+ 270 001c 101C     		mov	r0, r2
+ 271 001e 191C     		mov	r1, r3
+ 272 0020 FFF7FEFF 		bl	ByteEnqueue
+ 273              	.L9:
   64:../Sources/TFC/TFC_UART.c **** 	}
-  65:../Sources/TFC/TFC_UART.c **** }
- 277              		.loc 1 65 0
- 278 0066 BD46     		mov	sp, r7
- 279 0068 02B0     		add	sp, sp, #8
- 280              		@ sp needed for prologue
- 281 006a 80BD     		pop	{r7, pc}
- 282              	.L13:
- 283              		.align	2
- 284              	.L12:
- 285 006c 00A00640 		.word	1074176000
- 286 0070 00000000 		.word	SDA_SERIAL_INCOMING_QUEUE
- 287 0074 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE
- 288              		.cfi_endproc
- 289              	.LFE2:
- 291              		.global	__aeabi_uidiv
- 292              		.section	.text.uart0_init,"ax",%progbits
- 293              		.align	2
- 294              		.global	uart0_init
- 295              		.code	16
- 296              		.thumb_func
- 298              	uart0_init:
- 299              	.LFB3:
-  66:../Sources/TFC/TFC_UART.c **** 
-  67:../Sources/TFC/TFC_UART.c **** 
-  68:../Sources/TFC/TFC_UART.c **** 
-  69:../Sources/TFC/TFC_UART.c **** void uart0_init (int sysclk, int baud)
-  70:../Sources/TFC/TFC_UART.c **** {
- 300              		.loc 1 70 0
- 301              		.cfi_startproc
- 302 0000 80B5     		push	{r7, lr}
- 303              	.LCFI7:
- 304              		.cfi_def_cfa_offset 8
- 305              		.cfi_offset 7, -8
- 306              		.cfi_offset 14, -4
- 307 0002 8CB0     		sub	sp, sp, #48
- 308              	.LCFI8:
- 309              		.cfi_def_cfa_offset 56
- 310 0004 00AF     		add	r7, sp, #0
- 311              	.LCFI9:
- 312              		.cfi_def_cfa_register 7
- 313 0006 7860     		str	r0, [r7, #4]
- 314 0008 3960     		str	r1, [r7]
-  71:../Sources/TFC/TFC_UART.c ****     uint8 i;
-  72:../Sources/TFC/TFC_UART.c ****     uint32 calculated_baud = 0;
- 315              		.loc 1 72 0
- 316 000a 0023     		mov	r3, #0
- 317 000c FB61     		str	r3, [r7, #28]
-  73:../Sources/TFC/TFC_UART.c ****     uint32 baud_diff = 0;
- 318              		.loc 1 73 0
- 319 000e 0023     		mov	r3, #0
- 320 0010 BB62     		str	r3, [r7, #40]
-  74:../Sources/TFC/TFC_UART.c ****     uint32 osr_val = 0;
- 321              		.loc 1 74 0
- 322 0012 0023     		mov	r3, #0
- 323 0014 7B62     		str	r3, [r7, #36]
-  75:../Sources/TFC/TFC_UART.c ****     uint32 sbr_val, uart0clk;
-  76:../Sources/TFC/TFC_UART.c ****     uint32 baud_rate;
-  77:../Sources/TFC/TFC_UART.c ****     uint32 reg_temp = 0;
- 324              		.loc 1 77 0
- 325 0016 0023     		mov	r3, #0
- 326 0018 BB61     		str	r3, [r7, #24]
-  78:../Sources/TFC/TFC_UART.c ****     uint32 temp = 0;
- 327              		.loc 1 78 0
- 328 001a 0023     		mov	r3, #0
- 329 001c 3B62     		str	r3, [r7, #32]
-  79:../Sources/TFC/TFC_UART.c ****     
-  80:../Sources/TFC/TFC_UART.c ****     SIM_SCGC4 |= SIM_SCGC4_UART0_MASK;
- 330              		.loc 1 80 0
- 331 001e 7D4A     		ldr	r2, .L27
- 332 0020 7C49     		ldr	r1, .L27
- 333 0022 7D4B     		ldr	r3, .L27+4
- 334 0024 CB58     		ldr	r3, [r1, r3]
- 335 0026 8021     		mov	r1, #128
- 336 0028 C900     		lsl	r1, r1, #3
- 337 002a 1943     		orr	r1, r3
- 338 002c 7A4B     		ldr	r3, .L27+4
- 339 002e D150     		str	r1, [r2, r3]
-  81:../Sources/TFC/TFC_UART.c ****     
-  82:../Sources/TFC/TFC_UART.c ****     // Disable UART0 before changing registers
-  83:../Sources/TFC/TFC_UART.c ****     UART0_C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
- 340              		.loc 1 83 0
- 341 0030 7A4B     		ldr	r3, .L27+8
- 342 0032 7A4A     		ldr	r2, .L27+8
- 343 0034 D278     		ldrb	r2, [r2, #3]
- 344 0036 D2B2     		uxtb	r2, r2
- 345 0038 0C21     		mov	r1, #12
- 346 003a 8A43     		bic	r2, r1
- 347 003c D2B2     		uxtb	r2, r2
- 348 003e DA70     		strb	r2, [r3, #3]
-  84:../Sources/TFC/TFC_UART.c ****   
-  85:../Sources/TFC/TFC_UART.c ****     // Verify that a valid clock value has been passed to the function 
-  86:../Sources/TFC/TFC_UART.c ****     if ((sysclk > 50000) || (sysclk < 32))
- 349              		.loc 1 86 0
- 350 0040 7A68     		ldr	r2, [r7, #4]
- 351 0042 774B     		ldr	r3, .L27+12
- 352 0044 9A42     		cmp	r2, r3
- 353 0046 02DC     		bgt	.L15
- 354              		.loc 1 86 0 is_stmt 0
- 355 0048 7B68     		ldr	r3, [r7, #4]
- 356 004a 1F2B     		cmp	r3, #31
- 357 004c 0EDC     		bgt	.L16
- 358              	.L15:
-  87:../Sources/TFC/TFC_UART.c ****     {
-  88:../Sources/TFC/TFC_UART.c ****         sysclk = 0;
- 359              		.loc 1 88 0 is_stmt 1
- 360 004e 0023     		mov	r3, #0
- 361 0050 7B60     		str	r3, [r7, #4]
-  89:../Sources/TFC/TFC_UART.c ****         reg_temp = SIM_SOPT2;
- 362              		.loc 1 89 0
- 363 0052 704A     		ldr	r2, .L27
- 364 0054 734B     		ldr	r3, .L27+16
- 365 0056 D358     		ldr	r3, [r2, r3]
- 366 0058 BB61     		str	r3, [r7, #24]
-  90:../Sources/TFC/TFC_UART.c ****         reg_temp &= ~SIM_SOPT2_UART0SRC_MASK;
- 367              		.loc 1 90 0
- 368 005a BA69     		ldr	r2, [r7, #24]
- 369 005c 724B     		ldr	r3, .L27+20
- 370 005e 1340     		and	r3, r2
- 371 0060 BB61     		str	r3, [r7, #24]
-  91:../Sources/TFC/TFC_UART.c ****         reg_temp |= SIM_SOPT2_UART0SRC(0);
-  92:../Sources/TFC/TFC_UART.c ****         SIM_SOPT2 = reg_temp;
- 372              		.loc 1 92 0
- 373 0062 6C4A     		ldr	r2, .L27
- 374 0064 6F4B     		ldr	r3, .L27+16
- 375 0066 B969     		ldr	r1, [r7, #24]
- 376 0068 D150     		str	r1, [r2, r3]
- 377              	.L17:
-  93:../Sources/TFC/TFC_UART.c **** 			
-  94:../Sources/TFC/TFC_UART.c **** 			  // Enter inifinite loop because the 
-  95:../Sources/TFC/TFC_UART.c **** 			  // the desired system clock value is 
-  96:../Sources/TFC/TFC_UART.c **** 			  // invalid!!
-  97:../Sources/TFC/TFC_UART.c **** 			  while(1)
-  98:../Sources/TFC/TFC_UART.c **** 				{}
- 378              		.loc 1 98 0
- 379 006a FEE7     		b	.L17
- 380              	.L16:
-  99:../Sources/TFC/TFC_UART.c ****     }
- 100:../Sources/TFC/TFC_UART.c ****    
- 101:../Sources/TFC/TFC_UART.c ****     
- 102:../Sources/TFC/TFC_UART.c ****     // Initialize baud rate
- 103:../Sources/TFC/TFC_UART.c ****     baud_rate = baud;
- 381              		.loc 1 103 0
- 382 006c 3B68     		ldr	r3, [r7]
- 383 006e 7B61     		str	r3, [r7, #20]
- 104:../Sources/TFC/TFC_UART.c ****     
- 105:../Sources/TFC/TFC_UART.c ****     // Change units to Hz
- 106:../Sources/TFC/TFC_UART.c ****     uart0clk = sysclk * 1000;
- 384              		.loc 1 106 0
- 385 0070 7B68     		ldr	r3, [r7, #4]
- 386 0072 FA22     		mov	r2, #250
- 387 0074 9200     		lsl	r2, r2, #2
- 388 0076 5343     		mul	r3, r2
- 389 0078 3B61     		str	r3, [r7, #16]
- 107:../Sources/TFC/TFC_UART.c ****     // Calculate the first baud rate using the lowest OSR value possible.  
- 108:../Sources/TFC/TFC_UART.c ****     i = 4;
- 390              		.loc 1 108 0
- 391 007a 3B1C     		mov	r3, r7
- 392 007c 2F33     		add	r3, r3, #47
- 393 007e 0422     		mov	r2, #4
- 394 0080 1A70     		strb	r2, [r3]
- 109:../Sources/TFC/TFC_UART.c ****     sbr_val = (uint32)(uart0clk/(baud_rate * i));
- 395              		.loc 1 109 0
- 396 0082 3B1C     		mov	r3, r7
- 397 0084 2F33     		add	r3, r3, #47
- 398 0086 1B78     		ldrb	r3, [r3]
- 399 0088 7A69     		ldr	r2, [r7, #20]
- 400 008a 5343     		mul	r3, r2
- 401 008c 3869     		ldr	r0, [r7, #16]
- 402 008e 191C     		mov	r1, r3
- 403 0090 FFF7FEFF 		bl	__aeabi_uidiv
- 404 0094 031C     		mov	r3, r0
- 405 0096 FB60     		str	r3, [r7, #12]
- 110:../Sources/TFC/TFC_UART.c ****     calculated_baud = (uart0clk / (i * sbr_val));
- 406              		.loc 1 110 0
- 407 0098 3B1C     		mov	r3, r7
- 408 009a 2F33     		add	r3, r3, #47
- 409 009c 1B78     		ldrb	r3, [r3]
- 410 009e FA68     		ldr	r2, [r7, #12]
- 411 00a0 5343     		mul	r3, r2
- 412 00a2 3869     		ldr	r0, [r7, #16]
- 413 00a4 191C     		mov	r1, r3
- 414 00a6 FFF7FEFF 		bl	__aeabi_uidiv
- 415 00aa 031C     		mov	r3, r0
- 416 00ac FB61     		str	r3, [r7, #28]
- 111:../Sources/TFC/TFC_UART.c ****         
- 112:../Sources/TFC/TFC_UART.c ****     if (calculated_baud > baud_rate)
- 417              		.loc 1 112 0
- 418 00ae FA69     		ldr	r2, [r7, #28]
- 419 00b0 7B69     		ldr	r3, [r7, #20]
- 420 00b2 9A42     		cmp	r2, r3
- 421 00b4 04D9     		bls	.L18
- 113:../Sources/TFC/TFC_UART.c ****         baud_diff = calculated_baud - baud_rate;
- 422              		.loc 1 113 0
- 423 00b6 FA69     		ldr	r2, [r7, #28]
- 424 00b8 7B69     		ldr	r3, [r7, #20]
- 425 00ba D31A     		sub	r3, r2, r3
- 426 00bc BB62     		str	r3, [r7, #40]
- 427 00be 03E0     		b	.L19
- 428              	.L18:
- 114:../Sources/TFC/TFC_UART.c ****     else
- 115:../Sources/TFC/TFC_UART.c ****         baud_diff = baud_rate - calculated_baud;
- 429              		.loc 1 115 0
- 430 00c0 7A69     		ldr	r2, [r7, #20]
- 431 00c2 FB69     		ldr	r3, [r7, #28]
- 432 00c4 D31A     		sub	r3, r2, r3
- 433 00c6 BB62     		str	r3, [r7, #40]
- 434              	.L19:
- 116:../Sources/TFC/TFC_UART.c ****     
- 117:../Sources/TFC/TFC_UART.c ****     osr_val = i;
- 435              		.loc 1 117 0
- 436 00c8 3B1C     		mov	r3, r7
- 437 00ca 2F33     		add	r3, r3, #47
- 438 00cc 1B78     		ldrb	r3, [r3]
- 439 00ce 7B62     		str	r3, [r7, #36]
- 118:../Sources/TFC/TFC_UART.c ****         
- 119:../Sources/TFC/TFC_UART.c ****     // Select the best OSR value
- 120:../Sources/TFC/TFC_UART.c ****     for (i = 5; i <= 32; i++)
- 440              		.loc 1 120 0
- 441 00d0 3B1C     		mov	r3, r7
- 442 00d2 2F33     		add	r3, r3, #47
- 443 00d4 0522     		mov	r2, #5
- 444 00d6 1A70     		strb	r2, [r3]
- 445 00d8 33E0     		b	.L20
- 446              	.L24:
- 121:../Sources/TFC/TFC_UART.c ****     {
- 122:../Sources/TFC/TFC_UART.c ****         sbr_val = (uint32)(uart0clk/(baud_rate * i));
- 447              		.loc 1 122 0
- 448 00da 3B1C     		mov	r3, r7
- 449 00dc 2F33     		add	r3, r3, #47
- 450 00de 1B78     		ldrb	r3, [r3]
- 451 00e0 7A69     		ldr	r2, [r7, #20]
- 452 00e2 5343     		mul	r3, r2
- 453 00e4 3869     		ldr	r0, [r7, #16]
- 454 00e6 191C     		mov	r1, r3
- 455 00e8 FFF7FEFF 		bl	__aeabi_uidiv
- 456 00ec 031C     		mov	r3, r0
- 457 00ee FB60     		str	r3, [r7, #12]
- 123:../Sources/TFC/TFC_UART.c ****         calculated_baud = (uart0clk / (i * sbr_val));
- 458              		.loc 1 123 0
- 459 00f0 3B1C     		mov	r3, r7
- 460 00f2 2F33     		add	r3, r3, #47
- 461 00f4 1B78     		ldrb	r3, [r3]
- 462 00f6 FA68     		ldr	r2, [r7, #12]
- 463 00f8 5343     		mul	r3, r2
- 464 00fa 3869     		ldr	r0, [r7, #16]
- 465 00fc 191C     		mov	r1, r3
- 466 00fe FFF7FEFF 		bl	__aeabi_uidiv
- 467 0102 031C     		mov	r3, r0
- 468 0104 FB61     		str	r3, [r7, #28]
- 124:../Sources/TFC/TFC_UART.c ****         
- 125:../Sources/TFC/TFC_UART.c ****         if (calculated_baud > baud_rate)
- 469              		.loc 1 125 0
- 470 0106 FA69     		ldr	r2, [r7, #28]
- 471 0108 7B69     		ldr	r3, [r7, #20]
- 472 010a 9A42     		cmp	r2, r3
- 473 010c 04D9     		bls	.L21
- 126:../Sources/TFC/TFC_UART.c ****             temp = calculated_baud - baud_rate;
- 474              		.loc 1 126 0
- 475 010e FA69     		ldr	r2, [r7, #28]
- 476 0110 7B69     		ldr	r3, [r7, #20]
- 477 0112 D31A     		sub	r3, r2, r3
- 478 0114 3B62     		str	r3, [r7, #32]
- 479 0116 03E0     		b	.L22
- 480              	.L21:
- 127:../Sources/TFC/TFC_UART.c ****         else
- 128:../Sources/TFC/TFC_UART.c ****             temp = baud_rate - calculated_baud;
- 481              		.loc 1 128 0
- 482 0118 7A69     		ldr	r2, [r7, #20]
- 483 011a FB69     		ldr	r3, [r7, #28]
- 484 011c D31A     		sub	r3, r2, r3
- 485 011e 3B62     		str	r3, [r7, #32]
- 486              	.L22:
- 129:../Sources/TFC/TFC_UART.c ****         
- 130:../Sources/TFC/TFC_UART.c ****         if (temp <= baud_diff)
- 487              		.loc 1 130 0
- 488 0120 3A6A     		ldr	r2, [r7, #32]
- 489 0122 BB6A     		ldr	r3, [r7, #40]
- 490 0124 9A42     		cmp	r2, r3
- 491 0126 05D8     		bhi	.L23
- 131:../Sources/TFC/TFC_UART.c ****         {
- 132:../Sources/TFC/TFC_UART.c ****             baud_diff = temp;
- 492              		.loc 1 132 0
- 493 0128 3B6A     		ldr	r3, [r7, #32]
- 494 012a BB62     		str	r3, [r7, #40]
- 133:../Sources/TFC/TFC_UART.c ****             osr_val = i; 
- 495              		.loc 1 133 0
- 496 012c 3B1C     		mov	r3, r7
- 497 012e 2F33     		add	r3, r3, #47
- 498 0130 1B78     		ldrb	r3, [r3]
- 499 0132 7B62     		str	r3, [r7, #36]
- 500              	.L23:
- 120:../Sources/TFC/TFC_UART.c ****     for (i = 5; i <= 32; i++)
- 501              		.loc 1 120 0
- 502 0134 3B1C     		mov	r3, r7
- 503 0136 2F33     		add	r3, r3, #47
- 504 0138 3A1C     		mov	r2, r7
- 505 013a 2F32     		add	r2, r2, #47
- 506 013c 1278     		ldrb	r2, [r2]
- 507 013e 0132     		add	r2, r2, #1
- 508 0140 1A70     		strb	r2, [r3]
- 509              	.L20:
- 120:../Sources/TFC/TFC_UART.c ****     for (i = 5; i <= 32; i++)
- 510              		.loc 1 120 0 is_stmt 0
- 511 0142 3B1C     		mov	r3, r7
- 512 0144 2F33     		add	r3, r3, #47
- 513 0146 1B78     		ldrb	r3, [r3]
- 514 0148 202B     		cmp	r3, #32
- 515 014a C6D9     		bls	.L24
- 134:../Sources/TFC/TFC_UART.c ****         }
- 135:../Sources/TFC/TFC_UART.c ****     }
- 136:../Sources/TFC/TFC_UART.c ****     
- 137:../Sources/TFC/TFC_UART.c ****     if (baud_diff < ((baud_rate / 100) * 3))
- 516              		.loc 1 137 0 is_stmt 1
- 517 014c 7B69     		ldr	r3, [r7, #20]
- 518 014e 181C     		mov	r0, r3
- 519 0150 6421     		mov	r1, #100
- 520 0152 FFF7FEFF 		bl	__aeabi_uidiv
- 521 0156 031C     		mov	r3, r0
- 522 0158 1A1C     		mov	r2, r3
- 523 015a 131C     		mov	r3, r2
- 524 015c 5B00     		lsl	r3, r3, #1
- 525 015e 9A18     		add	r2, r3, r2
- 526 0160 BB6A     		ldr	r3, [r7, #40]
- 527 0162 9A42     		cmp	r2, r3
- 528 0164 52D9     		bls	.L14
- 138:../Sources/TFC/TFC_UART.c ****     {
- 139:../Sources/TFC/TFC_UART.c ****         // If the OSR is between 4x and 8x then both
- 140:../Sources/TFC/TFC_UART.c ****         // edge sampling MUST be turned on.  
- 141:../Sources/TFC/TFC_UART.c ****         if ((osr_val >3) && (osr_val < 9))
- 529              		.loc 1 141 0
- 530 0166 7B6A     		ldr	r3, [r7, #36]
- 531 0168 032B     		cmp	r3, #3
- 532 016a 0AD9     		bls	.L26
- 533              		.loc 1 141 0 is_stmt 0
- 534 016c 7B6A     		ldr	r3, [r7, #36]
- 535 016e 082B     		cmp	r3, #8
- 536 0170 07D8     		bhi	.L26
- 142:../Sources/TFC/TFC_UART.c ****             UART0_C5|= UART0_C5_BOTHEDGE_MASK;
- 537              		.loc 1 142 0 is_stmt 1
- 538 0172 2A4B     		ldr	r3, .L27+8
- 539 0174 294A     		ldr	r2, .L27+8
- 540 0176 D27A     		ldrb	r2, [r2, #11]
- 541 0178 D2B2     		uxtb	r2, r2
- 542 017a 0221     		mov	r1, #2
- 543 017c 0A43     		orr	r2, r1
- 544 017e D2B2     		uxtb	r2, r2
- 545 0180 DA72     		strb	r2, [r3, #11]
- 546              	.L26:
- 143:../Sources/TFC/TFC_UART.c ****         
- 144:../Sources/TFC/TFC_UART.c ****         // Setup OSR value 
- 145:../Sources/TFC/TFC_UART.c ****         reg_temp = UART0_C4;
- 547              		.loc 1 145 0
- 548 0182 264B     		ldr	r3, .L27+8
- 549 0184 9B7A     		ldrb	r3, [r3, #10]
- 550 0186 DBB2     		uxtb	r3, r3
- 551 0188 BB61     		str	r3, [r7, #24]
- 146:../Sources/TFC/TFC_UART.c ****         reg_temp &= ~UART0_C4_OSR_MASK;
- 552              		.loc 1 146 0
- 553 018a BB69     		ldr	r3, [r7, #24]
- 554 018c 1F22     		mov	r2, #31
- 555 018e 9343     		bic	r3, r2
- 556 0190 BB61     		str	r3, [r7, #24]
- 147:../Sources/TFC/TFC_UART.c ****         reg_temp |= UART0_C4_OSR(osr_val-1);
- 557              		.loc 1 147 0
- 558 0192 7B6A     		ldr	r3, [r7, #36]
- 559 0194 DBB2     		uxtb	r3, r3
- 560 0196 013B     		sub	r3, r3, #1
- 561 0198 DBB2     		uxtb	r3, r3
- 562 019a 1A1C     		mov	r2, r3
- 563 019c 1F23     		mov	r3, #31
- 564 019e 1340     		and	r3, r2
- 565 01a0 BA69     		ldr	r2, [r7, #24]
- 566 01a2 1343     		orr	r3, r2
- 567 01a4 BB61     		str	r3, [r7, #24]
- 148:../Sources/TFC/TFC_UART.c ****     
- 149:../Sources/TFC/TFC_UART.c ****         // Write reg_temp to C4 register
- 150:../Sources/TFC/TFC_UART.c ****         UART0_C4 = reg_temp;
- 568              		.loc 1 150 0
- 569 01a6 1D4B     		ldr	r3, .L27+8
- 570 01a8 BA69     		ldr	r2, [r7, #24]
- 571 01aa D2B2     		uxtb	r2, r2
- 572 01ac 9A72     		strb	r2, [r3, #10]
- 151:../Sources/TFC/TFC_UART.c ****         
- 152:../Sources/TFC/TFC_UART.c ****         reg_temp = (reg_temp & UART0_C4_OSR_MASK) + 1;
- 573              		.loc 1 152 0
- 574 01ae BA69     		ldr	r2, [r7, #24]
- 575 01b0 1F23     		mov	r3, #31
- 576 01b2 1340     		and	r3, r2
- 577 01b4 0133     		add	r3, r3, #1
- 578 01b6 BB61     		str	r3, [r7, #24]
- 153:../Sources/TFC/TFC_UART.c ****         sbr_val = (uint32)((uart0clk)/(baud_rate * (reg_temp)));
- 579              		.loc 1 153 0
- 580 01b8 7B69     		ldr	r3, [r7, #20]
- 581 01ba BA69     		ldr	r2, [r7, #24]
- 582 01bc 5343     		mul	r3, r2
- 583 01be 3869     		ldr	r0, [r7, #16]
- 584 01c0 191C     		mov	r1, r3
- 585 01c2 FFF7FEFF 		bl	__aeabi_uidiv
- 586 01c6 031C     		mov	r3, r0
- 587 01c8 FB60     		str	r3, [r7, #12]
- 154:../Sources/TFC/TFC_UART.c ****         
- 155:../Sources/TFC/TFC_UART.c ****          /* Save off the current value of the uartx_BDH except for the SBR field */
- 156:../Sources/TFC/TFC_UART.c ****         reg_temp = UART0_BDH & ~(UART0_BDH_SBR(0x1F));
- 588              		.loc 1 156 0
- 589 01ca 144B     		ldr	r3, .L27+8
- 590 01cc 1B78     		ldrb	r3, [r3]
- 591 01ce DBB2     		uxtb	r3, r3
- 592 01d0 1F22     		mov	r2, #31
- 593 01d2 9343     		bic	r3, r2
- 594 01d4 BB61     		str	r3, [r7, #24]
- 157:../Sources/TFC/TFC_UART.c ****    
- 158:../Sources/TFC/TFC_UART.c ****         UART0_BDH = reg_temp |  UART0_BDH_SBR(((sbr_val & 0x1F00) >> 8));
- 595              		.loc 1 158 0
- 596 01d6 114B     		ldr	r3, .L27+8
- 597 01d8 F968     		ldr	r1, [r7, #12]
- 598 01da F822     		mov	r2, #248
- 599 01dc 5201     		lsl	r2, r2, #5
- 600 01de 0A40     		and	r2, r1
- 601 01e0 120A     		lsr	r2, r2, #8
- 602 01e2 D1B2     		uxtb	r1, r2
- 603 01e4 1F22     		mov	r2, #31
- 604 01e6 0A40     		and	r2, r1
- 605 01e8 D1B2     		uxtb	r1, r2
- 606 01ea BA69     		ldr	r2, [r7, #24]
- 607 01ec D2B2     		uxtb	r2, r2
- 608 01ee 0A43     		orr	r2, r1
- 609 01f0 D2B2     		uxtb	r2, r2
- 610 01f2 1A70     		strb	r2, [r3]
- 159:../Sources/TFC/TFC_UART.c ****         UART0_BDL = (uint8)(sbr_val & UART0_BDL_SBR_MASK);
- 611              		.loc 1 159 0
- 612 01f4 094B     		ldr	r3, .L27+8
- 613 01f6 FA68     		ldr	r2, [r7, #12]
- 614 01f8 D2B2     		uxtb	r2, r2
- 615 01fa 5A70     		strb	r2, [r3, #1]
- 160:../Sources/TFC/TFC_UART.c ****         
- 161:../Sources/TFC/TFC_UART.c ****         /* Enable receiver and transmitter */
- 162:../Sources/TFC/TFC_UART.c ****         UART0_C2 |= (UART0_C2_TE_MASK
- 616              		.loc 1 162 0
- 617 01fc 074B     		ldr	r3, .L27+8
- 618 01fe 074A     		ldr	r2, .L27+8
- 619 0200 D278     		ldrb	r2, [r2, #3]
- 620 0202 D2B2     		uxtb	r2, r2
- 621 0204 0C21     		mov	r1, #12
- 622 0206 0A43     		orr	r2, r1
- 623 0208 D2B2     		uxtb	r2, r2
- 624 020a DA70     		strb	r2, [r3, #3]
- 625              	.L14:
- 163:../Sources/TFC/TFC_UART.c ****                     | UART0_C2_RE_MASK );
- 164:../Sources/TFC/TFC_UART.c ****     }
- 165:../Sources/TFC/TFC_UART.c ****     else
- 166:../Sources/TFC/TFC_UART.c **** 		{
- 167:../Sources/TFC/TFC_UART.c ****         // Unacceptable baud rate difference
- 168:../Sources/TFC/TFC_UART.c ****         // More than 3% difference!!
- 169:../Sources/TFC/TFC_UART.c ****         // Enter infinite loop!
- 170:../Sources/TFC/TFC_UART.c ****         //while(1)
- 171:../Sources/TFC/TFC_UART.c **** 			//	{}
- 172:../Sources/TFC/TFC_UART.c **** 		}					
- 173:../Sources/TFC/TFC_UART.c ****     
- 174:../Sources/TFC/TFC_UART.c **** }
- 626              		.loc 1 174 0
- 627 020c BD46     		mov	sp, r7
- 628 020e 0CB0     		add	sp, sp, #48
- 629              		@ sp needed for prologue
- 630 0210 80BD     		pop	{r7, pc}
- 631              	.L28:
- 632 0212 C046     		.align	2
- 633              	.L27:
- 634 0214 00700440 		.word	1074032640
- 635 0218 34100000 		.word	4148
- 636 021c 00A00640 		.word	1074176000
- 637 0220 50C30000 		.word	50000
- 638 0224 04100000 		.word	4100
- 639 0228 FFFFFFF3 		.word	-201326593
- 640              		.cfi_endproc
- 641              	.LFE3:
- 643              		.section	.text.uart_getchar,"ax",%progbits
- 644              		.align	2
- 645              		.global	uart_getchar
- 646              		.code	16
- 647              		.thumb_func
- 649              	uart_getchar:
- 650              	.LFB4:
+  65:../Sources/TFC/TFC_UART.c **** 	if (UART0_S1 & UART_S1_TDRE_MASK) {
+ 274              		.loc 1 65 0
+ 275 0024 114B     		ldr	r3, .L12
+ 276 0026 1B79     		ldrb	r3, [r3, #4]
+ 277 0028 DBB2     		uxtb	r3, r3
+ 278 002a DBB2     		uxtb	r3, r3
+ 279 002c 5BB2     		sxtb	r3, r3
+ 280 002e 002B     		cmp	r3, #0
+ 281 0030 19DA     		bge	.L8
+  66:../Sources/TFC/TFC_UART.c **** 		if (BytesInQueue(&SDA_SERIAL_OUTGOING_QUEUE) > 0) {
+ 282              		.loc 1 66 0
+ 283 0032 104B     		ldr	r3, .L12+8
+ 284 0034 181C     		mov	r0, r3
+ 285 0036 FFF7FEFF 		bl	BytesInQueue
+ 286 003a 031C     		mov	r3, r0
+ 287 003c 002B     		cmp	r3, #0
+ 288 003e 0AD0     		beq	.L11
+  67:../Sources/TFC/TFC_UART.c **** 			ByteDequeue(&SDA_SERIAL_OUTGOING_QUEUE, &Temp);
+ 289              		.loc 1 67 0
+ 290 0040 0C4A     		ldr	r2, .L12+8
+ 291 0042 FB1D     		add	r3, r7, #7
+ 292 0044 101C     		mov	r0, r2
+ 293 0046 191C     		mov	r1, r3
+ 294 0048 FFF7FEFF 		bl	ByteDequeue
+  68:../Sources/TFC/TFC_UART.c **** 			UART0_D = Temp;
+ 295              		.loc 1 68 0
+ 296 004c 074B     		ldr	r3, .L12
+ 297 004e FA1D     		add	r2, r7, #7
+ 298 0050 1278     		ldrb	r2, [r2]
+ 299 0052 DA71     		strb	r2, [r3, #7]
+ 300 0054 07E0     		b	.L8
+ 301              	.L11:
+  69:../Sources/TFC/TFC_UART.c **** 		} else {
+  70:../Sources/TFC/TFC_UART.c **** 			//if there is nothing left in the queue then disable interrupts
+  71:../Sources/TFC/TFC_UART.c **** 			UART0_C2 &= ~UART_C2_TIE_MASK; //Disable the  Interrupts
+ 302              		.loc 1 71 0
+ 303 0056 054B     		ldr	r3, .L12
+ 304 0058 044A     		ldr	r2, .L12
+ 305 005a D278     		ldrb	r2, [r2, #3]
+ 306 005c D1B2     		uxtb	r1, r2
+ 307 005e 7F22     		mov	r2, #127
+ 308 0060 0A40     		and	r2, r1
+ 309 0062 D2B2     		uxtb	r2, r2
+ 310 0064 DA70     		strb	r2, [r3, #3]
+ 311              	.L8:
+  72:../Sources/TFC/TFC_UART.c **** 		}
+  73:../Sources/TFC/TFC_UART.c **** 	}
+  74:../Sources/TFC/TFC_UART.c **** }
+ 312              		.loc 1 74 0
+ 313 0066 BD46     		mov	sp, r7
+ 314 0068 02B0     		add	sp, sp, #8
+ 315              		@ sp needed for prologue
+ 316 006a 80BD     		pop	{r7, pc}
+ 317              	.L13:
+ 318              		.align	2
+ 319              	.L12:
+ 320 006c 00A00640 		.word	1074176000
+ 321 0070 00000000 		.word	SDA_SERIAL_INCOMING_QUEUE
+ 322 0074 00000000 		.word	SDA_SERIAL_OUTGOING_QUEUE
+ 323              		.cfi_endproc
+ 324              	.LFE2:
+ 326              		.section	.text.UART2_IRQHandler,"ax",%progbits
+ 327              		.align	2
+ 328              		.global	UART2_IRQHandler
+ 329              		.code	16
+ 330              		.thumb_func
+ 332              	UART2_IRQHandler:
+ 333              	.LFB3:
+  75:../Sources/TFC/TFC_UART.c **** 
+  76:../Sources/TFC/TFC_UART.c **** void UART2_IRQHandler() {
+ 334              		.loc 1 76 0
+ 335              		.cfi_startproc
+ 336 0000 80B5     		push	{r7, lr}
+ 337              	.LCFI7:
+ 338              		.cfi_def_cfa_offset 8
+ 339              		.cfi_offset 7, -8
+ 340              		.cfi_offset 14, -4
+ 341 0002 82B0     		sub	sp, sp, #8
+ 342              	.LCFI8:
+ 343              		.cfi_def_cfa_offset 16
+ 344 0004 00AF     		add	r7, sp, #0
+ 345              	.LCFI9:
+ 346              		.cfi_def_cfa_register 7
+  77:../Sources/TFC/TFC_UART.c **** 	uint8_t Temp;
+  78:../Sources/TFC/TFC_UART.c **** 
+  79:../Sources/TFC/TFC_UART.c **** 	if (UART2_S1 & UART_S1_RDRF_MASK) {
+ 347              		.loc 1 79 0
+ 348 0006 194B     		ldr	r3, .L18
+ 349 0008 1B79     		ldrb	r3, [r3, #4]
+ 350 000a DBB2     		uxtb	r3, r3
+ 351 000c 1A1C     		mov	r2, r3
+ 352 000e 2023     		mov	r3, #32
+ 353 0010 1340     		and	r3, r2
+ 354 0012 07D0     		beq	.L15
+  80:../Sources/TFC/TFC_UART.c **** 		ByteEnqueue(&XBEE_SERIAL_INCOMING_QUEUE, UART2_D);
+ 355              		.loc 1 80 0
+ 356 0014 154B     		ldr	r3, .L18
+ 357 0016 DB79     		ldrb	r3, [r3, #7]
+ 358 0018 DBB2     		uxtb	r3, r3
+ 359 001a 154A     		ldr	r2, .L18+4
+ 360 001c 101C     		mov	r0, r2
+ 361 001e 191C     		mov	r1, r3
+ 362 0020 FFF7FEFF 		bl	ByteEnqueue
+ 363              	.L15:
+  81:../Sources/TFC/TFC_UART.c **** 	}
+  82:../Sources/TFC/TFC_UART.c **** 	if (UART2_S1 & UART_S1_TDRE_MASK) {
+ 364              		.loc 1 82 0
+ 365 0024 114B     		ldr	r3, .L18
+ 366 0026 1B79     		ldrb	r3, [r3, #4]
+ 367 0028 DBB2     		uxtb	r3, r3
+ 368 002a DBB2     		uxtb	r3, r3
+ 369 002c 5BB2     		sxtb	r3, r3
+ 370 002e 002B     		cmp	r3, #0
+ 371 0030 19DA     		bge	.L14
+  83:../Sources/TFC/TFC_UART.c **** 		if (BytesInQueue(&XBEE_SERIAL_OUTGOING_QUEUE) > 0) {
+ 372              		.loc 1 83 0
+ 373 0032 104B     		ldr	r3, .L18+8
+ 374 0034 181C     		mov	r0, r3
+ 375 0036 FFF7FEFF 		bl	BytesInQueue
+ 376 003a 031C     		mov	r3, r0
+ 377 003c 002B     		cmp	r3, #0
+ 378 003e 0AD0     		beq	.L17
+  84:../Sources/TFC/TFC_UART.c **** 			ByteDequeue(&XBEE_SERIAL_OUTGOING_QUEUE, &Temp);
+ 379              		.loc 1 84 0
+ 380 0040 0C4A     		ldr	r2, .L18+8
+ 381 0042 FB1D     		add	r3, r7, #7
+ 382 0044 101C     		mov	r0, r2
+ 383 0046 191C     		mov	r1, r3
+ 384 0048 FFF7FEFF 		bl	ByteDequeue
+  85:../Sources/TFC/TFC_UART.c **** 			UART2_D = Temp;
+ 385              		.loc 1 85 0
+ 386 004c 074B     		ldr	r3, .L18
+ 387 004e FA1D     		add	r2, r7, #7
+ 388 0050 1278     		ldrb	r2, [r2]
+ 389 0052 DA71     		strb	r2, [r3, #7]
+ 390 0054 07E0     		b	.L14
+ 391              	.L17:
+  86:../Sources/TFC/TFC_UART.c **** 		} else {
+  87:../Sources/TFC/TFC_UART.c **** 			//if there is nothing left in the queue then disable interrupts
+  88:../Sources/TFC/TFC_UART.c **** 			UART2_C2 &= ~UART_C2_TIE_MASK; //Disable the  Interrupts
+ 392              		.loc 1 88 0
+ 393 0056 054B     		ldr	r3, .L18
+ 394 0058 044A     		ldr	r2, .L18
+ 395 005a D278     		ldrb	r2, [r2, #3]
+ 396 005c D1B2     		uxtb	r1, r2
+ 397 005e 7F22     		mov	r2, #127
+ 398 0060 0A40     		and	r2, r1
+ 399 0062 D2B2     		uxtb	r2, r2
+ 400 0064 DA70     		strb	r2, [r3, #3]
+ 401              	.L14:
+  89:../Sources/TFC/TFC_UART.c **** 		}
+  90:../Sources/TFC/TFC_UART.c **** 	}
+  91:../Sources/TFC/TFC_UART.c **** }
+ 402              		.loc 1 91 0
+ 403 0066 BD46     		mov	sp, r7
+ 404 0068 02B0     		add	sp, sp, #8
+ 405              		@ sp needed for prologue
+ 406 006a 80BD     		pop	{r7, pc}
+ 407              	.L19:
+ 408              		.align	2
+ 409              	.L18:
+ 410 006c 00C00640 		.word	1074184192
+ 411 0070 00000000 		.word	XBEE_SERIAL_INCOMING_QUEUE
+ 412 0074 00000000 		.word	XBEE_SERIAL_OUTGOING_QUEUE
+ 413              		.cfi_endproc
+ 414              	.LFE3:
+ 416              		.global	__aeabi_uidiv
+ 417              		.section	.text.uart0_init,"ax",%progbits
+ 418              		.align	2
+ 419              		.global	uart0_init
+ 420              		.code	16
+ 421              		.thumb_func
+ 423              	uart0_init:
+ 424              	.LFB4:
+  92:../Sources/TFC/TFC_UART.c **** 
+  93:../Sources/TFC/TFC_UART.c **** void uart0_init(int sysclk, int baud) {
+ 425              		.loc 1 93 0
+ 426              		.cfi_startproc
+ 427 0000 80B5     		push	{r7, lr}
+ 428              	.LCFI10:
+ 429              		.cfi_def_cfa_offset 8
+ 430              		.cfi_offset 7, -8
+ 431              		.cfi_offset 14, -4
+ 432 0002 8CB0     		sub	sp, sp, #48
+ 433              	.LCFI11:
+ 434              		.cfi_def_cfa_offset 56
+ 435 0004 00AF     		add	r7, sp, #0
+ 436              	.LCFI12:
+ 437              		.cfi_def_cfa_register 7
+ 438 0006 7860     		str	r0, [r7, #4]
+ 439 0008 3960     		str	r1, [r7]
+  94:../Sources/TFC/TFC_UART.c **** 	uint8 i;
+  95:../Sources/TFC/TFC_UART.c **** 	uint32 calculated_baud = 0;
+ 440              		.loc 1 95 0
+ 441 000a 0023     		mov	r3, #0
+ 442 000c FB61     		str	r3, [r7, #28]
+  96:../Sources/TFC/TFC_UART.c **** 	uint32 baud_diff = 0;
+ 443              		.loc 1 96 0
+ 444 000e 0023     		mov	r3, #0
+ 445 0010 BB62     		str	r3, [r7, #40]
+  97:../Sources/TFC/TFC_UART.c **** 	uint32 osr_val = 0;
+ 446              		.loc 1 97 0
+ 447 0012 0023     		mov	r3, #0
+ 448 0014 7B62     		str	r3, [r7, #36]
+  98:../Sources/TFC/TFC_UART.c **** 	uint32 sbr_val, uart0clk;
+  99:../Sources/TFC/TFC_UART.c **** 	uint32 baud_rate;
+ 100:../Sources/TFC/TFC_UART.c **** 	uint32 reg_temp = 0;
+ 449              		.loc 1 100 0
+ 450 0016 0023     		mov	r3, #0
+ 451 0018 BB61     		str	r3, [r7, #24]
+ 101:../Sources/TFC/TFC_UART.c **** 	uint32 temp = 0;
+ 452              		.loc 1 101 0
+ 453 001a 0023     		mov	r3, #0
+ 454 001c 3B62     		str	r3, [r7, #32]
+ 102:../Sources/TFC/TFC_UART.c **** 
+ 103:../Sources/TFC/TFC_UART.c **** 	SIM_SCGC4 |= SIM_SCGC4_UART0_MASK;
+ 455              		.loc 1 103 0
+ 456 001e 7D4A     		ldr	r2, .L33
+ 457 0020 7C49     		ldr	r1, .L33
+ 458 0022 7D4B     		ldr	r3, .L33+4
+ 459 0024 CB58     		ldr	r3, [r1, r3]
+ 460 0026 8021     		mov	r1, #128
+ 461 0028 C900     		lsl	r1, r1, #3
+ 462 002a 1943     		orr	r1, r3
+ 463 002c 7A4B     		ldr	r3, .L33+4
+ 464 002e D150     		str	r1, [r2, r3]
+ 104:../Sources/TFC/TFC_UART.c **** 
+ 105:../Sources/TFC/TFC_UART.c **** 	// Disable UART0 before changing registers
+ 106:../Sources/TFC/TFC_UART.c **** 	UART0_C2 &= ~(UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+ 465              		.loc 1 106 0
+ 466 0030 7A4B     		ldr	r3, .L33+8
+ 467 0032 7A4A     		ldr	r2, .L33+8
+ 468 0034 D278     		ldrb	r2, [r2, #3]
+ 469 0036 D2B2     		uxtb	r2, r2
+ 470 0038 0C21     		mov	r1, #12
+ 471 003a 8A43     		bic	r2, r1
+ 472 003c D2B2     		uxtb	r2, r2
+ 473 003e DA70     		strb	r2, [r3, #3]
+ 107:../Sources/TFC/TFC_UART.c **** 
+ 108:../Sources/TFC/TFC_UART.c **** 	// Verify that a valid clock value has been passed to the function 
+ 109:../Sources/TFC/TFC_UART.c **** 	if ((sysclk > 50000) || (sysclk < 32)) {
+ 474              		.loc 1 109 0
+ 475 0040 7A68     		ldr	r2, [r7, #4]
+ 476 0042 774B     		ldr	r3, .L33+12
+ 477 0044 9A42     		cmp	r2, r3
+ 478 0046 02DC     		bgt	.L21
+ 479              		.loc 1 109 0 is_stmt 0
+ 480 0048 7B68     		ldr	r3, [r7, #4]
+ 481 004a 1F2B     		cmp	r3, #31
+ 482 004c 0EDC     		bgt	.L22
+ 483              	.L21:
+ 110:../Sources/TFC/TFC_UART.c **** 		sysclk = 0;
+ 484              		.loc 1 110 0 is_stmt 1
+ 485 004e 0023     		mov	r3, #0
+ 486 0050 7B60     		str	r3, [r7, #4]
+ 111:../Sources/TFC/TFC_UART.c **** 		reg_temp = SIM_SOPT2;
+ 487              		.loc 1 111 0
+ 488 0052 704A     		ldr	r2, .L33
+ 489 0054 734B     		ldr	r3, .L33+16
+ 490 0056 D358     		ldr	r3, [r2, r3]
+ 491 0058 BB61     		str	r3, [r7, #24]
+ 112:../Sources/TFC/TFC_UART.c **** 		reg_temp &= ~SIM_SOPT2_UART0SRC_MASK;
+ 492              		.loc 1 112 0
+ 493 005a BA69     		ldr	r2, [r7, #24]
+ 494 005c 724B     		ldr	r3, .L33+20
+ 495 005e 1340     		and	r3, r2
+ 496 0060 BB61     		str	r3, [r7, #24]
+ 113:../Sources/TFC/TFC_UART.c **** 		reg_temp |= SIM_SOPT2_UART0SRC(0);
+ 114:../Sources/TFC/TFC_UART.c **** 		SIM_SOPT2 = reg_temp;
+ 497              		.loc 1 114 0
+ 498 0062 6C4A     		ldr	r2, .L33
+ 499 0064 6F4B     		ldr	r3, .L33+16
+ 500 0066 B969     		ldr	r1, [r7, #24]
+ 501 0068 D150     		str	r1, [r2, r3]
+ 502              	.L23:
+ 115:../Sources/TFC/TFC_UART.c **** 
+ 116:../Sources/TFC/TFC_UART.c **** 		// Enter inifinite loop because the 
+ 117:../Sources/TFC/TFC_UART.c **** 		// the desired system clock value is 
+ 118:../Sources/TFC/TFC_UART.c **** 		// invalid!!
+ 119:../Sources/TFC/TFC_UART.c **** 		while (1) {
+ 120:../Sources/TFC/TFC_UART.c **** 		}
+ 503              		.loc 1 120 0
+ 504 006a FEE7     		b	.L23
+ 505              	.L22:
+ 121:../Sources/TFC/TFC_UART.c **** 	}
+ 122:../Sources/TFC/TFC_UART.c **** 
+ 123:../Sources/TFC/TFC_UART.c **** 	// Initialize baud rate
+ 124:../Sources/TFC/TFC_UART.c **** 	baud_rate = baud;
+ 506              		.loc 1 124 0
+ 507 006c 3B68     		ldr	r3, [r7]
+ 508 006e 7B61     		str	r3, [r7, #20]
+ 125:../Sources/TFC/TFC_UART.c **** 
+ 126:../Sources/TFC/TFC_UART.c **** 	// Change units to Hz
+ 127:../Sources/TFC/TFC_UART.c **** 	uart0clk = sysclk * 1000;
+ 509              		.loc 1 127 0
+ 510 0070 7B68     		ldr	r3, [r7, #4]
+ 511 0072 FA22     		mov	r2, #250
+ 512 0074 9200     		lsl	r2, r2, #2
+ 513 0076 5343     		mul	r3, r2
+ 514 0078 3B61     		str	r3, [r7, #16]
+ 128:../Sources/TFC/TFC_UART.c **** 	// Calculate the first baud rate using the lowest OSR value possible.  
+ 129:../Sources/TFC/TFC_UART.c **** 	i = 4;
+ 515              		.loc 1 129 0
+ 516 007a 3B1C     		mov	r3, r7
+ 517 007c 2F33     		add	r3, r3, #47
+ 518 007e 0422     		mov	r2, #4
+ 519 0080 1A70     		strb	r2, [r3]
+ 130:../Sources/TFC/TFC_UART.c **** 	sbr_val = (uint32) (uart0clk / (baud_rate * i));
+ 520              		.loc 1 130 0
+ 521 0082 3B1C     		mov	r3, r7
+ 522 0084 2F33     		add	r3, r3, #47
+ 523 0086 1B78     		ldrb	r3, [r3]
+ 524 0088 7A69     		ldr	r2, [r7, #20]
+ 525 008a 5343     		mul	r3, r2
+ 526 008c 3869     		ldr	r0, [r7, #16]
+ 527 008e 191C     		mov	r1, r3
+ 528 0090 FFF7FEFF 		bl	__aeabi_uidiv
+ 529 0094 031C     		mov	r3, r0
+ 530 0096 FB60     		str	r3, [r7, #12]
+ 131:../Sources/TFC/TFC_UART.c **** 	calculated_baud = (uart0clk / (i * sbr_val));
+ 531              		.loc 1 131 0
+ 532 0098 3B1C     		mov	r3, r7
+ 533 009a 2F33     		add	r3, r3, #47
+ 534 009c 1B78     		ldrb	r3, [r3]
+ 535 009e FA68     		ldr	r2, [r7, #12]
+ 536 00a0 5343     		mul	r3, r2
+ 537 00a2 3869     		ldr	r0, [r7, #16]
+ 538 00a4 191C     		mov	r1, r3
+ 539 00a6 FFF7FEFF 		bl	__aeabi_uidiv
+ 540 00aa 031C     		mov	r3, r0
+ 541 00ac FB61     		str	r3, [r7, #28]
+ 132:../Sources/TFC/TFC_UART.c **** 
+ 133:../Sources/TFC/TFC_UART.c **** 	if (calculated_baud > baud_rate)
+ 542              		.loc 1 133 0
+ 543 00ae FA69     		ldr	r2, [r7, #28]
+ 544 00b0 7B69     		ldr	r3, [r7, #20]
+ 545 00b2 9A42     		cmp	r2, r3
+ 546 00b4 04D9     		bls	.L24
+ 134:../Sources/TFC/TFC_UART.c **** 		baud_diff = calculated_baud - baud_rate;
+ 547              		.loc 1 134 0
+ 548 00b6 FA69     		ldr	r2, [r7, #28]
+ 549 00b8 7B69     		ldr	r3, [r7, #20]
+ 550 00ba D31A     		sub	r3, r2, r3
+ 551 00bc BB62     		str	r3, [r7, #40]
+ 552 00be 03E0     		b	.L25
+ 553              	.L24:
+ 135:../Sources/TFC/TFC_UART.c **** 	else
+ 136:../Sources/TFC/TFC_UART.c **** 		baud_diff = baud_rate - calculated_baud;
+ 554              		.loc 1 136 0
+ 555 00c0 7A69     		ldr	r2, [r7, #20]
+ 556 00c2 FB69     		ldr	r3, [r7, #28]
+ 557 00c4 D31A     		sub	r3, r2, r3
+ 558 00c6 BB62     		str	r3, [r7, #40]
+ 559              	.L25:
+ 137:../Sources/TFC/TFC_UART.c **** 
+ 138:../Sources/TFC/TFC_UART.c **** 	osr_val = i;
+ 560              		.loc 1 138 0
+ 561 00c8 3B1C     		mov	r3, r7
+ 562 00ca 2F33     		add	r3, r3, #47
+ 563 00cc 1B78     		ldrb	r3, [r3]
+ 564 00ce 7B62     		str	r3, [r7, #36]
+ 139:../Sources/TFC/TFC_UART.c **** 
+ 140:../Sources/TFC/TFC_UART.c **** 	// Select the best OSR value
+ 141:../Sources/TFC/TFC_UART.c **** 	for (i = 5; i <= 32; i++) {
+ 565              		.loc 1 141 0
+ 566 00d0 3B1C     		mov	r3, r7
+ 567 00d2 2F33     		add	r3, r3, #47
+ 568 00d4 0522     		mov	r2, #5
+ 569 00d6 1A70     		strb	r2, [r3]
+ 570 00d8 33E0     		b	.L26
+ 571              	.L30:
+ 142:../Sources/TFC/TFC_UART.c **** 		sbr_val = (uint32) (uart0clk / (baud_rate * i));
+ 572              		.loc 1 142 0
+ 573 00da 3B1C     		mov	r3, r7
+ 574 00dc 2F33     		add	r3, r3, #47
+ 575 00de 1B78     		ldrb	r3, [r3]
+ 576 00e0 7A69     		ldr	r2, [r7, #20]
+ 577 00e2 5343     		mul	r3, r2
+ 578 00e4 3869     		ldr	r0, [r7, #16]
+ 579 00e6 191C     		mov	r1, r3
+ 580 00e8 FFF7FEFF 		bl	__aeabi_uidiv
+ 581 00ec 031C     		mov	r3, r0
+ 582 00ee FB60     		str	r3, [r7, #12]
+ 143:../Sources/TFC/TFC_UART.c **** 		calculated_baud = (uart0clk / (i * sbr_val));
+ 583              		.loc 1 143 0
+ 584 00f0 3B1C     		mov	r3, r7
+ 585 00f2 2F33     		add	r3, r3, #47
+ 586 00f4 1B78     		ldrb	r3, [r3]
+ 587 00f6 FA68     		ldr	r2, [r7, #12]
+ 588 00f8 5343     		mul	r3, r2
+ 589 00fa 3869     		ldr	r0, [r7, #16]
+ 590 00fc 191C     		mov	r1, r3
+ 591 00fe FFF7FEFF 		bl	__aeabi_uidiv
+ 592 0102 031C     		mov	r3, r0
+ 593 0104 FB61     		str	r3, [r7, #28]
+ 144:../Sources/TFC/TFC_UART.c **** 
+ 145:../Sources/TFC/TFC_UART.c **** 		if (calculated_baud > baud_rate)
+ 594              		.loc 1 145 0
+ 595 0106 FA69     		ldr	r2, [r7, #28]
+ 596 0108 7B69     		ldr	r3, [r7, #20]
+ 597 010a 9A42     		cmp	r2, r3
+ 598 010c 04D9     		bls	.L27
+ 146:../Sources/TFC/TFC_UART.c **** 			temp = calculated_baud - baud_rate;
+ 599              		.loc 1 146 0
+ 600 010e FA69     		ldr	r2, [r7, #28]
+ 601 0110 7B69     		ldr	r3, [r7, #20]
+ 602 0112 D31A     		sub	r3, r2, r3
+ 603 0114 3B62     		str	r3, [r7, #32]
+ 604 0116 03E0     		b	.L28
+ 605              	.L27:
+ 147:../Sources/TFC/TFC_UART.c **** 		else
+ 148:../Sources/TFC/TFC_UART.c **** 			temp = baud_rate - calculated_baud;
+ 606              		.loc 1 148 0
+ 607 0118 7A69     		ldr	r2, [r7, #20]
+ 608 011a FB69     		ldr	r3, [r7, #28]
+ 609 011c D31A     		sub	r3, r2, r3
+ 610 011e 3B62     		str	r3, [r7, #32]
+ 611              	.L28:
+ 149:../Sources/TFC/TFC_UART.c **** 
+ 150:../Sources/TFC/TFC_UART.c **** 		if (temp <= baud_diff) {
+ 612              		.loc 1 150 0
+ 613 0120 3A6A     		ldr	r2, [r7, #32]
+ 614 0122 BB6A     		ldr	r3, [r7, #40]
+ 615 0124 9A42     		cmp	r2, r3
+ 616 0126 05D8     		bhi	.L29
+ 151:../Sources/TFC/TFC_UART.c **** 			baud_diff = temp;
+ 617              		.loc 1 151 0
+ 618 0128 3B6A     		ldr	r3, [r7, #32]
+ 619 012a BB62     		str	r3, [r7, #40]
+ 152:../Sources/TFC/TFC_UART.c **** 			osr_val = i;
+ 620              		.loc 1 152 0
+ 621 012c 3B1C     		mov	r3, r7
+ 622 012e 2F33     		add	r3, r3, #47
+ 623 0130 1B78     		ldrb	r3, [r3]
+ 624 0132 7B62     		str	r3, [r7, #36]
+ 625              	.L29:
+ 141:../Sources/TFC/TFC_UART.c **** 	for (i = 5; i <= 32; i++) {
+ 626              		.loc 1 141 0
+ 627 0134 3B1C     		mov	r3, r7
+ 628 0136 2F33     		add	r3, r3, #47
+ 629 0138 3A1C     		mov	r2, r7
+ 630 013a 2F32     		add	r2, r2, #47
+ 631 013c 1278     		ldrb	r2, [r2]
+ 632 013e 0132     		add	r2, r2, #1
+ 633 0140 1A70     		strb	r2, [r3]
+ 634              	.L26:
+ 141:../Sources/TFC/TFC_UART.c **** 	for (i = 5; i <= 32; i++) {
+ 635              		.loc 1 141 0 is_stmt 0
+ 636 0142 3B1C     		mov	r3, r7
+ 637 0144 2F33     		add	r3, r3, #47
+ 638 0146 1B78     		ldrb	r3, [r3]
+ 639 0148 202B     		cmp	r3, #32
+ 640 014a C6D9     		bls	.L30
+ 153:../Sources/TFC/TFC_UART.c **** 		}
+ 154:../Sources/TFC/TFC_UART.c **** 	}
+ 155:../Sources/TFC/TFC_UART.c **** 
+ 156:../Sources/TFC/TFC_UART.c **** 	if (baud_diff < ((baud_rate / 100) * 3)) {
+ 641              		.loc 1 156 0 is_stmt 1
+ 642 014c 7B69     		ldr	r3, [r7, #20]
+ 643 014e 181C     		mov	r0, r3
+ 644 0150 6421     		mov	r1, #100
+ 645 0152 FFF7FEFF 		bl	__aeabi_uidiv
+ 646 0156 031C     		mov	r3, r0
+ 647 0158 1A1C     		mov	r2, r3
+ 648 015a 131C     		mov	r3, r2
+ 649 015c 5B00     		lsl	r3, r3, #1
+ 650 015e 9A18     		add	r2, r3, r2
+ 651 0160 BB6A     		ldr	r3, [r7, #40]
+ 652 0162 9A42     		cmp	r2, r3
+ 653 0164 52D9     		bls	.L20
+ 157:../Sources/TFC/TFC_UART.c **** 		// If the OSR is between 4x and 8x then both
+ 158:../Sources/TFC/TFC_UART.c **** 		// edge sampling MUST be turned on.  
+ 159:../Sources/TFC/TFC_UART.c **** 		if ((osr_val > 3) && (osr_val < 9))
+ 654              		.loc 1 159 0
+ 655 0166 7B6A     		ldr	r3, [r7, #36]
+ 656 0168 032B     		cmp	r3, #3
+ 657 016a 0AD9     		bls	.L32
+ 658              		.loc 1 159 0 is_stmt 0
+ 659 016c 7B6A     		ldr	r3, [r7, #36]
+ 660 016e 082B     		cmp	r3, #8
+ 661 0170 07D8     		bhi	.L32
+ 160:../Sources/TFC/TFC_UART.c **** 			UART0_C5 |= UART0_C5_BOTHEDGE_MASK;
+ 662              		.loc 1 160 0 is_stmt 1
+ 663 0172 2A4B     		ldr	r3, .L33+8
+ 664 0174 294A     		ldr	r2, .L33+8
+ 665 0176 D27A     		ldrb	r2, [r2, #11]
+ 666 0178 D2B2     		uxtb	r2, r2
+ 667 017a 0221     		mov	r1, #2
+ 668 017c 0A43     		orr	r2, r1
+ 669 017e D2B2     		uxtb	r2, r2
+ 670 0180 DA72     		strb	r2, [r3, #11]
+ 671              	.L32:
+ 161:../Sources/TFC/TFC_UART.c **** 
+ 162:../Sources/TFC/TFC_UART.c **** 		// Setup OSR value 
+ 163:../Sources/TFC/TFC_UART.c **** 		reg_temp = UART0_C4;
+ 672              		.loc 1 163 0
+ 673 0182 264B     		ldr	r3, .L33+8
+ 674 0184 9B7A     		ldrb	r3, [r3, #10]
+ 675 0186 DBB2     		uxtb	r3, r3
+ 676 0188 BB61     		str	r3, [r7, #24]
+ 164:../Sources/TFC/TFC_UART.c **** 		reg_temp &= ~UART0_C4_OSR_MASK;
+ 677              		.loc 1 164 0
+ 678 018a BB69     		ldr	r3, [r7, #24]
+ 679 018c 1F22     		mov	r2, #31
+ 680 018e 9343     		bic	r3, r2
+ 681 0190 BB61     		str	r3, [r7, #24]
+ 165:../Sources/TFC/TFC_UART.c **** 		reg_temp |= UART0_C4_OSR(osr_val-1);
+ 682              		.loc 1 165 0
+ 683 0192 7B6A     		ldr	r3, [r7, #36]
+ 684 0194 DBB2     		uxtb	r3, r3
+ 685 0196 013B     		sub	r3, r3, #1
+ 686 0198 DBB2     		uxtb	r3, r3
+ 687 019a 1A1C     		mov	r2, r3
+ 688 019c 1F23     		mov	r3, #31
+ 689 019e 1340     		and	r3, r2
+ 690 01a0 BA69     		ldr	r2, [r7, #24]
+ 691 01a2 1343     		orr	r3, r2
+ 692 01a4 BB61     		str	r3, [r7, #24]
+ 166:../Sources/TFC/TFC_UART.c **** 
+ 167:../Sources/TFC/TFC_UART.c **** 		// Write reg_temp to C4 register
+ 168:../Sources/TFC/TFC_UART.c **** 		UART0_C4 = reg_temp;
+ 693              		.loc 1 168 0
+ 694 01a6 1D4B     		ldr	r3, .L33+8
+ 695 01a8 BA69     		ldr	r2, [r7, #24]
+ 696 01aa D2B2     		uxtb	r2, r2
+ 697 01ac 9A72     		strb	r2, [r3, #10]
+ 169:../Sources/TFC/TFC_UART.c **** 
+ 170:../Sources/TFC/TFC_UART.c **** 		reg_temp = (reg_temp & UART0_C4_OSR_MASK) + 1;
+ 698              		.loc 1 170 0
+ 699 01ae BA69     		ldr	r2, [r7, #24]
+ 700 01b0 1F23     		mov	r3, #31
+ 701 01b2 1340     		and	r3, r2
+ 702 01b4 0133     		add	r3, r3, #1
+ 703 01b6 BB61     		str	r3, [r7, #24]
+ 171:../Sources/TFC/TFC_UART.c **** 		sbr_val = (uint32) ((uart0clk) / (baud_rate * (reg_temp)));
+ 704              		.loc 1 171 0
+ 705 01b8 7B69     		ldr	r3, [r7, #20]
+ 706 01ba BA69     		ldr	r2, [r7, #24]
+ 707 01bc 5343     		mul	r3, r2
+ 708 01be 3869     		ldr	r0, [r7, #16]
+ 709 01c0 191C     		mov	r1, r3
+ 710 01c2 FFF7FEFF 		bl	__aeabi_uidiv
+ 711 01c6 031C     		mov	r3, r0
+ 712 01c8 FB60     		str	r3, [r7, #12]
+ 172:../Sources/TFC/TFC_UART.c **** 
+ 173:../Sources/TFC/TFC_UART.c **** 		/* Save off the current value of the uartx_BDH except for the SBR field */
+ 174:../Sources/TFC/TFC_UART.c **** 		reg_temp = UART0_BDH & ~(UART0_BDH_SBR(0x1F));
+ 713              		.loc 1 174 0
+ 714 01ca 144B     		ldr	r3, .L33+8
+ 715 01cc 1B78     		ldrb	r3, [r3]
+ 716 01ce DBB2     		uxtb	r3, r3
+ 717 01d0 1F22     		mov	r2, #31
+ 718 01d2 9343     		bic	r3, r2
+ 719 01d4 BB61     		str	r3, [r7, #24]
  175:../Sources/TFC/TFC_UART.c **** 
- 176:../Sources/TFC/TFC_UART.c **** /********************************************************************/
- 177:../Sources/TFC/TFC_UART.c **** /*
- 178:../Sources/TFC/TFC_UART.c ****  * Wait for a character to be received on the specified uart
- 179:../Sources/TFC/TFC_UART.c ****  *
- 180:../Sources/TFC/TFC_UART.c ****  * Parameters:
- 181:../Sources/TFC/TFC_UART.c ****  *  channel      uart channel to read from
- 182:../Sources/TFC/TFC_UART.c ****  *
- 183:../Sources/TFC/TFC_UART.c ****  * Return Values:
- 184:../Sources/TFC/TFC_UART.c ****  *  the received character
- 185:../Sources/TFC/TFC_UART.c ****  */
- 186:../Sources/TFC/TFC_UART.c **** char uart_getchar (UART_MemMapPtr channel)
- 187:../Sources/TFC/TFC_UART.c **** {
- 651              		.loc 1 187 0
- 652              		.cfi_startproc
- 653 0000 80B5     		push	{r7, lr}
- 654              	.LCFI10:
- 655              		.cfi_def_cfa_offset 8
- 656              		.cfi_offset 7, -8
- 657              		.cfi_offset 14, -4
- 658 0002 82B0     		sub	sp, sp, #8
- 659              	.LCFI11:
- 660              		.cfi_def_cfa_offset 16
- 661 0004 00AF     		add	r7, sp, #0
- 662              	.LCFI12:
- 663              		.cfi_def_cfa_register 7
- 664 0006 7860     		str	r0, [r7, #4]
- 188:../Sources/TFC/TFC_UART.c ****       /* Wait until character has been received */
- 189:../Sources/TFC/TFC_UART.c ****       while (!(UART_S1_REG(channel) & UART_S1_RDRF_MASK));
- 665              		.loc 1 189 0
- 666 0008 C046     		mov	r8, r8
- 667              	.L30:
- 668              		.loc 1 189 0 is_stmt 0
- 669 000a 7B68     		ldr	r3, [r7, #4]
- 670 000c 1B79     		ldrb	r3, [r3, #4]
- 671 000e DBB2     		uxtb	r3, r3
- 672 0010 1A1C     		mov	r2, r3
- 673 0012 2023     		mov	r3, #32
- 674 0014 1340     		and	r3, r2
- 675 0016 F8D0     		beq	.L30
- 190:../Sources/TFC/TFC_UART.c ****     
- 191:../Sources/TFC/TFC_UART.c ****       /* Return the 8-bit data from the receiver */
- 192:../Sources/TFC/TFC_UART.c ****       return UART_D_REG(channel);
- 676              		.loc 1 192 0 is_stmt 1
- 677 0018 7B68     		ldr	r3, [r7, #4]
- 678 001a DB79     		ldrb	r3, [r3, #7]
- 679 001c DBB2     		uxtb	r3, r3
- 193:../Sources/TFC/TFC_UART.c **** }
- 680              		.loc 1 193 0
- 681 001e 181C     		mov	r0, r3
- 682 0020 BD46     		mov	sp, r7
- 683 0022 02B0     		add	sp, sp, #8
- 684              		@ sp needed for prologue
- 685 0024 80BD     		pop	{r7, pc}
- 686              		.cfi_endproc
- 687              	.LFE4:
- 689 0026 C046     		.section	.text.uart_putchar,"ax",%progbits
- 690              		.align	2
- 691              		.global	uart_putchar
- 692              		.code	16
- 693              		.thumb_func
- 695              	uart_putchar:
- 696              	.LFB5:
- 194:../Sources/TFC/TFC_UART.c **** /********************************************************************/
- 195:../Sources/TFC/TFC_UART.c **** /*
- 196:../Sources/TFC/TFC_UART.c ****  * Wait for space in the uart Tx FIFO and then send a character
- 197:../Sources/TFC/TFC_UART.c ****  *
- 198:../Sources/TFC/TFC_UART.c ****  * Parameters:
- 199:../Sources/TFC/TFC_UART.c ****  *  channel      uart channel to send to
- 200:../Sources/TFC/TFC_UART.c ****  *  ch			 character to send
- 201:../Sources/TFC/TFC_UART.c ****  */ 
- 202:../Sources/TFC/TFC_UART.c **** void uart_putchar (UART_MemMapPtr channel, char ch)
- 203:../Sources/TFC/TFC_UART.c **** {
- 697              		.loc 1 203 0
- 698              		.cfi_startproc
- 699 0000 80B5     		push	{r7, lr}
- 700              	.LCFI13:
- 701              		.cfi_def_cfa_offset 8
- 702              		.cfi_offset 7, -8
- 703              		.cfi_offset 14, -4
- 704 0002 82B0     		sub	sp, sp, #8
- 705              	.LCFI14:
- 706              		.cfi_def_cfa_offset 16
- 707 0004 00AF     		add	r7, sp, #0
- 708              	.LCFI15:
- 709              		.cfi_def_cfa_register 7
- 710 0006 7860     		str	r0, [r7, #4]
- 711 0008 0A1C     		mov	r2, r1
- 712 000a FB1C     		add	r3, r7, #3
- 713 000c 1A70     		strb	r2, [r3]
- 204:../Sources/TFC/TFC_UART.c ****       /* Wait until space is available in the FIFO */
- 205:../Sources/TFC/TFC_UART.c ****       while(!(UART_S1_REG(channel) & UART_S1_TDRE_MASK));
- 714              		.loc 1 205 0
- 715 000e C046     		mov	r8, r8
- 716              	.L33:
- 717              		.loc 1 205 0 is_stmt 0
- 718 0010 7B68     		ldr	r3, [r7, #4]
- 719 0012 1B79     		ldrb	r3, [r3, #4]
- 720 0014 DBB2     		uxtb	r3, r3
- 721 0016 DBB2     		uxtb	r3, r3
- 722 0018 5BB2     		sxtb	r3, r3
- 723 001a 002B     		cmp	r3, #0
- 724 001c F8DA     		bge	.L33
- 206:../Sources/TFC/TFC_UART.c ****     
- 207:../Sources/TFC/TFC_UART.c ****       /* Send the character */
- 208:../Sources/TFC/TFC_UART.c ****       UART_D_REG(channel) = (uint8)ch;
- 725              		.loc 1 208 0 is_stmt 1
- 726 001e 7B68     		ldr	r3, [r7, #4]
- 727 0020 FA1C     		add	r2, r7, #3
- 728 0022 1278     		ldrb	r2, [r2]
- 729 0024 DA71     		strb	r2, [r3, #7]
- 209:../Sources/TFC/TFC_UART.c ****     
- 210:../Sources/TFC/TFC_UART.c ****  }
- 730              		.loc 1 210 0
- 731 0026 BD46     		mov	sp, r7
- 732 0028 02B0     		add	sp, sp, #8
- 733              		@ sp needed for prologue
- 734 002a 80BD     		pop	{r7, pc}
- 735              		.cfi_endproc
- 736              	.LFE5:
- 738              		.section	.text.uart_getchar_present,"ax",%progbits
- 739              		.align	2
- 740              		.global	uart_getchar_present
- 741              		.code	16
- 742              		.thumb_func
- 744              	uart_getchar_present:
- 745              	.LFB6:
- 211:../Sources/TFC/TFC_UART.c **** /********************************************************************/
- 212:../Sources/TFC/TFC_UART.c **** /*
- 213:../Sources/TFC/TFC_UART.c ****  * Check to see if a character has been received
- 214:../Sources/TFC/TFC_UART.c ****  *
- 215:../Sources/TFC/TFC_UART.c ****  * Parameters:
- 216:../Sources/TFC/TFC_UART.c ****  *  channel      uart channel to check for a character
- 217:../Sources/TFC/TFC_UART.c ****  *
- 218:../Sources/TFC/TFC_UART.c ****  * Return values:
- 219:../Sources/TFC/TFC_UART.c ****  *  0       No character received
- 220:../Sources/TFC/TFC_UART.c ****  *  1       Character has been received
- 221:../Sources/TFC/TFC_UART.c ****  */
- 222:../Sources/TFC/TFC_UART.c **** int uart_getchar_present (UART_MemMapPtr channel)
- 223:../Sources/TFC/TFC_UART.c **** {
- 746              		.loc 1 223 0
- 747              		.cfi_startproc
- 748 0000 80B5     		push	{r7, lr}
- 749              	.LCFI16:
- 750              		.cfi_def_cfa_offset 8
- 751              		.cfi_offset 7, -8
- 752              		.cfi_offset 14, -4
- 753 0002 82B0     		sub	sp, sp, #8
- 754              	.LCFI17:
- 755              		.cfi_def_cfa_offset 16
- 756 0004 00AF     		add	r7, sp, #0
- 757              	.LCFI18:
- 758              		.cfi_def_cfa_register 7
- 759 0006 7860     		str	r0, [r7, #4]
- 224:../Sources/TFC/TFC_UART.c ****     return (UART_S1_REG(channel) & UART_S1_RDRF_MASK);
- 760              		.loc 1 224 0
- 761 0008 7B68     		ldr	r3, [r7, #4]
- 762 000a 1B79     		ldrb	r3, [r3, #4]
- 763 000c DBB2     		uxtb	r3, r3
- 764 000e 1A1C     		mov	r2, r3
- 765 0010 2023     		mov	r3, #32
- 766 0012 1340     		and	r3, r2
- 225:../Sources/TFC/TFC_UART.c **** }
- 767              		.loc 1 225 0
- 768 0014 181C     		mov	r0, r3
- 769 0016 BD46     		mov	sp, r7
- 770 0018 02B0     		add	sp, sp, #8
- 771              		@ sp needed for prologue
- 772 001a 80BD     		pop	{r7, pc}
- 773              		.cfi_endproc
- 774              	.LFE6:
- 776              		.text
- 777              	.Letext0:
- 778              		.file 2 "C:/Freescale/CW MCU v10.4/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdint"
- 779              		.file 3 "D:/Module_ProjetP3/Software/FRDM-TFC_R1.0/FRDM-TFC/Project_Headers/MKL25Z4.h"
- 780              		.file 4 "D:/Module_ProjetP3/Software/FRDM-TFC_R1.0/FRDM-TFC/Project_Headers/TFC\\TFC_arm_cm0.h"
- 781              		.file 5 "D:/Module_ProjetP3/Software/FRDM-TFC_R1.0/FRDM-TFC/Project_Headers/TFC\\TFC_Queue.h"
+ 176:../Sources/TFC/TFC_UART.c **** 		UART0_BDH = reg_temp | UART0_BDH_SBR(((sbr_val & 0x1F00) >> 8));
+ 720              		.loc 1 176 0
+ 721 01d6 114B     		ldr	r3, .L33+8
+ 722 01d8 F968     		ldr	r1, [r7, #12]
+ 723 01da F822     		mov	r2, #248
+ 724 01dc 5201     		lsl	r2, r2, #5
+ 725 01de 0A40     		and	r2, r1
+ 726 01e0 120A     		lsr	r2, r2, #8
+ 727 01e2 D1B2     		uxtb	r1, r2
+ 728 01e4 1F22     		mov	r2, #31
+ 729 01e6 0A40     		and	r2, r1
+ 730 01e8 D1B2     		uxtb	r1, r2
+ 731 01ea BA69     		ldr	r2, [r7, #24]
+ 732 01ec D2B2     		uxtb	r2, r2
+ 733 01ee 0A43     		orr	r2, r1
+ 734 01f0 D2B2     		uxtb	r2, r2
+ 735 01f2 1A70     		strb	r2, [r3]
+ 177:../Sources/TFC/TFC_UART.c **** 		UART0_BDL = (uint8) (sbr_val & UART0_BDL_SBR_MASK);
+ 736              		.loc 1 177 0
+ 737 01f4 094B     		ldr	r3, .L33+8
+ 738 01f6 FA68     		ldr	r2, [r7, #12]
+ 739 01f8 D2B2     		uxtb	r2, r2
+ 740 01fa 5A70     		strb	r2, [r3, #1]
+ 178:../Sources/TFC/TFC_UART.c **** 
+ 179:../Sources/TFC/TFC_UART.c **** 		/* Enable receiver and transmitter */
+ 180:../Sources/TFC/TFC_UART.c **** 		UART0_C2 |= (UART0_C2_TE_MASK | UART0_C2_RE_MASK);
+ 741              		.loc 1 180 0
+ 742 01fc 074B     		ldr	r3, .L33+8
+ 743 01fe 074A     		ldr	r2, .L33+8
+ 744 0200 D278     		ldrb	r2, [r2, #3]
+ 745 0202 D2B2     		uxtb	r2, r2
+ 746 0204 0C21     		mov	r1, #12
+ 747 0206 0A43     		orr	r2, r1
+ 748 0208 D2B2     		uxtb	r2, r2
+ 749 020a DA70     		strb	r2, [r3, #3]
+ 750              	.L20:
+ 181:../Sources/TFC/TFC_UART.c **** 	} else {
+ 182:../Sources/TFC/TFC_UART.c **** 		// Unacceptable baud rate difference
+ 183:../Sources/TFC/TFC_UART.c **** 		// More than 3% difference!!
+ 184:../Sources/TFC/TFC_UART.c **** 		// Enter infinite loop!
+ 185:../Sources/TFC/TFC_UART.c **** 		//while(1)
+ 186:../Sources/TFC/TFC_UART.c **** 		//	{}
+ 187:../Sources/TFC/TFC_UART.c **** 	}
+ 188:../Sources/TFC/TFC_UART.c **** 
+ 189:../Sources/TFC/TFC_UART.c **** }
+ 751              		.loc 1 189 0
+ 752 020c BD46     		mov	sp, r7
+ 753 020e 0CB0     		add	sp, sp, #48
+ 754              		@ sp needed for prologue
+ 755 0210 80BD     		pop	{r7, pc}
+ 756              	.L34:
+ 757 0212 C046     		.align	2
+ 758              	.L33:
+ 759 0214 00700440 		.word	1074032640
+ 760 0218 34100000 		.word	4148
+ 761 021c 00A00640 		.word	1074176000
+ 762 0220 50C30000 		.word	50000
+ 763 0224 04100000 		.word	4100
+ 764 0228 FFFFFFF3 		.word	-201326593
+ 765              		.cfi_endproc
+ 766              	.LFE4:
+ 768              		.section	.text.uart2_init,"ax",%progbits
+ 769              		.align	2
+ 770              		.global	uart2_init
+ 771              		.code	16
+ 772              		.thumb_func
+ 774              	uart2_init:
+ 775              	.LFB5:
+ 190:../Sources/TFC/TFC_UART.c **** 
+ 191:../Sources/TFC/TFC_UART.c **** void uart2_init(int sysclk, int baud) {
+ 776              		.loc 1 191 0
+ 777              		.cfi_startproc
+ 778 0000 80B5     		push	{r7, lr}
+ 779              	.LCFI13:
+ 780              		.cfi_def_cfa_offset 8
+ 781              		.cfi_offset 7, -8
+ 782              		.cfi_offset 14, -4
+ 783 0002 8CB0     		sub	sp, sp, #48
+ 784              	.LCFI14:
+ 785              		.cfi_def_cfa_offset 56
+ 786 0004 00AF     		add	r7, sp, #0
+ 787              	.LCFI15:
+ 788              		.cfi_def_cfa_register 7
+ 789 0006 7860     		str	r0, [r7, #4]
+ 790 0008 3960     		str	r1, [r7]
+ 192:../Sources/TFC/TFC_UART.c **** 	uint8 i;
+ 193:../Sources/TFC/TFC_UART.c **** 	uint32 calculated_baud = 0;
+ 791              		.loc 1 193 0
+ 792 000a 0023     		mov	r3, #0
+ 793 000c FB62     		str	r3, [r7, #44]
+ 194:../Sources/TFC/TFC_UART.c **** 	uint32 baud_diff = 0;
+ 794              		.loc 1 194 0
+ 795 000e 0023     		mov	r3, #0
+ 796 0010 BB62     		str	r3, [r7, #40]
+ 195:../Sources/TFC/TFC_UART.c **** 	uint32 osr_val = 0;
+ 797              		.loc 1 195 0
+ 798 0012 0023     		mov	r3, #0
+ 799 0014 7B62     		str	r3, [r7, #36]
+ 196:../Sources/TFC/TFC_UART.c **** 	uint32 sbr_val, uart2clk;
+ 197:../Sources/TFC/TFC_UART.c **** 	uint32 baud_rate;
+ 198:../Sources/TFC/TFC_UART.c **** 	uint32 reg_temp = 0;
+ 800              		.loc 1 198 0
+ 801 0016 0023     		mov	r3, #0
+ 802 0018 3B62     		str	r3, [r7, #32]
+ 199:../Sources/TFC/TFC_UART.c **** 	uint32 temp = 0;
+ 803              		.loc 1 199 0
+ 804 001a 0023     		mov	r3, #0
+ 805 001c FB61     		str	r3, [r7, #28]
+ 200:../Sources/TFC/TFC_UART.c **** 
+ 201:../Sources/TFC/TFC_UART.c **** 	SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
+ 806              		.loc 1 201 0
+ 807 001e 234A     		ldr	r2, .L36
+ 808 0020 2249     		ldr	r1, .L36
+ 809 0022 234B     		ldr	r3, .L36+4
+ 810 0024 CB58     		ldr	r3, [r1, r3]
+ 811 0026 8021     		mov	r1, #128
+ 812 0028 4901     		lsl	r1, r1, #5
+ 813 002a 1943     		orr	r1, r3
+ 814 002c 204B     		ldr	r3, .L36+4
+ 815 002e D150     		str	r1, [r2, r3]
+ 202:../Sources/TFC/TFC_UART.c **** 
+ 203:../Sources/TFC/TFC_UART.c **** 	// Disable UART0 before changing registers
+ 204:../Sources/TFC/TFC_UART.c **** 	UART2_C2 &= ~(UART_C2_TE_MASK | UART_C2_RE_MASK);
+ 816              		.loc 1 204 0
+ 817 0030 204B     		ldr	r3, .L36+8
+ 818 0032 204A     		ldr	r2, .L36+8
+ 819 0034 D278     		ldrb	r2, [r2, #3]
+ 820 0036 D2B2     		uxtb	r2, r2
+ 821 0038 0C21     		mov	r1, #12
+ 822 003a 8A43     		bic	r2, r1
+ 823 003c D2B2     		uxtb	r2, r2
+ 824 003e DA70     		strb	r2, [r3, #3]
+ 205:../Sources/TFC/TFC_UART.c **** 
+ 206:../Sources/TFC/TFC_UART.c **** 	// Initialize baud rate
+ 207:../Sources/TFC/TFC_UART.c **** 	baud_rate = baud;
+ 825              		.loc 1 207 0
+ 826 0040 3B68     		ldr	r3, [r7]
+ 827 0042 BB61     		str	r3, [r7, #24]
+ 208:../Sources/TFC/TFC_UART.c **** 
+ 209:../Sources/TFC/TFC_UART.c **** 	// Change units to Hz
+ 210:../Sources/TFC/TFC_UART.c **** 	uart2clk = sysclk * 1000;
+ 828              		.loc 1 210 0
+ 829 0044 7B68     		ldr	r3, [r7, #4]
+ 830 0046 FA22     		mov	r2, #250
+ 831 0048 9200     		lsl	r2, r2, #2
+ 832 004a 5343     		mul	r3, r2
+ 833 004c 7B61     		str	r3, [r7, #20]
+ 211:../Sources/TFC/TFC_UART.c **** 
+ 212:../Sources/TFC/TFC_UART.c **** 	// Calculate the first baud rate using the lowest OSR value possible.  
+ 213:../Sources/TFC/TFC_UART.c **** 	i = 16;
+ 834              		.loc 1 213 0
+ 835 004e 3B1C     		mov	r3, r7
+ 836 0050 1333     		add	r3, r3, #19
+ 837 0052 1022     		mov	r2, #16
+ 838 0054 1A70     		strb	r2, [r3]
+ 214:../Sources/TFC/TFC_UART.c **** 	sbr_val = (uint32) (uart2clk / (baud_rate * i));
+ 839              		.loc 1 214 0
+ 840 0056 3B1C     		mov	r3, r7
+ 841 0058 1333     		add	r3, r3, #19
+ 842 005a 1B78     		ldrb	r3, [r3]
+ 843 005c BA69     		ldr	r2, [r7, #24]
+ 844 005e 5343     		mul	r3, r2
+ 845 0060 7869     		ldr	r0, [r7, #20]
+ 846 0062 191C     		mov	r1, r3
+ 847 0064 FFF7FEFF 		bl	__aeabi_uidiv
+ 848 0068 031C     		mov	r3, r0
+ 849 006a FB60     		str	r3, [r7, #12]
+ 215:../Sources/TFC/TFC_UART.c **** 	calculated_baud = (uart2clk / (i * sbr_val));
+ 850              		.loc 1 215 0
+ 851 006c 3B1C     		mov	r3, r7
+ 852 006e 1333     		add	r3, r3, #19
+ 853 0070 1B78     		ldrb	r3, [r3]
+ 854 0072 FA68     		ldr	r2, [r7, #12]
+ 855 0074 5343     		mul	r3, r2
+ 856 0076 7869     		ldr	r0, [r7, #20]
+ 857 0078 191C     		mov	r1, r3
+ 858 007a FFF7FEFF 		bl	__aeabi_uidiv
+ 859 007e 031C     		mov	r3, r0
+ 860 0080 FB62     		str	r3, [r7, #44]
+ 216:../Sources/TFC/TFC_UART.c **** //        
+ 217:../Sources/TFC/TFC_UART.c **** //    if (calculated_baud > baud_rate)
+ 218:../Sources/TFC/TFC_UART.c **** //        baud_diff = calculated_baud - baud_rate;
+ 219:../Sources/TFC/TFC_UART.c **** //    else
+ 220:../Sources/TFC/TFC_UART.c **** //        baud_diff = baud_rate - calculated_baud;
+ 221:../Sources/TFC/TFC_UART.c **** //    
+ 222:../Sources/TFC/TFC_UART.c **** //    osr_val = i;
+ 223:../Sources/TFC/TFC_UART.c **** 
+ 224:../Sources/TFC/TFC_UART.c **** //    // Select the best OSR value
+ 225:../Sources/TFC/TFC_UART.c **** //    for (i = 5; i <= 32; i++)
+ 226:../Sources/TFC/TFC_UART.c **** //    {
+ 227:../Sources/TFC/TFC_UART.c **** //        sbr_val = (uint32)(uart2clk/(baud_rate * i));
+ 228:../Sources/TFC/TFC_UART.c **** //        calculated_baud = (uart2clk / (i * sbr_val));
+ 229:../Sources/TFC/TFC_UART.c **** //        
+ 230:../Sources/TFC/TFC_UART.c **** //        if (calculated_baud > baud_rate)
+ 231:../Sources/TFC/TFC_UART.c **** //            temp = calculated_baud - baud_rate;
+ 232:../Sources/TFC/TFC_UART.c **** //        else
+ 233:../Sources/TFC/TFC_UART.c **** //            temp = baud_rate - calculated_baud;
+ 234:../Sources/TFC/TFC_UART.c **** //        
+ 235:../Sources/TFC/TFC_UART.c **** //        if (temp <= baud_diff)
+ 236:../Sources/TFC/TFC_UART.c **** //        {
+ 237:../Sources/TFC/TFC_UART.c **** //            baud_diff = temp;
+ 238:../Sources/TFC/TFC_UART.c **** //            osr_val = i; 
+ 239:../Sources/TFC/TFC_UART.c **** //        }
+ 240:../Sources/TFC/TFC_UART.c **** //    }
+ 241:../Sources/TFC/TFC_UART.c **** 
+ 242:../Sources/TFC/TFC_UART.c **** //    if (baud_diff < ((baud_rate / 100) * 3))
+ 243:../Sources/TFC/TFC_UART.c **** //    {
+ 244:../Sources/TFC/TFC_UART.c **** //        // If the OSR is between 4x and 8x then both
+ 245:../Sources/TFC/TFC_UART.c **** //        // edge sampling MUST be turned on.  
+ 246:../Sources/TFC/TFC_UART.c **** //        if ((osr_val >3) && (osr_val < 9))
+ 247:../Sources/TFC/TFC_UART.c **** //            UART2_C5|= UART2_C5_BOTHEDGE_MASK;
+ 248:../Sources/TFC/TFC_UART.c **** //        
+ 249:../Sources/TFC/TFC_UART.c **** //        // Setup OSR value 
+ 250:../Sources/TFC/TFC_UART.c **** //        reg_temp = UART2_C4;
+ 251:../Sources/TFC/TFC_UART.c **** //        reg_temp &= ~UART2_C4_OSR_MASK;
+ 252:../Sources/TFC/TFC_UART.c **** //        reg_temp |= UART2_C4_OSR(osr_val-1);
+ 253:../Sources/TFC/TFC_UART.c **** //    
+ 254:../Sources/TFC/TFC_UART.c **** //        // Write reg_temp to C4 register
+ 255:../Sources/TFC/TFC_UART.c **** //        UART2_C4 = reg_temp;
+ 256:../Sources/TFC/TFC_UART.c **** //        
+ 257:../Sources/TFC/TFC_UART.c **** //        reg_temp = (reg_temp & UART2_C4_OSR_MASK) + 1;
+ 258:../Sources/TFC/TFC_UART.c **** //        sbr_val = (uint32)((uart2clk)/(baud_rate * (reg_temp)));
+ 259:../Sources/TFC/TFC_UART.c **** //        
+ 260:../Sources/TFC/TFC_UART.c **** //         /* Save off the current value of the uartx_BDH except for the SBR field */
+ 261:../Sources/TFC/TFC_UART.c **** //        reg_temp = UART2_BDH & ~(UART0_BDH_SBR(0x1F));
+ 262:../Sources/TFC/TFC_UART.c **** //   
+ 263:../Sources/TFC/TFC_UART.c **** //        UART2_BDH = reg_temp |  UART2_BDH_SBR(((sbr_val & 0x1F00) >> 8));
+ 264:../Sources/TFC/TFC_UART.c **** //        UART2_BDL = (uint8)(sbr_val & UART2_BDL_SBR_MASK);
+ 265:../Sources/TFC/TFC_UART.c **** //        
+ 266:../Sources/TFC/TFC_UART.c **** //        /* Enable receiver and transmitter */
+ 267:../Sources/TFC/TFC_UART.c **** //        UART2_C2 |= (UART2_C2_TE_MASK
+ 268:../Sources/TFC/TFC_UART.c **** //                    | UART2_C2_RE_MASK );
+ 269:../Sources/TFC/TFC_UART.c **** //    }
+ 270:../Sources/TFC/TFC_UART.c **** //    else
+ 271:../Sources/TFC/TFC_UART.c **** //		{
+ 272:../Sources/TFC/TFC_UART.c **** 
+ 273:../Sources/TFC/TFC_UART.c **** 	UART2_BDH = (uint8_t) (0x000000FF) & (sbr_val >> 8);
+ 861              		.loc 1 273 0
+ 862 0082 0C4B     		ldr	r3, .L36+8
+ 863 0084 FA68     		ldr	r2, [r7, #12]
+ 864 0086 120A     		lsr	r2, r2, #8
+ 865 0088 D2B2     		uxtb	r2, r2
+ 866 008a 1A70     		strb	r2, [r3]
+ 274:../Sources/TFC/TFC_UART.c **** 	UART2_BDL = (uint8_t) (0x000000FF) & (sbr_val);
+ 867              		.loc 1 274 0
+ 868 008c 094B     		ldr	r3, .L36+8
+ 869 008e FA68     		ldr	r2, [r7, #12]
+ 870 0090 D2B2     		uxtb	r2, r2
+ 871 0092 5A70     		strb	r2, [r3, #1]
+ 275:../Sources/TFC/TFC_UART.c **** 	UART2_C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK);
+ 872              		.loc 1 275 0
+ 873 0094 074B     		ldr	r3, .L36+8
+ 874 0096 074A     		ldr	r2, .L36+8
+ 875 0098 D278     		ldrb	r2, [r2, #3]
+ 876 009a D2B2     		uxtb	r2, r2
+ 877 009c 0C21     		mov	r1, #12
+ 878 009e 0A43     		orr	r2, r1
+ 879 00a0 D2B2     		uxtb	r2, r2
+ 880 00a2 DA70     		strb	r2, [r3, #3]
+ 276:../Sources/TFC/TFC_UART.c **** //		}					
+ 277:../Sources/TFC/TFC_UART.c **** 
+ 278:../Sources/TFC/TFC_UART.c **** }
+ 881              		.loc 1 278 0
+ 882 00a4 BD46     		mov	sp, r7
+ 883 00a6 0CB0     		add	sp, sp, #48
+ 884              		@ sp needed for prologue
+ 885 00a8 80BD     		pop	{r7, pc}
+ 886              	.L37:
+ 887 00aa C046     		.align	2
+ 888              	.L36:
+ 889 00ac 00700440 		.word	1074032640
+ 890 00b0 34100000 		.word	4148
+ 891 00b4 00C00640 		.word	1074184192
+ 892              		.cfi_endproc
+ 893              	.LFE5:
+ 895              		.section	.text.uart_getchar,"ax",%progbits
+ 896              		.align	2
+ 897              		.global	uart_getchar
+ 898              		.code	16
+ 899              		.thumb_func
+ 901              	uart_getchar:
+ 902              	.LFB6:
+ 279:../Sources/TFC/TFC_UART.c **** 
+ 280:../Sources/TFC/TFC_UART.c **** /********************************************************************/
+ 281:../Sources/TFC/TFC_UART.c **** /*
+ 282:../Sources/TFC/TFC_UART.c ****  * Wait for a character to be received on the specified uart
+ 283:../Sources/TFC/TFC_UART.c ****  *
+ 284:../Sources/TFC/TFC_UART.c ****  * Parameters:
+ 285:../Sources/TFC/TFC_UART.c ****  *  channel      uart channel to read from
+ 286:../Sources/TFC/TFC_UART.c ****  *
+ 287:../Sources/TFC/TFC_UART.c ****  * Return Values:
+ 288:../Sources/TFC/TFC_UART.c ****  *  the received character
+ 289:../Sources/TFC/TFC_UART.c ****  */
+ 290:../Sources/TFC/TFC_UART.c **** char uart_getchar(UART_MemMapPtr channel) {
+ 903              		.loc 1 290 0
+ 904              		.cfi_startproc
+ 905 0000 80B5     		push	{r7, lr}
+ 906              	.LCFI16:
+ 907              		.cfi_def_cfa_offset 8
+ 908              		.cfi_offset 7, -8
+ 909              		.cfi_offset 14, -4
+ 910 0002 82B0     		sub	sp, sp, #8
+ 911              	.LCFI17:
+ 912              		.cfi_def_cfa_offset 16
+ 913 0004 00AF     		add	r7, sp, #0
+ 914              	.LCFI18:
+ 915              		.cfi_def_cfa_register 7
+ 916 0006 7860     		str	r0, [r7, #4]
+ 291:../Sources/TFC/TFC_UART.c **** 	/* Wait until character has been received */
+ 292:../Sources/TFC/TFC_UART.c **** 	while (!(UART_S1_REG(channel) & UART_S1_RDRF_MASK))
+ 917              		.loc 1 292 0
+ 918 0008 C046     		mov	r8, r8
+ 919              	.L39:
+ 920              		.loc 1 292 0 is_stmt 0
+ 921 000a 7B68     		ldr	r3, [r7, #4]
+ 922 000c 1B79     		ldrb	r3, [r3, #4]
+ 923 000e DBB2     		uxtb	r3, r3
+ 924 0010 1A1C     		mov	r2, r3
+ 925 0012 2023     		mov	r3, #32
+ 926 0014 1340     		and	r3, r2
+ 927 0016 F8D0     		beq	.L39
+ 293:../Sources/TFC/TFC_UART.c **** 		;
+ 294:../Sources/TFC/TFC_UART.c **** 
+ 295:../Sources/TFC/TFC_UART.c **** 	/* Return the 8-bit data from the receiver */
+ 296:../Sources/TFC/TFC_UART.c **** 	return UART_D_REG(channel);
+ 928              		.loc 1 296 0 is_stmt 1
+ 929 0018 7B68     		ldr	r3, [r7, #4]
+ 930 001a DB79     		ldrb	r3, [r3, #7]
+ 931 001c DBB2     		uxtb	r3, r3
+ 297:../Sources/TFC/TFC_UART.c **** }
+ 932              		.loc 1 297 0
+ 933 001e 181C     		mov	r0, r3
+ 934 0020 BD46     		mov	sp, r7
+ 935 0022 02B0     		add	sp, sp, #8
+ 936              		@ sp needed for prologue
+ 937 0024 80BD     		pop	{r7, pc}
+ 938              		.cfi_endproc
+ 939              	.LFE6:
+ 941 0026 C046     		.section	.text.uart_putchar,"ax",%progbits
+ 942              		.align	2
+ 943              		.global	uart_putchar
+ 944              		.code	16
+ 945              		.thumb_func
+ 947              	uart_putchar:
+ 948              	.LFB7:
+ 298:../Sources/TFC/TFC_UART.c **** /********************************************************************/
+ 299:../Sources/TFC/TFC_UART.c **** /*
+ 300:../Sources/TFC/TFC_UART.c ****  * Wait for space in the uart Tx FIFO and then send a character
+ 301:../Sources/TFC/TFC_UART.c ****  *
+ 302:../Sources/TFC/TFC_UART.c ****  * Parameters:
+ 303:../Sources/TFC/TFC_UART.c ****  *  channel      uart channel to send to
+ 304:../Sources/TFC/TFC_UART.c ****  *  ch			 character to send
+ 305:../Sources/TFC/TFC_UART.c ****  */
+ 306:../Sources/TFC/TFC_UART.c **** void uart_putchar(UART_MemMapPtr channel, char ch) {
+ 949              		.loc 1 306 0
+ 950              		.cfi_startproc
+ 951 0000 80B5     		push	{r7, lr}
+ 952              	.LCFI19:
+ 953              		.cfi_def_cfa_offset 8
+ 954              		.cfi_offset 7, -8
+ 955              		.cfi_offset 14, -4
+ 956 0002 82B0     		sub	sp, sp, #8
+ 957              	.LCFI20:
+ 958              		.cfi_def_cfa_offset 16
+ 959 0004 00AF     		add	r7, sp, #0
+ 960              	.LCFI21:
+ 961              		.cfi_def_cfa_register 7
+ 962 0006 7860     		str	r0, [r7, #4]
+ 963 0008 0A1C     		mov	r2, r1
+ 964 000a FB1C     		add	r3, r7, #3
+ 965 000c 1A70     		strb	r2, [r3]
+ 307:../Sources/TFC/TFC_UART.c **** 	/* Wait until space is available in the FIFO */
+ 308:../Sources/TFC/TFC_UART.c **** 	while (!(UART_S1_REG(channel) & UART_S1_TDRE_MASK))
+ 966              		.loc 1 308 0
+ 967 000e C046     		mov	r8, r8
+ 968              	.L42:
+ 969              		.loc 1 308 0 is_stmt 0
+ 970 0010 7B68     		ldr	r3, [r7, #4]
+ 971 0012 1B79     		ldrb	r3, [r3, #4]
+ 972 0014 DBB2     		uxtb	r3, r3
+ 973 0016 DBB2     		uxtb	r3, r3
+ 974 0018 5BB2     		sxtb	r3, r3
+ 975 001a 002B     		cmp	r3, #0
+ 976 001c F8DA     		bge	.L42
+ 309:../Sources/TFC/TFC_UART.c **** 		;
+ 310:../Sources/TFC/TFC_UART.c **** 
+ 311:../Sources/TFC/TFC_UART.c **** 	/* Send the character */
+ 312:../Sources/TFC/TFC_UART.c **** 	UART_D_REG(channel) = (uint8) ch;
+ 977              		.loc 1 312 0 is_stmt 1
+ 978 001e 7B68     		ldr	r3, [r7, #4]
+ 979 0020 FA1C     		add	r2, r7, #3
+ 980 0022 1278     		ldrb	r2, [r2]
+ 981 0024 DA71     		strb	r2, [r3, #7]
+ 313:../Sources/TFC/TFC_UART.c **** 
+ 314:../Sources/TFC/TFC_UART.c **** }
+ 982              		.loc 1 314 0
+ 983 0026 BD46     		mov	sp, r7
+ 984 0028 02B0     		add	sp, sp, #8
+ 985              		@ sp needed for prologue
+ 986 002a 80BD     		pop	{r7, pc}
+ 987              		.cfi_endproc
+ 988              	.LFE7:
+ 990              		.section	.text.uart_getchar_present,"ax",%progbits
+ 991              		.align	2
+ 992              		.global	uart_getchar_present
+ 993              		.code	16
+ 994              		.thumb_func
+ 996              	uart_getchar_present:
+ 997              	.LFB8:
+ 315:../Sources/TFC/TFC_UART.c **** /********************************************************************/
+ 316:../Sources/TFC/TFC_UART.c **** /*
+ 317:../Sources/TFC/TFC_UART.c ****  * Check to see if a character has been received
+ 318:../Sources/TFC/TFC_UART.c ****  *
+ 319:../Sources/TFC/TFC_UART.c ****  * Parameters:
+ 320:../Sources/TFC/TFC_UART.c ****  *  channel      uart channel to check for a character
+ 321:../Sources/TFC/TFC_UART.c ****  *
+ 322:../Sources/TFC/TFC_UART.c ****  * Return values:
+ 323:../Sources/TFC/TFC_UART.c ****  *  0       No character received
+ 324:../Sources/TFC/TFC_UART.c ****  *  1       Character has been received
+ 325:../Sources/TFC/TFC_UART.c ****  */
+ 326:../Sources/TFC/TFC_UART.c **** int uart_getchar_present(UART_MemMapPtr channel) {
+ 998              		.loc 1 326 0
+ 999              		.cfi_startproc
+ 1000 0000 80B5     		push	{r7, lr}
+ 1001              	.LCFI22:
+ 1002              		.cfi_def_cfa_offset 8
+ 1003              		.cfi_offset 7, -8
+ 1004              		.cfi_offset 14, -4
+ 1005 0002 82B0     		sub	sp, sp, #8
+ 1006              	.LCFI23:
+ 1007              		.cfi_def_cfa_offset 16
+ 1008 0004 00AF     		add	r7, sp, #0
+ 1009              	.LCFI24:
+ 1010              		.cfi_def_cfa_register 7
+ 1011 0006 7860     		str	r0, [r7, #4]
+ 327:../Sources/TFC/TFC_UART.c **** 	return (UART_S1_REG(channel) & UART_S1_RDRF_MASK);
+ 1012              		.loc 1 327 0
+ 1013 0008 7B68     		ldr	r3, [r7, #4]
+ 1014 000a 1B79     		ldrb	r3, [r3, #4]
+ 1015 000c DBB2     		uxtb	r3, r3
+ 1016 000e 1A1C     		mov	r2, r3
+ 1017 0010 2023     		mov	r3, #32
+ 1018 0012 1340     		and	r3, r2
+ 328:../Sources/TFC/TFC_UART.c **** }
+ 1019              		.loc 1 328 0
+ 1020 0014 181C     		mov	r0, r3
+ 1021 0016 BD46     		mov	sp, r7
+ 1022 0018 02B0     		add	sp, sp, #8
+ 1023              		@ sp needed for prologue
+ 1024 001a 80BD     		pop	{r7, pc}
+ 1025              		.cfi_endproc
+ 1026              	.LFE8:
+ 1028              		.text
+ 1029              	.Letext0:
+ 1030              		.file 2 "C:/Freescale/CW MCU v10.4/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdint"
+ 1031              		.file 3 "D:/Module_ProjetP3/Software/Fscup/Project_Headers/MKL25Z4.h"
+ 1032              		.file 4 "D:/Module_ProjetP3/Software/Fscup/Project_Headers/TFC\\TFC_arm_cm0.h"
+ 1033              		.file 5 "D:/Module_ProjetP3/Software/Fscup/Project_Headers/TFC\\TFC_Queue.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 TFC_UART.c
                             *COM*:0000000c SDA_SERIAL_OUTGOING_QUEUE
                             *COM*:0000000c SDA_SERIAL_INCOMING_QUEUE
+                            *COM*:0000000c XBEE_SERIAL_OUTGOING_QUEUE
+                            *COM*:0000000c XBEE_SERIAL_INCOMING_QUEUE
                             *COM*:00000800 SDA_SERIAL_OUTGOING_QUEUE_Storage
                             *COM*:00000080 SDA_SERIAL_INCOMING_QUEUE_Storage
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:22     .text.TFC_InitUARTs:00000000 $t
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:27     .text.TFC_InitUARTs:00000000 TFC_InitUARTs
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:298    .text.uart0_init:00000000 uart0_init
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:131    .text.TFC_InitUARTs:000000a4 $d
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:146    .text.TFC_UART_Process:00000000 $t
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:151    .text.TFC_UART_Process:00000000 TFC_UART_Process
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:196    .text.TFC_UART_Process:00000038 $d
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:202    .text.UART0_IRQHandler:00000000 $t
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:207    .text.UART0_IRQHandler:00000000 UART0_IRQHandler
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:285    .text.UART0_IRQHandler:0000006c $d
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:293    .text.uart0_init:00000000 $t
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:634    .text.uart0_init:00000214 $d
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:644    .text.uart_getchar:00000000 $t
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:649    .text.uart_getchar:00000000 uart_getchar
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:690    .text.uart_putchar:00000000 $t
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:695    .text.uart_putchar:00000000 uart_putchar
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:739    .text.uart_getchar_present:00000000 $t
-C:\Users\Michael\AppData\Local\Temp\cc7CGT94.s:744    .text.uart_getchar_present:00000000 uart_getchar_present
+                            *COM*:00000800 XBEE_SERIAL_OUTGOING_QUEUE_Storage
+                            *COM*:00000080 XBEE_SERIAL_INCOMING_QUEUE_Storage
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:26     .text.TFC_InitUARTs:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:31     .text.TFC_InitUARTs:00000000 TFC_InitUARTs
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:423    .text.uart0_init:00000000 uart0_init
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:774    .text.uart2_init:00000000 uart2_init
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:164    .text.TFC_InitUARTs:000000d8 $d
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:181    .text.TFC_UART_Process:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:186    .text.TFC_UART_Process:00000000 TFC_UART_Process
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:231    .text.TFC_UART_Process:00000038 $d
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:237    .text.UART0_IRQHandler:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:242    .text.UART0_IRQHandler:00000000 UART0_IRQHandler
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:320    .text.UART0_IRQHandler:0000006c $d
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:327    .text.UART2_IRQHandler:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:332    .text.UART2_IRQHandler:00000000 UART2_IRQHandler
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:410    .text.UART2_IRQHandler:0000006c $d
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:418    .text.uart0_init:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:759    .text.uart0_init:00000214 $d
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:769    .text.uart2_init:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:889    .text.uart2_init:000000ac $d
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:896    .text.uart_getchar:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:901    .text.uart_getchar:00000000 uart_getchar
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:942    .text.uart_putchar:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:947    .text.uart_putchar:00000000 uart_putchar
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:991    .text.uart_getchar_present:00000000 $t
+C:\Users\Michael\AppData\Local\Temp\ccv2LZBd.s:996    .text.uart_getchar_present:00000000 uart_getchar_present
                      .debug_frame:00000010 $d
 
 UNDEFINED SYMBOLS

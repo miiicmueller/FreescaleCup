@@ -4,8 +4,8 @@
 -g3
 -gdwarf-2
 -gstrict-dwarf
--I"D:/Module_ProjetP3/Software/FRDM-TFC_R1.0/FRDM-TFC/Project_Headers"
--I"D:/Module_ProjetP3/Software/FRDM-TFC_R1.0/FRDM-TFC/Project_Settings/Startup_Code"
+-I"D:/Module_ProjetP3/Software/Fscup/Project_Headers"
+-I"D:/Module_ProjetP3/Software/Fscup/Project_Settings/Startup_Code"
 -I"C:/Freescale/CW MCU v10.4/MCU/ARM_GCC_Support/ewl/EWL_C/include"
 -I"C:/Freescale/CW MCU v10.4/MCU/ARM_GCC_Support/ewl/EWL_Runtime/include"
 -O0
