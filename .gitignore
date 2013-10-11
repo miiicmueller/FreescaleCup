@@ -22,5 +22,5 @@
 *.args
 *.d
 *.lst
-.cproject
-makefile
+*.cproject
+*makefile
