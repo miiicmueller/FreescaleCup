@@ -15,6 +15,9 @@ void TFC_Init()
 	TFC_HBRIDGE_DISABLE;
 	TFC_SetMotorPWM(0,0);
 	
+	//Leds
+	mLeds_Setup();
+	
 }
 
 void TFC_Task()
