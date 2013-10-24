@@ -15,3 +15,12 @@
 *.exe
 *.out
 *.app
+
+*.mk
+*.elf
+*.map
+*.args
+*.d
+*.lst
+*.cproject
+*makefile

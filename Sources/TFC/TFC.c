@@ -1,5 +1,6 @@
 #include "TFC\TFC.h"
 
+
 void TFC_Init()
     {
     TFC_InitClock();
@@ -10,11 +11,14 @@ void TFC_Init()
     TFC_InitADCs();
     TFC_InitLineScanCamera();
     TFC_InitTerminal();
-    TFC_InitUARTs();
-    TFC_HBRIDGE_DISABLE;
-    TFC_SetMotorPWM(0, 0);
-
-    }
+	TFC_InitUARTs();
+	TFC_HBRIDGE_DISABLE;
+	TFC_SetMotorPWM(0,0);
+	
+	//Leds
+	mLeds_Setup();
+	
+}
 
 void TFC_Task()
     {
