@@ -6,7 +6,7 @@
 
 #define FTM0_CLOCK                                   	      (CORE_CLOCK/2)
 #define FTM0_CLK_PRESCALE                                 	   0  // Prescale Selector value - see comments in Status Control (SC) section for more details
-#define FTM0_OVERFLOW_FREQUENCY 5000				  //
+#define FTM0_OVERFLOW_FREQUENCY 20000				  //
 
 
 /**********************************************************************************************/
@@ -40,7 +40,7 @@ void TFC_InitMotorPWM()
     
     //Setup the mod register to get the correct PWM Period
     
-    TPM0_MOD = FTM0_CLOCK/(1<<FTM0_CLK_PRESCALE)/FTM0_OVERFLOW_FREQUENCY;
+    TPM0_MOD = (FTM0_CLOCK/(1<<FTM0_CLK_PRESCALE))/FTM0_OVERFLOW_FREQUENCY;
     
     //Setup Channels 0,1,2,3
     TPM0_C0SC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK;

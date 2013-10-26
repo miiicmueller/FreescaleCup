@@ -1,13 +1,12 @@
 #include "derivative.h" /* include peripheral declarations */
 #include "TFC\TFC.h"
+#include "Modules\mLeds.h"
 
 int main(void)
     {
     uint32_t t, i = 0;
 
     TFC_Init();
-
-    //Un commentaire idiot
 
     for (;;)
 	{
@@ -97,13 +96,17 @@ int main(void)
 	    if (TFC_Ticker[0] > 100 && LineScanImageReady == 1)
 		{
 		// pour pouvoir ajuster le temps d'exposition du capteur CCD de 0 à 10ms (valeur par défaut : 5ms)
-		static uint32_t oldval = 5000;
-		uint32_t val = (uint32_t) ((TFC_ReadPot(0) + 1) * 5000);
-		if (val != oldval)
+		static uint32_t oldvalExposure = 5000;
+		uint32_t valExposure = (uint32_t) (((TFC_ReadPot(0) + 1.0)
+			* 5000.0) + 1.0);
+		if (valExposure != oldvalExposure)
 		    {
-		    TFC_SetLineScanExposureTime(val);
+		    TFC_SetLineScanExposureTime(valExposure);
 		    }
-		oldval = val;
+		oldvalExposure = valExposure;
+
+		// pour pouvoir ajuster la luminosite des LEDs
+		mLeds_writeDyC(TFC_ReadPot(1));
 
 		TFC_Ticker[0] = 0;
 		LineScanImageReady = 0;

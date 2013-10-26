@@ -19,7 +19,6 @@
 #define ADC0_DLYB     0x4000                                // ADC0 trigger B delay 
 #define ADC1_DLYA     0x6000                                // ADC1 trigger A delay
 #define ADC1_DLYB     0x7fff                                // ADC1 trigger B delay 
-
 #define ADC0A_DONE   0x01       
 #define ADC0B_DONE   0x02       
 #define ADC1A_DONE   0x04       
@@ -363,13 +362,13 @@ void InitADC0()
     disable_irq(INT_ADC0 - 16);
 
     Master_Adc0_Config.CONFIG1 = ADLPC_NORMAL //No low power mode
-    | ADC_CFG1_ADIV(ADIV_4) //divide input by 4
-    | ADLSMP_LONG //long sample time
+    | ADC_CFG1_ADIV(ADIV_1) //divide input by 1
+    | ADLSMP_SHORT //short sample time
     | ADC_CFG1_MODE(MODE_12) //single ended 8-bit conversion
     | ADC_CFG1_ADICLK(ADICLK_BUS);
 
     Master_Adc0_Config.CONFIG2 = MUXSEL_ADCA // select the A side of the ADC channel.
-    | ADACKEN_DISABLED | ADHSC_HISPEED | ADC_CFG2_ADLSTS(ADLSTS_2); //Extra long sample Time (20 extra clocks)
+    | ADACKEN_DISABLED | ADHSC_HISPEED | ADC_CFG2_ADLSTS(ADLSTS_2); //Extra long sample Time (2 extra clocks)
 
     Master_Adc0_Config.COMPARE1 = 00000; // Comparators don't matter for calibration
     Master_Adc0_Config.COMPARE1 = 0xFFFF;
@@ -481,7 +480,7 @@ void ADC0_IRQHandler()
 
 	TAOS_CLK_HIGH;
 
-	for (Junk = 0; Junk < 50; Junk++)
+	for (Junk = 0; Junk < 3; Junk++)
 	    {
 	    }
 
@@ -514,7 +513,7 @@ void ADC0_IRQHandler()
 		CurrentLineScanPixel++;
 
 		TAOS_CLK_LOW;
-		for (Junk = 0; Junk < 50; Junk++)
+		for (Junk = 0; Junk < 2; Junk++)
 		    {
 		    }
 		TAOS_CLK_HIGH;
@@ -528,7 +527,7 @@ void ADC0_IRQHandler()
 
 	    TAOS_CLK_HIGH;
 
-	    for (Junk = 0; Junk < 50; Junk++)
+	    for (Junk = 0; Junk < 2; Junk++)
 		{
 		}
 
