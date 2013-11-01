@@ -14,7 +14,7 @@
 //--------------------------------------------------------
 void tDerivative(int16_t* tab, uint16_t size)
     {
-    for (int16_t i = 0; i < (size - 2); i++)
+    for (int16_t i = 0; i < (size - 1); i++)
 	{
 	tab[i] = tab[i + 1] - tab[i];
 	}
@@ -52,16 +52,16 @@ void tRescale(int16_t* tab, uint16_t size, uint16_t theScale)
 
     if (oldMax > oldMin)
 	{
-	theFactor = theScale / oldMax;
+	theFactor = (float) theScale / (float) oldMax;
 	}
     else
 	{
-	theFactor = theScale / oldMin;
+	theFactor = (float) theScale / (float) oldMin;
 	}
 
     for (uint16_t i = 0; i < size; i++)
 	{
-	tab[i] = (int16_t) (tab[i] * theFactor);
+	tab[i] = (int16_t) ((float) tab[i] * theFactor);
 	}
     }
 
@@ -124,9 +124,9 @@ int8_t tMax(int16_t* tab, uint16_t size)
     {
     uint16_t indexMax = 0;
 
-    for (uint16_t i = 1; i > size; i++)
+    for (uint16_t i = 1; i < size; i++)
 	{
-	if (tab[i] < tab[indexMax])
+	if (tab[i] > tab[indexMax])
 	    {
 	    indexMax = i;
 	    }
@@ -144,7 +144,7 @@ int16_t tMean(int16_t* tab, uint16_t size)
     {
     uint16_t sum = 0;
 
-    for (uint16_t i = 0; i > size; i++)
+    for (uint16_t i = 0; i < size; i++)
 	{
 	sum += tab[i];
 	}

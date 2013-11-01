@@ -5,14 +5,21 @@
 //*****************************************************************************
 
 //fichiers utilises
-#include "Modules/mTrackLine.h"
-#include "Tools/Tools.h"
+#include "Modules\mTrackLine.h"
+#include "Tools\Tools.h"
 
 //definitions de constantes
 #define kScaleTab	100	//echelle a laquelle on veut mettre le tableau
-#define kThresholdTab	50	//seuil a partir duquel un flanc est considere comme significatif
+#define kThresholdTab	40	//seuil a partir duquel un flanc est considere comme significatif
 #define kLengthLineMin	25	//longueur min de la ligne a trouver (en pixels)
 #define kLengthLineMax	50	//longueur max de la ligne a trouver (en pixels)
+//definitions de types et structures
+typedef struct
+    {
+	uint16_t location;
+	uint16_t length;
+    } mTrackLineObject;
+
 // prototypes des fonctions statiques au module
 static bool mTrackLine_FindDarkObject(int16_t* tab, uint16_t size,
 	uint16_t objectNumber, mTrackLineObject* theObject, bool restart);
@@ -114,6 +121,7 @@ static bool mTrackLine_FindDarkObject(int16_t* tab, uint16_t size,
 		isObjectFound = true;
 		currentObject++;
 		}
+	    i++;
 	    }
 	}
 

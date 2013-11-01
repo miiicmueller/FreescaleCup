@@ -23,9 +23,13 @@
 *.d
 *.lst
 *.cproject
+*.project
 *makefile
 
+*.prefs
+*.orig
 *.BACKUP.*
 *.BASE.*
 *.LOCAL.*
 *.REMOTE.*
+

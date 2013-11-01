@@ -1,6 +1,7 @@
 #include "derivative.h" /* include peripheral declarations */
 #include "TFC\TFC.h"
 #include "Modules\mLeds.h"
+#include "Modules\mTrackLine.h"
 
 int main(void)
     {
@@ -93,8 +94,9 @@ int main(void)
 	    //Demo Mode 3 will be in Freescale Garage Mode.  It will beam data from the Camera to the 
 	    //Labview Application
 
-	    if (TFC_Ticker[0] > 100 && LineScanImageReady == 1)
+	    if (TFC_Ticker[1] > 100)
 		{
+		TFC_Ticker[1] = 0;
 		// pour pouvoir ajuster le temps d'exposition du capteur CCD de 0 à 10ms (valeur par défaut : 5ms)
 		static uint32_t oldvalExposure = 5000;
 		uint32_t valExposure = (uint32_t) (((TFC_ReadPot(0) + 1.0)
@@ -104,33 +106,48 @@ int main(void)
 		    TFC_SetLineScanExposureTime(valExposure);
 		    }
 		oldvalExposure = valExposure;
+		}
 
+	    if (TFC_Ticker[0] > 100 && LineScanImageReady == 1)
+		{
 		// pour pouvoir ajuster la luminosite des LEDs
 		mLeds_writeDyC(TFC_ReadPot(1));
 
 		TFC_Ticker[0] = 0;
 		LineScanImageReady = 0;
+
+		//recherche de la ligne
+		int16_t LineAnalyze[128];
+		uint16_t positionLine;
+		for (uint16_t i = 0; i < 128; i++)
+		    {
+		    LineAnalyze[i] = LineScanImage0[i];
+		    }
+
+		if (mTrackLine_FindLine(LineAnalyze, 128, &positionLine))
+		    {
+		    TFC_BAT_LED0_ON;
+		    }
+		else
+		    {
+		    TFC_BAT_LED0_OFF;
+		    }
+
 		TERMINAL_PRINTF("\r\n");
 		TERMINAL_PRINTF("L:");
 
-		if (t == 0)
-		    t = 3;
-		else
-		    t--;
-		TFC_SetBatteryLED_Level(t);
-
 		for (i = 0; i < 128; i++)
 		    {
-		    TERMINAL_PRINTF("%X,", LineScanImage0[i]);
+		    TERMINAL_PRINTF("%d,", LineScanImage0[i]);
 		    }
 
 		for (i = 0; i < 128; i++)
 		    {
-		    TERMINAL_PRINTF("%X", LineScanImage1[i]);
+		    TERMINAL_PRINTF("%d", LineAnalyze[i]);
 		    if (i == 127)
-			TERMINAL_PRINTF("\r\n", LineScanImage1[i]);
+			TERMINAL_PRINTF("\r\n", LineAnalyze[i]);
 		    else
-			TERMINAL_PRINTF(",", LineScanImage1[i]);
+			TERMINAL_PRINTF(",", LineAnalyze[i]);
 		    }
 		}
 
