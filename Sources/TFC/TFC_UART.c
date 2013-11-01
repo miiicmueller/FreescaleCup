@@ -23,6 +23,11 @@ void TFC_InitUARTs() {
 	InitByteQueue(&SDA_SERIAL_INCOMING_QUEUE, SDA_SERIAL_INCOMING_QUEUE_SIZE,
 			SDA_SERIAL_INCOMING_QUEUE_Storage);
 
+	InitByteQueue(&XBEE_SERIAL_OUTGOING_QUEUE, XBEE_SERIAL_OUTGOING_QUEUE_SIZE,
+			XBEE_SERIAL_OUTGOING_QUEUE_Storage);
+	InitByteQueue(&XBEE_SERIAL_INCOMING_QUEUE, XBEE_SERIAL_INCOMING_QUEUE_SIZE,
+			XBEE_SERIAL_INCOMING_QUEUE_Storage);
+
 	PORTA_PCR1 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
 	PORTA_PCR2 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
 
@@ -213,67 +218,10 @@ void uart2_init(int sysclk, int baud) {
 	i = 16;
 	sbr_val = (uint32) (uart2clk / (baud_rate * i));
 	calculated_baud = (uart2clk / (i * sbr_val));
-//        
-//    if (calculated_baud > baud_rate)
-//        baud_diff = calculated_baud - baud_rate;
-//    else
-//        baud_diff = baud_rate - calculated_baud;
-//    
-//    osr_val = i;
-
-//    // Select the best OSR value
-//    for (i = 5; i <= 32; i++)
-//    {
-//        sbr_val = (uint32)(uart2clk/(baud_rate * i));
-//        calculated_baud = (uart2clk / (i * sbr_val));
-//        
-//        if (calculated_baud > baud_rate)
-//            temp = calculated_baud - baud_rate;
-//        else
-//            temp = baud_rate - calculated_baud;
-//        
-//        if (temp <= baud_diff)
-//        {
-//            baud_diff = temp;
-//            osr_val = i; 
-//        }
-//    }
-
-//    if (baud_diff < ((baud_rate / 100) * 3))
-//    {
-//        // If the OSR is between 4x and 8x then both
-//        // edge sampling MUST be turned on.  
-//        if ((osr_val >3) && (osr_val < 9))
-//            UART2_C5|= UART2_C5_BOTHEDGE_MASK;
-//        
-//        // Setup OSR value 
-//        reg_temp = UART2_C4;
-//        reg_temp &= ~UART2_C4_OSR_MASK;
-//        reg_temp |= UART2_C4_OSR(osr_val-1);
-//    
-//        // Write reg_temp to C4 register
-//        UART2_C4 = reg_temp;
-//        
-//        reg_temp = (reg_temp & UART2_C4_OSR_MASK) + 1;
-//        sbr_val = (uint32)((uart2clk)/(baud_rate * (reg_temp)));
-//        
-//         /* Save off the current value of the uartx_BDH except for the SBR field */
-//        reg_temp = UART2_BDH & ~(UART0_BDH_SBR(0x1F));
-//   
-//        UART2_BDH = reg_temp |  UART2_BDH_SBR(((sbr_val & 0x1F00) >> 8));
-//        UART2_BDL = (uint8)(sbr_val & UART2_BDL_SBR_MASK);
-//        
-//        /* Enable receiver and transmitter */
-//        UART2_C2 |= (UART2_C2_TE_MASK
-//                    | UART2_C2_RE_MASK );
-//    }
-//    else
-//		{
 
 	UART2_BDH = (uint8_t) (0x000000FF) & (sbr_val >> 8);
 	UART2_BDL = (uint8_t) (0x000000FF) & (sbr_val);
 	UART2_C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK);
-//		}					
 
 }
 

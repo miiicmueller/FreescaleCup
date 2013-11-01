@@ -7,7 +7,6 @@ int main(void) {
 	TFC_Init();
 
 	//Un commentaire idiot
-
 	for (;;) {
 		//TFC_Task must be called in your main loop.  This keeps certain processing happy (I.E. Serial port queue check)
 		TFC_Task();
