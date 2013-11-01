@@ -2,12 +2,12 @@
 
 
 void TFC_Init()
-{
-	TFC_InitClock();
-	TFC_InitSysTick();
-	TFC_InitGPIO();
-	TFC_InitServos();
-	TFC_InitMotorPWM();
+    {
+    TFC_InitClock();
+    TFC_InitSysTick();
+    TFC_InitGPIO();
+    TFC_InitServos();
+    TFC_InitMotorPWM();
     TFC_InitADCs();
     TFC_InitLineScanCamera();
     TFC_InitTerminal();
@@ -21,10 +21,10 @@ void TFC_Init()
 }
 
 void TFC_Task()
-{
-	#if defined(TERMINAL_USE_SDA_SERIAL)
-		TFC_UART_Process();
-	#endif
-	 
+    {
+#if defined(TERMINAL_USE_SDA_SERIAL)
+    TFC_UART_Process();
+#endif
+
     TFC_ProcessTerminal();
-}
+    }

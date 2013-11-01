@@ -24,3 +24,8 @@
 *.lst
 *.cproject
 *makefile
+
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
