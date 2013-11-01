@@ -18,14 +18,13 @@ int16_t tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     {
     //calcul de la nouvelle erreur
     //la mesure doit etre convertie dans la grandeur de la consigne
-    int16_t nouvelleErreur = thePIDStruct->consigne
-	    - (thePIDStruct->conversionMesureConsigne * theMesure);
+    int16_t nouvelleErreur = thePIDStruct->consigne - theMesure;
 
     //integration des erreurs successives
     thePIDStruct->sommeErreurs += nouvelleErreur;
 
     //nouvelle consigne avec un regulateur PID
-    thePIDStruct->consigne = (thePIDStruct->kp * nouvelleErreur)
+    thePIDStruct->commande = (thePIDStruct->kp * nouvelleErreur)
 	    + (thePIDStruct->ki * thePIDStruct->sommeErreurs)
 	    + (thePIDStruct->kd
 		    * (nouvelleErreur - thePIDStruct->erreurPrecedente));
