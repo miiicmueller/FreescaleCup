@@ -22,7 +22,7 @@ void gOutput_Setup(void)
     TFC_SetServo(1, 0);
 
     TFC_SetMotorPWM(0, 0); //Make sure motors are off
-    TFC_HBRIDGE_DISABLE;
+    TFC_HBRIDGE_ENABLE;
     }
 
 //------------------------------------------------------------------------
@@ -31,7 +31,16 @@ void gOutput_Setup(void)
 //------------------------------------------------------------------------
 void gOutput_Execute(void)
     {
+    if ((TFC_Ticker[1] >= 20) && (gCompute.isFinish == true))
+	{
+	TFC_Ticker[1] = 0;
+	gCompute.isFinish == false;
 
+	TFC_SetServo(1, gCompute.gCommandeServoDirection);
+
+	TFC_SetMotorPWM(gCompute.gCommandeMoteurDroit,
+		gCompute.gCommandeMoteurGauche); //consignes de vitesse
+	}
     }
 
 //-----------------------------------------------------------------------------

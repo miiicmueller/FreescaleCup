@@ -23,6 +23,8 @@ static uint16_t theLinePosition;
 //------------------------------------------------------------------------
 void gCompute_Setup(void)
     {
+    gCompute.isFinish = false;
+
     gCompute.gCommandeMoteurDroit = 0;
     gCompute.gCommandeMoteurGauche = 0;
     gCompute.gCommandeServoDirection = 0;
@@ -41,10 +43,12 @@ void gCompute_Setup(void)
 //------------------------------------------------------------------------
 void gCompute_Execute(void)
     {
-    if (TFC_Ticker[0] > 100 && LineScanImageReady == 1)
+    if ((TFC_Ticker[0] >= 20) && (LineScanImageReady == 1)
+	    && (gCompute.isFinish == false))
 	{
 	TFC_Ticker[0] = 0;
 	LineScanImageReady = 0;
+	gCompute.isFinish == true;
 
 	//recherche de la ligne
 	int16_t LineAnalyze[128];

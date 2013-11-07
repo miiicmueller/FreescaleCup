@@ -28,6 +28,7 @@ typedef struct
 	float gCommandeMoteurDroit;
 	float gCommandeMoteurGauche;
 	float gCommandeServoDirection;
+	bool isFinish;
     } ComputeInterStruct;
 
 //-----------------------------------------------------------------------------

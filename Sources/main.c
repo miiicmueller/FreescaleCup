@@ -10,7 +10,7 @@
 int main(void)
     {
     uint32_t t, i = 0;
-    bool initAutoMode = true;
+    bool autoMode = false; //flag indiquant si le mode automatique est en cours
 
     TFC_Init();
 
@@ -25,11 +25,12 @@ int main(void)
 	    {
 	default:
 	case 0:
-	    if (initAutoMode)
+	    if (!autoMode)
 		{
 		gInput_Setup();
 		gCompute_Setup();
 		gOutput_Setup();
+		autoMode = true;
 		}
 	    else
 		{
@@ -65,7 +66,7 @@ int main(void)
 
 	    TFC_SetMotorPWM(0, 0); //Make sure motors are off
 	    TFC_HBRIDGE_DISABLE;
-
+	    autoMode = false;
 	    break;
 
 	case 2:
@@ -85,6 +86,7 @@ int main(void)
 		    }
 		TFC_SetBatteryLED_Level(t);
 		}
+	    autoMode = false;
 	    break;
 
 	case 3:
@@ -151,7 +153,7 @@ int main(void)
 
 	    TFC_SetMotorPWM(0, 0); //Make sure motors are off
 	    TFC_HBRIDGE_DISABLE;
-
+	    autoMode = false;
 	    break;
 	    }
 	}
