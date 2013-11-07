@@ -90,8 +90,8 @@ void mMotor_mSetup()
     mMotor1.aPIDData.kp = 1;
     mMotor1.aPIDData.ki = 0;
     mMotor1.aPIDData.sommeErreurs = 0;
-    mMotor1.aPIDData.conversionMesureConsigne = CONVERSION_MES_CONS;
-    mMotor1.aPIDData.offsetMesureConsigne = CONVERSION_MES_CONS_OFF;
+//    mMotor1.aPIDData.conversionMesureConsigne = CONVERSION_MES_CONS;
+//    mMotor1.aPIDData.offsetMesureConsigne = CONVERSION_MES_CONS_OFF;
     mMotor1.aOverflowOld = 0;
 
     mMotor2.aCapt = 0;
@@ -102,8 +102,8 @@ void mMotor_mSetup()
     mMotor2.aPIDData.kp = 1;
     mMotor2.aPIDData.ki = 0;
     mMotor2.aPIDData.sommeErreurs = 0;
-    mMotor2.aPIDData.conversionMesureConsigne = CONVERSION_MES_CONS;
-    mMotor2.aPIDData.offsetMesureConsigne = CONVERSION_MES_CONS_OFF;
+//    mMotor2.aPIDData.conversionMesureConsigne = CONVERSION_MES_CONS;
+//    mMotor2.aPIDData.offsetMesureConsigne = CONVERSION_MES_CONS_OFF;
     mMotor2.aOverflowOld = 0;
 
     }

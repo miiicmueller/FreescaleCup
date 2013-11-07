@@ -3,10 +3,16 @@
 #include "Modules\mLeds.h"
 #include "Modules\mTrackLine.h"
 #include "Modules/mMotor.h"
+#include "Gestionnaires\gMbox.h"
+#include "Gestionnaires\gInput.h"
+#include "Gestionnaires\gCompute.h"
+#include "Gestionnaires\gOutput.h"
+
 
 int main(void)
     {
     uint32_t t, i = 0;
+    bool initAutoMode = true;
 
     TFC_Init();
 
@@ -21,26 +27,19 @@ int main(void)
 	    {
 	default:
 	case 0:
-	    //Demo mode 0 just tests the switches and LED's
-	    if (TFC_PUSH_BUTTON_0_PRESSED)
-		TFC_BAT_LED0_ON;
+	    if (initAutoMode)
+		{
+		gInput_Setup();
+		gCompute_Setup();
+		gOutput_Setup();
+		}
 	    else
-		TFC_BAT_LED0_OFF;
-
-	    if (TFC_PUSH_BUTTON_1_PRESSED)
-		TFC_BAT_LED3_ON;
-	    else
-		TFC_BAT_LED3_OFF;
-
-	    if (TFC_GetDIP_Switch() & 0x01)
-		TFC_BAT_LED1_ON;
-	    else
-		TFC_BAT_LED1_OFF;
-
-	    if (TFC_GetDIP_Switch() & 0x08)
-		TFC_BAT_LED2_ON;
-	    else
-		TFC_BAT_LED2_OFF;
+		{
+		//Notre magnifique programme
+		gInput_Execute();
+		gCompute_Execute();
+		gOutput_Execute();
+		}
 
 	    break;
 
@@ -151,6 +150,9 @@ int main(void)
 			TERMINAL_PRINTF(",", LineAnalyze[i]);
 		    }
 		}
+
+	    TFC_SetMotorPWM(0, 0); //Make sure motors are off
+	    TFC_HBRIDGE_DISABLE;
 
 	    break;
 	    }
