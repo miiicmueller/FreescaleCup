@@ -13,13 +13,13 @@
 //fichiers utilises
 typedef struct
     {
-	int16_t kp; //facteur proportionnel
-	int16_t ki; //facteur integral
-	int16_t kd; //facteur differentiel
+	float kp; //facteur proportionnel
+	float ki; //facteur integral
+	float kd; //facteur differentiel
 	int16_t sommeErreurs; //integrale des erreurs
 	int16_t consigne; //valeur cible de la grandeur mesuree
 	int16_t erreurPrecedente; //derniere erreur
-	int16_t commande; //commande a appliquer a l'actionneur
+	float commande; //commande a appliquer a l'actionneur
     } tPIDStruct;
 
 //--------------------------------------------------------

@@ -1,11 +1,10 @@
 /*
- * gOutput.c
+ * gXBEE.c
  *
- *  Created on: Nov 1, 2013
+ *  Created on: Nov 7, 2013
  *      Author: cyrille.savy
  */
 
-#include "Gestionnaires\gOutput.h"
 #include "TFC\TFC.h"
 #include "Gestionnaires\gMbox.h"
 
@@ -15,32 +14,20 @@
 //fonctions publiques
 //-----------------------------------------------------------------------------
 //------------------------------------------------------------------------
-// Initialisation de la structure de données de gOutput
+// Initialisation de la structure de données de gXBEE
 //------------------------------------------------------------------------
-void gOutput_Setup(void)
+void gXBEE_Setup(void)
     {
-    TFC_SetServo(1, 0);
 
-    TFC_SetMotorPWM(0, 0); //Make sure motors are off
-    TFC_HBRIDGE_ENABLE;
     }
 
 //------------------------------------------------------------------------
-// mise à jour des commandes des moteurs et du servo de direction
-//
+// communication avec le module xBEE
+// envoi et lecture des trames
 //------------------------------------------------------------------------
-void gOutput_Execute(void)
+void gXBEE_Execute(void)
     {
-    if ((TFC_Ticker[1] >= 20) && (gCompute.isFinish == true))
-	{
-	TFC_Ticker[1] = 0;
-	gCompute.isFinish = false;
 
-	TFC_SetServo(0, gCompute.gCommandeServoDirection);
-
-	TFC_SetMotorPWM(gCompute.gCommandeMoteurDroit,
-		gCompute.gCommandeMoteurGauche); //consignes de vitesse
-	}
     }
 
 //-----------------------------------------------------------------------------

@@ -8,7 +8,6 @@
 #include "Gestionnaires\gCompute.h"
 #include "Gestionnaires\gOutput.h"
 
-
 int main(void)
     {
     uint32_t t, i = 0;
@@ -120,7 +119,7 @@ int main(void)
 
 		//recherche de la ligne
 		int16_t LineAnalyze[128];
-		uint16_t positionLine;
+		int16_t positionLine;
 		for (uint16_t i = 0; i < 128; i++)
 		    {
 		    LineAnalyze[i] = LineScanImage0[i];

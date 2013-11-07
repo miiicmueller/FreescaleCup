@@ -22,6 +22,14 @@ int16_t tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
 
     //integration des erreurs successives
     thePIDStruct->sommeErreurs += nouvelleErreur;
+    if (thePIDStruct->sommeErreurs > 35)
+	{
+	thePIDStruct->sommeErreurs = 35;
+	}
+    else if (thePIDStruct->sommeErreurs < -35)
+	{
+	thePIDStruct->sommeErreurs = -35;
+	}
 
     //nouvelle consigne avec un regulateur PID
     thePIDStruct->commande = (thePIDStruct->kp * nouvelleErreur)

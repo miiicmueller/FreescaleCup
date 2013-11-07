@@ -31,7 +31,7 @@ static bool mTrackLine_FindDarkObject(int16_t* tab, uint16_t size,
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-bool mTrackLine_FindLine(int16_t* tab, uint16_t size, uint16_t* thePosition)
+bool mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition)
     {
     mTrackLineObject theLine;
     uint16_t i = 1;
