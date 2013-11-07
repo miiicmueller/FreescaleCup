@@ -28,8 +28,8 @@ void TFC_InitUARTs() {
 	InitByteQueue(&XBEE_SERIAL_INCOMING_QUEUE, XBEE_SERIAL_INCOMING_QUEUE_SIZE,
 			XBEE_SERIAL_INCOMING_QUEUE_Storage);
 
-	PORTA_PCR1 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
-	PORTA_PCR2 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
+	//PORTA_PCR1 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
+	//PORTA_PCR2 = PORT_PCR_MUX(2) | PORT_PCR_DSE_MASK;
 
 	//Sortie UART 2
 	PORTD_PCR2 = PORT_PCR_MUX(3) | PORT_PCR_DSE_MASK;
@@ -56,9 +56,12 @@ void TFC_InitUARTs() {
 }
 
 void TFC_UART_Process() {
-	if (BytesInQueue(&SDA_SERIAL_OUTGOING_QUEUE) > 0
-			&& (UART0_S1 & UART_S1_TDRE_MASK))
-		UART0_C2 |= UART_C2_TIE_MASK; //Enable Transmitter Interrupts
+	//if (BytesInQueue(&SDA_SERIAL_OUTGOING_QUEUE) > 0
+	//		&& (UART0_S1 & UART_S1_TDRE_MASK))
+	//	UART0_C2 |= UART_C2_TIE_MASK; //Enable Transmitter Interrupts
+    if (BytesInQueue(&XBEE_SERIAL_OUTGOING_QUEUE) > 0
+    			&& (UART2_S1 & UART_S1_TDRE_MASK))
+    		UART2_C2 |= UART_C2_TIE_MASK; //Enable Transmitter Interrupts
 }
 
 void UART0_IRQHandler() {
@@ -195,13 +198,8 @@ void uart0_init(int sysclk, int baud) {
 
 void uart2_init(int sysclk, int baud) {
 	uint8 i;
-	uint32 calculated_baud = 0;
-	uint32 baud_diff = 0;
-	uint32 osr_val = 0;
 	uint32 sbr_val, uart2clk;
 	uint32 baud_rate;
-	uint32 reg_temp = 0;
-	uint32 temp = 0;
 
 	SIM_SCGC4 |= SIM_SCGC4_UART2_MASK;
 
@@ -217,8 +215,7 @@ void uart2_init(int sysclk, int baud) {
 	// Calculate the first baud rate using the lowest OSR value possible.  
 	i = 16;
 	sbr_val = (uint32) (uart2clk / (baud_rate * i));
-	calculated_baud = (uart2clk / (i * sbr_val));
-
+	
 	UART2_BDH = (uint8_t) (0x000000FF) & (sbr_val >> 8);
 	UART2_BDL = (uint8_t) (0x000000FF) & (sbr_val);
 	UART2_C2 |= (UART_C2_TE_MASK | UART_C2_RE_MASK);

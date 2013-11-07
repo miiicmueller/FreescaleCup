@@ -1,4 +1,5 @@
 #include "TFC\TFC.h"
+#include "Modules/mMotor.h"
 
 void TFC_Init()
     {
@@ -6,7 +7,7 @@ void TFC_Init()
     TFC_InitSysTick();
     TFC_InitGPIO();
     TFC_InitServos();
-    TFC_InitMotorPWM();
+    mMotor_mSetup();
     TFC_InitADCs();
     TFC_InitLineScanCamera();
     TFC_InitTerminal();
