@@ -8,6 +8,8 @@
 #ifndef TPID_H_
 #define TPID_H_
 
+#include "TFC\TFC.h"
+
 //fichiers utilises
 typedef struct
     {
@@ -16,7 +18,8 @@ typedef struct
 	int16_t kd;
 	int16_t sommeErreurs;
 	int16_t consigne;
-	int16_t conversionMesureConsigne;
+	int32_t conversionMesureConsigne;
+	int32_t offsetMesureConsigne;	
 	int16_t erreurPrecedente;
     } tPIDStruct;
 

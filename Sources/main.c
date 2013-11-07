@@ -2,6 +2,7 @@
 #include "TFC\TFC.h"
 #include "Modules\mLeds.h"
 #include "Modules\mTrackLine.h"
+#include "Modules/mMotor.h"
 
 int main(void)
     {

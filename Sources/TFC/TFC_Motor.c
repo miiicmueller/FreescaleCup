@@ -11,7 +11,6 @@
 
 /**********************************************************************************************/
 
-
 void TFC_InitMotorPWM()
 {
 	//Clock Setup for the TPM requires a couple steps.

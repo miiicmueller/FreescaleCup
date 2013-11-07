@@ -8,5 +8,8 @@ void TFC_UART_Process();
 extern ByteQueue SDA_SERIAL_OUTGOING_QUEUE;
 extern ByteQueue SDA_SERIAL_INCOMING_QUEUE;
 
+extern ByteQueue XBEE_SERIAL_OUTGOING_QUEUE;
+extern ByteQueue XBEE_SERIAL_INCOMING_QUEUE;
+
 
 #endif /* TFC_UART_H_ */
