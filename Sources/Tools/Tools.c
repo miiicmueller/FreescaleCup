@@ -142,7 +142,7 @@ int8_t tMax(int16_t* tab, uint16_t size)
 //--------------------------------------------------------
 int16_t tMean(int16_t* tab, uint16_t size)
     {
-    uint16_t sum = 0;
+    int16_t sum = 0;
 
     for (uint16_t i = 0; i < size; i++)
 	{

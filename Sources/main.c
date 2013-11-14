@@ -111,6 +111,8 @@ int main(void)
 
 	    if (TFC_Ticker[0] > 100 && LineScanImageReady == 1)
 		{
+		bool isLineFound;
+		bool isStartStopFound;
 		// pour pouvoir ajuster la luminosite des LEDs
 		mLeds_writeDyC(TFC_ReadPot(1));
 
@@ -125,13 +127,23 @@ int main(void)
 		    LineAnalyze[i] = LineScanImage0[i];
 		    }
 
-		if (mTrackLine_FindLine(LineAnalyze, 128, &positionLine))
+		mTrackLine_FindLine(LineAnalyze, 128, &positionLine,
+			&isLineFound, &isStartStopFound);
+		if (isLineFound)
 		    {
 		    TFC_BAT_LED0_ON;
 		    }
 		else
 		    {
 		    TFC_BAT_LED0_OFF;
+		    }
+		if (isStartStopFound)
+		    {
+		    TFC_BAT_LED1_ON;
+		    }
+		else
+		    {
+		    TFC_BAT_LED1_OFF;
 		    }
 
 		TERMINAL_PRINTF("\r\n");
