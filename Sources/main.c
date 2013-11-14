@@ -20,7 +20,6 @@ int main(void)
 	{
 	//TFC_Task must be called in your main loop.  This keeps certain processing happy (I.E. Serial port queue check)
 	TFC_Task();
-	gXBEE_Execute();
 
 	//This Demo program will look at the middle 2 switch to select one of 4 demo modes.
 	//Let's look at the middle 2 switches
@@ -33,6 +32,7 @@ int main(void)
 		gInput_Setup();
 		gCompute_Setup();
 		gOutput_Setup();
+		gXBEE_Setup();
 		autoMode = true;
 		}
 	    else
@@ -41,6 +41,7 @@ int main(void)
 		gInput_Execute();
 		gCompute_Execute();
 		gOutput_Execute();
+		gXBEE_Execute();
 		}
 
 	    break;
