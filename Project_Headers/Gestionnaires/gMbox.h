@@ -9,6 +9,7 @@
 #define GMBOX_H_
 
 #include "TFC\TFC.h"
+#include "Gestionnaires/gXBEE.h"
 
 //-----------------------------------------------------------------------------
 // Déclaration des constantes
@@ -20,7 +21,11 @@
 // Création du type de la structure contenant les Inputs
 typedef struct
     {
-    } InputInterStruct;
+    uint8_t gPosCam1;
+    uint8_t gPosCam2;
+    uint8_t gAccel[3]; // 0 = X, 1=Y, 2=Z
+    uint8_t gBattLev;
+    } InpInterStruct;
 
 // Création du type de la structure contenant les outputs
 typedef struct
@@ -28,21 +33,35 @@ typedef struct
 	float gCommandeMoteurDroit;
 	float gCommandeMoteurGauche;
 	float gCommandeServoDirection;
+	uint16_t gConsigneMotor;
+	uint8_t gPWMLeds;
+	float gExpTime;
 	bool isFinish;
     } ComputeInterStruct;
+
+// Création du type de la structure contenant les outputs
+typedef struct
+    {
+    PIDGainStruct aGainPIDMotors;
+    PIDGainStruct aGainPIDServo;
+    bool aPIDChangedServo ;
+    bool aPIDChangedMotors ;
+    } xBeeInterStruct;
 
 //-----------------------------------------------------------------------------
 // Déclaration des variables globales
 //-----------------------------------------------------------------------------
 // Importation de la variable du type contenant les Inputs (elle est dans gMBox.c)
-extern InputInterStruct gInput;
+extern InpInterStruct gInputInterStruct;
 
 // Importation de la variable du type contenant les États des erreurs (elle est dans gMBox.c)
-extern ComputeInterStruct gCompute;
+extern ComputeInterStruct gComputeInterStruct;
+
+// Importation de la variable du type qui contient les paramètres à enoyer
+extern xBeeInterStruct gXbeeInterStruct ; 
 
 //-----------------------------------------------------------------------------
 // Déclaration des prototypes de fonctions
 //-----------------------------------------------------------------------------
 
 #endif /* GMBOX_H_ */
-
