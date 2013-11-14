@@ -31,15 +31,15 @@ void gOutput_Setup(void)
 //------------------------------------------------------------------------
 void gOutput_Execute(void)
     {
-    if ((TFC_Ticker[1] >= 20) && (gCompute.isFinish == true))
+    if ((TFC_Ticker[1] >= 20) && (gComputeInterStruct.isFinish == true))
 	{
 	TFC_Ticker[1] = 0;
-	gCompute.isFinish = false;
+	gComputeInterStruct.isFinish = false;
 
-	TFC_SetServo(0, gCompute.gCommandeServoDirection);
+	TFC_SetServo(0, gComputeInterStruct.gCommandeServoDirection);
 
-	TFC_SetMotorPWM(gCompute.gCommandeMoteurDroit,
-		gCompute.gCommandeMoteurGauche); //consignes de vitesse
+	TFC_SetMotorPWM(gComputeInterStruct.gCommandeMoteurDroit,
+		gComputeInterStruct.gCommandeMoteurGauche); //consignes de vitesse
 	}
     }
 

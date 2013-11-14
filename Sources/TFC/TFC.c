@@ -18,12 +18,18 @@ void TFC_Init()
     //Leds
     mLeds_Setup();
 
+    //Gestionnaires
+    gXBEE_Setup();
+
     }
 
 void TFC_Task()
     {
 #if defined(TERMINAL_USE_SDA_SERIAL)
-    TFC_UART_Process();
+    if ((TFC_Ticker[0] >= 60))
+	{
+	TFC_UART_Process();
+	}
 #endif
 
     TFC_ProcessTerminal();

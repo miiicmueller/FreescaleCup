@@ -23,11 +23,11 @@ static int16_t theLinePosition;
 //------------------------------------------------------------------------
 void gCompute_Setup(void)
     {
-    gCompute.isFinish = false;
+    gComputeInterStruct.isFinish = false;
 
-    gCompute.gCommandeMoteurDroit = 0;
-    gCompute.gCommandeMoteurGauche = 0;
-    gCompute.gCommandeServoDirection = 0;
+    gComputeInterStruct.gCommandeMoteurDroit = 0;
+    gComputeInterStruct.gCommandeMoteurGauche = 0;
+    gComputeInterStruct.gCommandeServoDirection = 0;
 
     thePIDServo.kp = 0.006; //val max pour kp servo = 1/64
     thePIDServo.ki = 0.00;
@@ -44,14 +44,14 @@ void gCompute_Setup(void)
 void gCompute_Execute(void)
     {
     if ((TFC_Ticker[0] >= 20) && (LineScanImageReady == 1)
-	    && (gCompute.isFinish == false))
+	    && (gComputeInterStruct.isFinish == false))
 	{
 	bool isLineFound;
 	bool isStartStopFound;
 
 	TFC_Ticker[0] = 0;
 	LineScanImageReady = 0;
-	gCompute.isFinish = true;
+	gComputeInterStruct.isFinish = true;
 
 	//recherche de la ligne
 	int16_t LineAnalyze[128];
@@ -81,9 +81,9 @@ void gCompute_Execute(void)
 	    }
 	}
 
-    gCompute.gCommandeServoDirection = thePIDServo.commande;
-    gCompute.gCommandeMoteurGauche = 0;
-    gCompute.gCommandeMoteurDroit = 0;
+    gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
+    gComputeInterStruct.gCommandeMoteurGauche = 0;
+    gComputeInterStruct.gCommandeMoteurDroit = -0.65;
 
     }
 
