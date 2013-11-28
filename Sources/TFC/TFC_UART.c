@@ -97,9 +97,10 @@ void UART2_IRQHandler()
 	{
 	//TODO Test Xon Xoff bytes
 	Temp = UART2_D;
-	if (true)
+	if ((Temp <32 && Temp != '\n') ||  (Temp >122 && Temp !='\n') )
 	    {
 	    //On fait rien pour l'instant
+	    Temp = 0x12 ;
 	    }
 	else
 	    {

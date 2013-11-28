@@ -27,7 +27,7 @@ typedef enum
     } aSendState;
 
 static aSendState gStateSend = kPIDMot;
-static char gCmdBuffer[30];
+static char gCmdBuffer[100];
 static char gLastCmdPointer = 0x00;
 
 //-----------------------------------------------------------------------------
@@ -128,6 +128,7 @@ void gXBEE_Execute(void)
 		send_val_float(REG_GAIN_DIR, aValTab_f, 3);
 		}
 	    gStateSend = kServAngle;
+	    // gStateSend = kPIDMot;
 	    break;
 
 	case kServAngle:
@@ -186,18 +187,20 @@ void gXBEE_Execute(void)
 	}
 
     //Lecture des bytes recus
-    if (BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0)
+    if ((BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0)
+	    && (TFC_Ticker[2] >= 60))
 	{
 	bool endOfTrame = false;
 
 	//On bufferize les bytes recu dans le buffer de commande, jusque à la détection du \n
 	for (int i = gLastCmdPointer;
-		BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) && (!endOfTrame); i++)
+		BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0 && (!endOfTrame);
+		i++)
 	    {
-	    ByteDequeue(&XBEE_SERIAL_INCOMING_QUEUE, gCmdBuffer + i);
+	    ByteDequeue(&XBEE_SERIAL_INCOMING_QUEUE, &gCmdBuffer[i]);
 
 	    // On enregistre la denière valeur de l'index
-	    gLastCmdPointer = i;
+	    gLastCmdPointer = (i + 1);
 	    if (gCmdBuffer[i] == END_OF_TRAME)
 		{
 		endOfTrame = true;
@@ -212,12 +215,11 @@ void gXBEE_Execute(void)
 	    }
 
 	}
-
     }
 
 void commandAnalyser(char *aCommandBuffer)
     {
-
+    int test = 0;
     //On commence par tester la comamnde recue
     switch (aCommandBuffer[0])
 	{
@@ -244,8 +246,14 @@ void commandAnalyser(char *aCommandBuffer)
 	break;
     default:
 	// Commande non-connue
-	;
+	test = 0;
 
+	}
+
+    //Clean buffer
+    for (int i = 0; i < sizeof(gCmdBuffer); i++)
+	{
+	gCmdBuffer[i] = 0x00;
 	}
 
     }

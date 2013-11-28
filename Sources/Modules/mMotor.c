@@ -61,7 +61,7 @@ void mMotor_mSetup()
 
     //Setup the mod register to get the correct PWM Period
 
-    TPM2_MOD = (FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
+    TPM2_MOD = 0xFFFF ;//(FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
 
     //Setup Channels 0 & 1 in input capture rising edge with interrupt
     TPM2_C0SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
