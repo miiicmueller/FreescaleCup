@@ -18,7 +18,8 @@ int16_t tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     {
     //calcul de la nouvelle erreur
     //la mesure doit etre convertie dans la grandeur de la consigne
-    int16_t nouvelleErreur = thePIDStruct->consigne - theMesure;
+    int16_t nouvelleErreur = (thePIDStruct->consigne - theMesure)
+	    * thePIDStruct->coeffNormalisation;
 
     //integration des erreurs successives
     thePIDStruct->sommeErreurs += nouvelleErreur;
@@ -32,10 +33,10 @@ int16_t tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
 	}
 
     //nouvelle consigne avec un regulateur PID
-    thePIDStruct->commande = (thePIDStruct->kp * nouvelleErreur)
-	    + (thePIDStruct->ki * thePIDStruct->sommeErreurs)
-	    + (thePIDStruct->kd
-		    * (nouvelleErreur - thePIDStruct->erreurPrecedente));
+    thePIDStruct->commande = (thePIDStruct->kp * nouvelleErreur); //partie proportionelle
+    thePIDStruct->commande += (thePIDStruct->ki * thePIDStruct->sommeErreurs); //partie intégrale
+    thePIDStruct->commande += (thePIDStruct->kd
+	    * (nouvelleErreur - thePIDStruct->erreurPrecedente)); //partie dérivée
 
     //mettre a jour l'erreur precedente pour la partie derivee
     thePIDStruct->erreurPrecedente = nouvelleErreur;

@@ -20,6 +20,7 @@ typedef struct
 	int16_t consigne; //valeur cible de la grandeur mesuree
 	int16_t erreurPrecedente; //derniere erreur
 	float commande; //commande a appliquer a l'actionneur
+	float coeffNormalisation;//coefficient pour normaliser la sortie du PID
     } tPIDStruct;
 
 //--------------------------------------------------------

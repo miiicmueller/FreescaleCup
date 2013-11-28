@@ -35,6 +35,7 @@ void gCompute_Setup(void)
     thePIDServo.consigne = 0; //ligne au milieu du champ de vision (étendue de -64 à 64)
     thePIDServo.erreurPrecedente = 0;
     thePIDServo.sommeErreurs = 0;
+    thePIDServo.coeffNormalisation = 1.0 / 64.0;
     }
 
 //------------------------------------------------------------------------
