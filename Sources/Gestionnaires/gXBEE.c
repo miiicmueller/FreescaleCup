@@ -9,6 +9,8 @@
 #include "Gestionnaires\gMbox.h"
 #include "Gestionnaires/gXBEE.h"
 
+#define END_OF_TRAME '\n'
+
 /* prototypes des fonctions statiques (propres au fichier) */
 
 typedef enum
@@ -25,6 +27,8 @@ typedef enum
     } aSendState;
 
 static aSendState gStateSend = kPIDMot;
+static char gCmdBuffer[30];
+static char gLastCmdPointer = 0x00;
 
 //-----------------------------------------------------------------------------
 //fonctions publiques
@@ -68,6 +72,11 @@ void gXBEE_Setup(void)
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0.0;
     gComputeInterStruct.gConsigneMotor = 0;
+
+    for (int i = 0; i < sizeof(gCmdBuffer); i++)
+	{
+	gCmdBuffer[i] = 0x00;
+	}
 
     }
 
@@ -174,6 +183,69 @@ void gXBEE_Execute(void)
 	    gStateSend = kPIDMot;
 	    break;
 	    }
+	}
+
+    //Lecture des bytes recus
+    if (BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0)
+	{
+	bool endOfTrame = false;
+
+	//On bufferize les bytes recu dans le buffer de commande, jusque à la détection du \n
+	for (int i = gLastCmdPointer;
+		BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) && (!endOfTrame); i++)
+	    {
+	    ByteDequeue(&XBEE_SERIAL_INCOMING_QUEUE, gCmdBuffer + i);
+
+	    // On enregistre la denière valeur de l'index
+	    gLastCmdPointer = i;
+	    if (gCmdBuffer[i] == END_OF_TRAME)
+		{
+		endOfTrame = true;
+		gLastCmdPointer = 0x00;
+		}
+	    }
+
+	//Test si on a recu une trame complete sinon on ne fait rien du tout
+	if (endOfTrame == true)
+	    {
+	    commandAnalyser(gCmdBuffer);
+	    }
+
+	}
+
+    }
+
+void commandAnalyser(char *aCommandBuffer)
+    {
+
+    //On commence par tester la comamnde recue
+    switch (aCommandBuffer[0])
+	{
+
+    //Gains pour la direction
+    case REG_GAIN_DIR:
+	//Ensuite on test le reste de la trame
+	sscanf(aCommandBuffer, "G_%f_%f_%f\n",
+		&gXbeeInterStruct.aGainPIDServo.gProprortionalGain,
+		&gXbeeInterStruct.aGainPIDServo.gIntegraleGain,
+		&gXbeeInterStruct.aGainPIDServo.gDerivativeGain);
+	gXbeeInterStruct.aPIDChangedServo = true;
+	break;
+
+	//Gains pour la vitesse
+    case REG_GAIN_SPEED:
+	//Ensuite on test le reste de la trame
+	sscanf(aCommandBuffer, "F_%f_%f_%f\n",
+		&gXbeeInterStruct.aGainPIDMotors.gProprortionalGain,
+		&gXbeeInterStruct.aGainPIDMotors.gIntegraleGain,
+		&gXbeeInterStruct.aGainPIDMotors.gDerivativeGain);
+	//On averti que l'on a changé les gains
+	gXbeeInterStruct.aPIDChangedMotors = true;
+	break;
+    default:
+	// Commande non-connue
+	;
+
 	}
 
     }
