@@ -81,9 +81,10 @@ void gCompute_Execute(void)
 	    }
 	}
 
+    gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
     gComputeInterStruct.gCommandeMoteurGauche = 0;
-    gComputeInterStruct.gCommandeMoteurDroit = -0.65;
+    gComputeInterStruct.gCommandeMoteurDroit = 0;
 
     }
 

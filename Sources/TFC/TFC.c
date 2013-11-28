@@ -25,10 +25,7 @@ void TFC_Init()
 void TFC_Task()
     {
 #if defined(TERMINAL_USE_SDA_SERIAL)
-    if ((TFC_Ticker[0] >= 60))
-	{
-	TFC_UART_Process();
-	}
+    TFC_UART_Process();
 #endif
 
     TFC_ProcessTerminal();

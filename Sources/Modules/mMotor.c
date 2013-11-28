@@ -12,8 +12,8 @@
 #define FTM2_MOD_VALUE	(int)((float)(PERIPHERAL_BUS_CLOCK)/TFC_MOTOR_SWITCHING_FREQUENCY)
 
 #define FTM2_CLOCK                                   	      (CORE_CLOCK/2)
-#define FTM2_CLK_PRESCALE                                 	   0  // Prescale Selector value - see comments in Status Control (SC) section for more details
-#define FTM2_OVERFLOW_FREQUENCY 	10000		
+#define FTM2_CLK_PRESCALE                                 	7  // Prescale Selector value - see comments in Status Control (SC) section for more details
+#define FTM2_OVERFLOW_FREQUENCY 				10000		
 
 // On a une consigne entre 0 -> 65535
 // le plus court env 3.3 ms  = 303Hz => on aura capt = 33 
@@ -30,8 +30,8 @@
 /**
  * Instanciation des deux moteurs de propulsion
  */
-static mMotorStruct mMotor1;
-static mMotorStruct mMotor2;
+mMotorStruct mMotor1;
+mMotorStruct mMotor2;
 
 /**
  * Permet de configurer les moteur
@@ -61,7 +61,7 @@ void mMotor_mSetup()
 
     //Setup the mod register to get the correct PWM Period
 
-    // TPM2_MOD = (FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
+    TPM2_MOD = (FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
 
     //Setup Channels 0 & 1 in input capture rising edge with interrupt
     TPM2_C0SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
@@ -154,7 +154,7 @@ void FTM2_IRQHandler()
     // Overflow ?
     if ((TPM2_SC & TPM_SC_TOF_MASK))
 	{
-	if (mMotor1.aOverflowOld == 1)
+	if (mMotor1.aOverflowOld >= 10)
 	    {
 	    mMotor1.aStopped = 1;
 	    mMotor1_oldCapt = 0;
@@ -162,10 +162,10 @@ void FTM2_IRQHandler()
 	    }
 	else
 	    {
-	    mMotor1.aOverflowOld = 1;
+	    mMotor1.aOverflowOld++;
 	    }
 
-	if (mMotor2.aOverflowOld == 1)
+	if (mMotor2.aOverflowOld >= 10)
 	    {
 	    mMotor2.aStopped = 1;
 	    mMotor2_oldCapt = 0;
@@ -173,7 +173,7 @@ void FTM2_IRQHandler()
 	    }
 	else
 	    {
-	    mMotor2.aOverflowOld = 1;
+	    mMotor2.aOverflowOld++;
 	    }
 
 	//Clear du flag

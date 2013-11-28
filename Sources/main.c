@@ -23,7 +23,7 @@ int main(void)
 
 	//This Demo program will look at the middle 2 switch to select one of 4 demo modes.
 	//Let's look at the middle 2 switches
-	switch ((TFC_GetDIP_Switch() >> 1) & 0x03)
+	switch ((TFC_GetDIP_Switch()) & 0x03)
 	    {
 	default:
 	case 0:

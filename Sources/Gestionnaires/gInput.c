@@ -8,6 +8,7 @@
 #include "TFC\TFC.h"
 #include "Gestionnaires\gInput.h"
 #include "Gestionnaires\gMbox.h"
+#include "Modules\mMotor.h"
 
 /* prototypes des fonctions statiques (propres au fichier) */
 
@@ -27,5 +28,6 @@ void gInput_Setup(void)
 //------------------------------------------------------------------------
 void gInput_Execute(void)
     {
-
+    gInputInterStruct.gSpeed[0] = mMotor1.aCapt;
+    gInputInterStruct.gSpeed[1] = mMotor2.aCapt;
     }

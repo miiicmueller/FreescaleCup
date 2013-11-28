@@ -80,8 +80,10 @@ void gXBEE_Execute(void)
     uint8_t aValTab_i[5];
     float aValTab_f[5];
 
-    if (BytesInQueue(&XBEE_SERIAL_OUTGOING_QUEUE) == 0)
+    if ((BytesInQueue(&XBEE_SERIAL_OUTGOING_QUEUE) == 0)
+	    && (TFC_Ticker[2] >= 60))
 	{
+	TFC_Ticker[2] = 0;
 	switch (gStateSend)
 	    {
 
@@ -99,7 +101,7 @@ void gXBEE_Execute(void)
 		//On envoie les gains
 		send_val_float(REG_GAIN_SPEED, aValTab_f, 3);
 		}
-	    gStateSend = kPIDSer ;
+	    gStateSend = kPIDSer;
 	    break;
 
 	case kPIDSer:
@@ -116,7 +118,7 @@ void gXBEE_Execute(void)
 		//On envoie les gains
 		send_val_float(REG_GAIN_DIR, aValTab_f, 3);
 		}
-	    gStateSend = kServAngle ;
+	    gStateSend = kServAngle;
 	    break;
 
 	case kServAngle:
@@ -124,7 +126,7 @@ void gXBEE_Execute(void)
 	    // On envoie l'angle du servo
 	    aValTab_f[0] = gComputeInterStruct.gCommandeServoDirection;
 	    send_val_float(SERVO_ANGLE, aValTab_f, 1);
-	    gStateSend = kSpeed ;
+	    gStateSend = kSpeed;
 	    break;
 
 	case kSpeed:
@@ -133,7 +135,7 @@ void gXBEE_Execute(void)
 	    aValTab_f[1] = gComputeInterStruct.gCommandeMoteurGauche;
 	    aValTab_f[2] = gComputeInterStruct.gConsigneMotor;
 	    send_val_float(SPEED_INFO, aValTab_f, 3);
-	    gStateSend = kPosCam ;
+	    gStateSend = kPosCam;
 	    break;
 
 	case kPosCam:
@@ -141,7 +143,7 @@ void gXBEE_Execute(void)
 	    aValTab_i[0] = gInputInterStruct.gPosCam1;
 	    aValTab_i[1] = gInputInterStruct.gPosCam2;
 	    send_val_int(CAM_POS_1_2, aValTab_i, 2);
-	    gStateSend = kAccel ;
+	    gStateSend = kAccel;
 	    break;
 
 	case kAccel:
@@ -150,26 +152,26 @@ void gXBEE_Execute(void)
 	    aValTab_i[1] = gInputInterStruct.gAccel[1];
 	    aValTab_i[2] = gInputInterStruct.gAccel[2];
 	    send_val_int(ACCEL, aValTab_i, 3);
-	    gStateSend = kBattLed ;
+	    gStateSend = kBattLed;
 	    break;
 
 	case kBattLed:
 	    //Envoi la valeur de la batterie
 	    aValTab_i[0] = gInputInterStruct.gBattLev;
 	    send_val_int(BATT_LEV, aValTab_i, 1);
-	    gStateSend = kPWM ;
+	    gStateSend = kPWM;
 	    break;
 	case kPWM:
 	    //PWM des leds
 	    aValTab_i[0] = gComputeInterStruct.gPWMLeds;
 	    send_val_int(LED_PWM, aValTab_i, 1);
-	    gStateSend = kExpTime ;
+	    gStateSend = kExpTime;
 	    break;
 	case kExpTime:
 	    //Temp d'exposition
 	    aValTab_f[0] = gComputeInterStruct.gExpTime;
 	    send_val_float(EXPOSURE_T, aValTab_f, 1);
-	    gStateSend = kPIDMot ;
+	    gStateSend = kPIDMot;
 	    break;
 	    }
 	}
