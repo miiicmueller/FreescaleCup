@@ -28,5 +28,5 @@ void TFC_Task()
     TFC_UART_Process();
 #endif
 
-    TFC_ProcessTerminal();
+    //TFC_ProcessTerminal();
     }
