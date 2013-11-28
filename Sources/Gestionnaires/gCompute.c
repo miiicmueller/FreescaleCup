@@ -46,6 +46,9 @@ void gCompute_Execute(void)
     if ((TFC_Ticker[0] >= 20) && (LineScanImageReady == 1)
 	    && (gComputeInterStruct.isFinish == false))
 	{
+	bool isLineFound;
+	bool isStartStopFound;
+
 	TFC_Ticker[0] = 0;
 	LineScanImageReady = 0;
 	gComputeInterStruct.isFinish = true;
@@ -57,7 +60,9 @@ void gCompute_Execute(void)
 	    LineAnalyze[i] = LineScanImage0[i];
 	    }
 
-	if (mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition))
+	mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
+		&isStartStopFound);
+	if (isLineFound)
 	    {
 	    TFC_BAT_LED0_ON;
 	    tPID(&thePIDServo, (theLinePosition - 64));
@@ -65,6 +70,14 @@ void gCompute_Execute(void)
 	else
 	    {
 	    TFC_BAT_LED0_OFF;
+	    }
+	if (isStartStopFound)
+	    {
+	    TFC_BAT_LED1_ON;
+	    }
+	else
+	    {
+	    TFC_BAT_LED1_OFF;
 	    }
 	}
 

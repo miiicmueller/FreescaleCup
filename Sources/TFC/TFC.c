@@ -19,7 +19,6 @@ void TFC_Init()
     mLeds_Setup();
 
     //Gestionnaires
-    gXBEE_Setup();
 
     }
 

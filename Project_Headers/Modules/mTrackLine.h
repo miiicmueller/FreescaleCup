@@ -16,6 +16,7 @@
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-bool mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition);
+void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition,
+	bool* isLineFound, bool* isStartStopFound);
 
 #endif /* TTRACKLINE_H_ */
