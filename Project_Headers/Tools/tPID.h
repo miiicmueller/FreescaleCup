@@ -16,11 +16,11 @@ typedef struct
 	float kp; //facteur proportionnel
 	float ki; //facteur integral
 	float kd; //facteur differentiel
-	int16_t sommeErreurs; //integrale des erreurs
+	float sommeErreurs; //integrale des erreurs
 	int16_t consigne; //valeur cible de la grandeur mesuree
-	int16_t erreurPrecedente; //derniere erreur
+	float erreurPrecedente; //derniere erreur
 	float commande; //commande a appliquer a l'actionneur
-	float coeffNormalisation;//coefficient pour normaliser la sortie du PID
+	float coeffNormalisation; //coefficient pour normaliser la sortie du PID
     } tPIDStruct;
 
 //--------------------------------------------------------
@@ -30,7 +30,7 @@ typedef struct
 //				    informations necessaires au regulateur (cf. tPID.h)
 //		theMesure	  : valeur mesuree
 //--------------------------------------------------------
-int16_t tPID(tPIDStruct* thePIDStruct, int16_t theMesure);
+void tPID(tPIDStruct* thePIDStruct, int16_t theMesure);
 
 #endif /* TPID_H_ */
 

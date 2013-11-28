@@ -22,7 +22,7 @@
 #define REG_GAIN_DIR 	'G' // floats
 #define EXPOSURE_T 	'H' // [-1.0,1.0]
 #define LED_PWM 	'I' // [0-100] %
-
+#define MOTOR_SPEED	'J' // [0-100] %
 //-----------------------------------------------------------------------------
 // Déclaration des types
 //-----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ typedef struct
 	float gProprortionalGain;
 	float gIntegraleGain;
 	float gDerivativeGain;
-    }PIDGainStruct;
+    } PIDGainStruct;
 //-----------------------------------------------------------------------------
 // Déclaration des variables globales
 //-----------------------------------------------------------------------------
@@ -48,9 +48,10 @@ typedef struct
  * aSize   : Taille du tableau
  * retour : rien
  */
-void send_cmd(char aType,uint8_t aValTab[],uint8_t aSize);
+void send_cmd(char aType, uint8_t aValTab[], uint8_t aSize);
 void send_val_float(char aType, float aValTab[], uint8_t aSize);
-
+void commandAnalyser(uint8_t *aCommandBuffer);
+void send_val_int(char aType, uint8_t aValTab[], uint8_t aSize);
 
 //------------------------------------------------------------------------
 // Initialisation de la structure de données de gXBEE

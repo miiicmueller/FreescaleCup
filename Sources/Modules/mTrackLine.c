@@ -13,10 +13,10 @@
 #define kThresholdTab	40	//seuil a partir duquel un flanc est considere comme significatif
 #define kSizeEdgesTab	10	//nombre de flancs maximum que l'on peut trouver
 //TODO : mesurer les quatre valeurs suivantes
-#define kLengthLineMin	15	//longueur min de la ligne a trouver (en pixels)
-#define kLengthLineMax	30	//longueur max de la ligne a trouver (en pixels)
-#define kLengthStartStopMin	15	//longueur min d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
-#define kLengthStartStopMax	30	//longueur max d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
+#define kLengthLineMin	10	//longueur min de la ligne a trouver (en pixels)
+#define kLengthLineMax	16	//longueur max de la ligne a trouver (en pixels)
+#define kLengthStartStopMin	10	//longueur min d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
+#define kLengthStartStopMax	16	//longueur max d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
 //--
 
 //definitions de types et structures
@@ -118,7 +118,7 @@ void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition,
     tSuppressDC(tab, size);
     tRescale(tab, size, kScaleTab);
     tThreshold(tab, size, kThresholdTab);
-    nbOfEdges = mTrackLine_FindEdges(tab, size, &theEdges);
+    nbOfEdges = mTrackLine_FindEdges(tab, size, theEdges);
 
     //pattern pour la ligne centrale
     //on doit avoir au moins deux flancs

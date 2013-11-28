@@ -14,11 +14,11 @@
 // parametres : thePIDStruct	  : structure contenant toutes les 
 //				    informations necessaires au regulateur (cf. tPID.h)
 //--------------------------------------------------------
-int16_t tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
+void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     {
     //calcul de la nouvelle erreur
     //la mesure doit etre convertie dans la grandeur de la consigne
-    int16_t nouvelleErreur = (thePIDStruct->consigne - theMesure)
+    float nouvelleErreur = (float)((thePIDStruct->consigne) - theMesure)
 	    * thePIDStruct->coeffNormalisation;
 
     //integration des erreurs successives

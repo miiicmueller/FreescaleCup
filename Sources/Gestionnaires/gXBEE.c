@@ -27,7 +27,7 @@ typedef enum
     } aSendState;
 
 static aSendState gStateSend = kPIDMot;
-static char gCmdBuffer[100];
+static uint8_t gCmdBuffer[100];
 static char gLastCmdPointer = 0x00;
 
 //-----------------------------------------------------------------------------
@@ -42,6 +42,9 @@ void gXBEE_Setup(void)
     gXbeeInterStruct.aGainPIDMotors.gProprortionalGain = 0.0;
     gXbeeInterStruct.aGainPIDMotors.gIntegraleGain = 0.0;
     gXbeeInterStruct.aGainPIDMotors.gDerivativeGain = 0.0;
+
+    // Config de la vitesse maximale des moteurs
+    gXbeeInterStruct.aMotorSpeedCons = 0.0;
 
     // Config des gain du servo
     gXbeeInterStruct.aGainPIDServo.gProprortionalGain = 0.0;
@@ -141,8 +144,8 @@ void gXBEE_Execute(void)
 
 	case kSpeed:
 	    // On envoie la vitesse des moteurs
-	    aValTab_f[0] = gComputeInterStruct.gCommandeMoteurDroit;
-	    aValTab_f[1] = gComputeInterStruct.gCommandeMoteurGauche;
+	    aValTab_f[0] = gInputInterStruct.gSpeed[0];
+	    aValTab_f[1] = gInputInterStruct.gSpeed[1];
 	    aValTab_f[2] = gComputeInterStruct.gConsigneMotor;
 	    send_val_float(SPEED_INFO, aValTab_f, 3);
 	    gStateSend = kPosCam;
@@ -217,9 +220,8 @@ void gXBEE_Execute(void)
 	}
     }
 
-void commandAnalyser(char *aCommandBuffer)
+void commandAnalyser(uint8_t *aCommandBuffer)
     {
-    int test = 0;
     //On commence par tester la comamnde recue
     switch (aCommandBuffer[0])
 	{
@@ -244,10 +246,12 @@ void commandAnalyser(char *aCommandBuffer)
 	//On averti que l'on a changé les gains
 	gXbeeInterStruct.aPIDChangedMotors = true;
 	break;
+    case MOTOR_SPEED:
+	sscanf(aCommandBuffer, "J_%f\n", &gXbeeInterStruct.aMotorSpeedCons);
+	break;
     default:
+	break;
 	// Commande non-connue
-	test = 0;
-
 	}
 
     //Clean buffer

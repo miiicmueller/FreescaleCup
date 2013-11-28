@@ -47,14 +47,26 @@ void gCompute_Execute(void)
     if ((TFC_Ticker[0] >= 20) && (LineScanImageReady == 1)
 	    && (gComputeInterStruct.isFinish == false))
 	{
-	bool isLineFound;
-	bool isStartStopFound;
-
 	TFC_Ticker[0] = 0;
 	LineScanImageReady = 0;
+
+	//lecture des donnees provenant du monitoring
+	if (gXbeeInterStruct.aPIDChangedServo)
+	    {
+	    thePIDServo.kp = gXbeeInterStruct.aGainPIDServo.gProprortionalGain;
+	    thePIDServo.ki = gXbeeInterStruct.aGainPIDServo.gIntegraleGain;
+	    thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
+	    }
+
+//	TFC_SetLineScanExposureTime(gComputeInterStruct.gExpTime);
+//	mLeds_writeDyC(gComputeInterStruct.gPWMLeds);
+
+	//
 	gComputeInterStruct.isFinish = true;
 
 	//recherche de la ligne
+	bool isLineFound;
+	bool isStartStopFound;
 	int16_t LineAnalyze[128];
 	for (uint16_t i = 0; i < 128; i++)
 	    {
@@ -85,7 +97,8 @@ void gCompute_Execute(void)
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
     gComputeInterStruct.gCommandeMoteurGauche = 0;
-    gComputeInterStruct.gCommandeMoteurDroit = 0;
+    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons
+	    / 100.0;
 
     }
 

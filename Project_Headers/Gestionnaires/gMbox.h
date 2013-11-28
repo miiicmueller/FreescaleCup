@@ -45,6 +45,7 @@ typedef struct
     {
 	PIDGainStruct aGainPIDMotors;
 	PIDGainStruct aGainPIDServo;
+	float aMotorSpeedCons ;
 	bool aPIDChangedServo;
 	bool aPIDChangedMotors;
     } xBeeInterStruct;
