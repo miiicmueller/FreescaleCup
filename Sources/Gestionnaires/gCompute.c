@@ -26,8 +26,11 @@ void gCompute_Setup(void)
     {
     gComputeInterStruct.isFinish = false;
 
-    gComputeInterStruct.gCommandeMoteurDroit = 0;
-    gComputeInterStruct.gCommandeMoteurGauche = 0;
+    gComputeInterStruct.gPWMLeds = 0.0;
+    gComputeInterStruct.gExpTime = 0.0;
+
+    gComputeInterStruct.gCommandeMoteurDroit = 0.0;
+    gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0;
 
     thePIDServo.kp = 0.006; //val max pour kp servo = 1/64
@@ -59,10 +62,11 @@ void gCompute_Execute(void)
 	    thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
 	    }
 
-//	TFC_SetLineScanExposureTime(gComputeInterStruct.gExpTime);
-//	mLeds_writeDyC(gComputeInterStruct.gPWMLeds);
 
-	//
+	TFC_SetLineScanExposureTime((uint32_t) (((gComputeInterStruct.gExpTime + 1.0) * 5000.0)
+			+ 1.0));
+	mLeds_writeDyC(gComputeInterStruct.gPWMLeds);
+
 	gComputeInterStruct.isFinish = true;
 
 	//recherche de la ligne

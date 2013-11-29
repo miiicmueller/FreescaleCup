@@ -13,7 +13,7 @@ void TFC_Init()
     TFC_InitTerminal();
     TFC_InitUARTs();
     TFC_HBRIDGE_DISABLE;
-    TFC_SetMotorPWM(0, 0);
+    TFC_SetMotorPWM(0.0, 0.0);
 
     //Leds
     mLeds_Setup();

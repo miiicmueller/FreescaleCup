@@ -35,7 +35,7 @@ typedef struct
 	float gCommandeMoteurGauche;
 	float gCommandeServoDirection;
 	uint16_t gConsigneMotor;
-	uint8_t gPWMLeds;
+	float gPWMLeds;
 	float gExpTime;
 	bool isFinish;
     } ComputeInterStruct;
