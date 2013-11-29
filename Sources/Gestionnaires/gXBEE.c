@@ -10,6 +10,7 @@
 #include "Gestionnaires/gXBEE.h"
 
 #define END_OF_TRAME '\n'
+#define CMD_MAX_SIZE 100
 
 /* prototypes des fonctions statiques (propres au fichier) */
 
@@ -27,8 +28,8 @@ typedef enum
     } aSendState;
 
 static aSendState gStateSend = kPIDMot;
-static uint8_t gCmdBuffer[100];
-static char gLastCmdPointer = 0x00;
+static uint8_t gCmdBuffer[CMD_MAX_SIZE];
+static uint16_t gLastCmdPointer = 0x00;
 
 //-----------------------------------------------------------------------------
 //fonctions publiques
@@ -176,7 +177,7 @@ void gXBEE_Execute(void)
 	    break;
 	case kPWM:
 	    //PWM des leds
-	    aValTab_i[0] = gComputeInterStruct.gPWMLeds;
+	    aValTab_i[0] = ((gComputeInterStruct.gPWMLeds + 1.0)/2.0) * 100;
 	    send_val_int(LED_PWM, aValTab_i, 1);
 	    gStateSend = kExpTime;
 	    break;
@@ -200,6 +201,13 @@ void gXBEE_Execute(void)
 		BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0 && (!endOfTrame);
 		i++)
 	    {
+
+	    //Ce point ne devrait JAMAIS être atteint
+	    if (i >= CMD_MAX_SIZE)
+		{
+		i = 0;
+		}
+
 	    ByteDequeue(&XBEE_SERIAL_INCOMING_QUEUE, &gCmdBuffer[i]);
 
 	    // On enregistre la denière valeur de l'index
@@ -248,6 +256,17 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 	break;
     case MOTOR_SPEED:
 	sscanf(aCommandBuffer, "J_%f\n", &gXbeeInterStruct.aMotorSpeedCons);
+	gXbeeInterStruct.aMotorSpeedCons = ((gXbeeInterStruct.aMotorSpeedCons
+		/ 100.0) * -1.0);
+	break;
+
+    case EXPOSURE_T:
+	sscanf(aCommandBuffer, "H_%f\n", &gComputeInterStruct.gExpTime);
+	break;
+    case LED_PWM:
+	sscanf(aCommandBuffer, "I_%f\n", &gComputeInterStruct.gPWMLeds);
+	gComputeInterStruct.gPWMLeds = ((gComputeInterStruct.gPWMLeds / 100.0)
+		* 2.0) - 1.0;
 	break;
     default:
 	break;

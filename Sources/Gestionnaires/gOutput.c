@@ -21,7 +21,7 @@ void gOutput_Setup(void)
     {
     TFC_SetServo(1, 0);
 
-    TFC_SetMotorPWM(0, 0); //Make sure motors are off
+    TFC_SetMotorPWM(0.0, 0.0); //Make sure motors are off
     TFC_HBRIDGE_ENABLE;
     }
 

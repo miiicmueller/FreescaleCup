@@ -40,8 +40,6 @@ mMotorStruct mMotor2;
  */
 void mMotor_mSetup()
     {
-    //Config des moteurs
-    TFC_InitMotorPWM();
 
     // Configuration de l'input capture
 
@@ -61,16 +59,13 @@ void mMotor_mSetup()
 
     //Setup the mod register to get the correct PWM Period
 
-    TPM2_MOD = 0xFFFF ;//(FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
+    TPM2_MOD = 0xFFFF; //(FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
 
     //Setup Channels 0 & 1 in input capture rising edge with interrupt
     TPM2_C0SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
     TPM2_C1SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
 
     //Enable the Counter
-
-    //Set the Default duty cycle to 50% duty cycle
-    TFC_SetMotorPWM(0.0, 0.0);
 
     enable_irq(INT_TPM2 - 16);
 
@@ -80,6 +75,12 @@ void mMotor_mSetup()
     //Enable the FTM functions on the the port
     PORTA_PCR1 = PORT_PCR_MUX(3);
     PORTA_PCR2 = PORT_PCR_MUX(3);
+
+    //Config des moteurs
+    TFC_InitMotorPWM();
+
+    //Set the Default duty cycle to 50% duty cycle
+    TFC_SetMotorPWM(-1.0, -1.0);
 
     //initialaisation des moterus
     mMotor1.aCapt = 0;
@@ -158,7 +159,7 @@ void FTM2_IRQHandler()
 	    {
 	    mMotor1.aStopped = 1;
 	    mMotor1_oldCapt = 0;
-	    mMotor1.aCapt = 0;
+	    mMotor1.aCapt = 65535;
 	    }
 	else
 	    {
@@ -169,7 +170,7 @@ void FTM2_IRQHandler()
 	    {
 	    mMotor2.aStopped = 1;
 	    mMotor2_oldCapt = 0;
-	    mMotor1.aCapt = 0;
+	    mMotor1.aCapt = 65535;
 	    }
 	else
 	    {
