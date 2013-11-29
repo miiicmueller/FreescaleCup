@@ -35,9 +35,6 @@ typedef struct
 	float gCommandeMoteurGauche;
 	float gCommandeServoDirection;
 	uint16_t gConsigneMotor;
-	float gPWMLeds;
-	float gExpTime;
-	bool isFinish;
     } ComputeInterStruct;
 
 // Création du type de la structure contenant les outputs
@@ -45,9 +42,11 @@ typedef struct
     {
 	PIDGainStruct aGainPIDMotors;
 	PIDGainStruct aGainPIDServo;
-	float aMotorSpeedCons ;
+	float aMotorSpeedCons;
 	bool aPIDChangedServo;
 	bool aPIDChangedMotors;
+	uint8_t aPWMLeds;
+	float aExpTime;
     } xBeeInterStruct;
 
 //-----------------------------------------------------------------------------

@@ -41,8 +41,10 @@ void tSuppressDC(int16_t* tab, uint16_t size);
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //		theScale: valeur max (absolue) que le tableau doit prendre
+//		aEcartMin: ecart minimal pour avoir le droit de faire le rescale
 //--------------------------------------------------------
-void tRescale(int16_t* tab, uint16_t size, uint16_t theScale);
+void tRescale(int16_t* tab, uint16_t size, uint16_t theScale,
+	uint16_t aEcartMin);
 
 //--------------------------------------------------------
 // etablit un seuil : si la valeur du tableau lui est superieur il prendra 1, sinon 0
