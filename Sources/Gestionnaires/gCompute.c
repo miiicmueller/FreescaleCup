@@ -11,9 +11,10 @@
 #include "Tools\tPID.h"
 #include "Modules\mTrackline.h"
 
+#define kTailleFiltre 10
+
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
-static int16_t theLinePosition;
 
 //-----------------------------------------------------------------------------
 //fonctions publiques
@@ -65,6 +66,7 @@ void gCompute_Execute(void)
 	gComputeInterStruct.isFinish = true;
 
 	//recherche de la ligne
+	int16_t theLinePosition;
 	bool isLineFound;
 	bool isStartStopFound;
 	int16_t LineAnalyze[128];
@@ -75,6 +77,23 @@ void gCompute_Execute(void)
 
 	mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
 		&isStartStopFound);
+
+	//filtrage de la position de la ligne
+	static uint8_t posFiltre = 0;
+	static int16_t theLinePositionTab[kTailleFiltre];
+
+	theLinePositionTab[posFiltre] = theLinePosition;
+	if (posFiltre < kTailleFiltre - 1)
+	    {
+	    posFiltre++;
+	    }
+	else
+	    {
+	    posFiltre = 0;
+	    }
+	theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
+
+	//si la ligne est trouvee, mettre a jour le PID
 	if (isLineFound)
 	    {
 	    TFC_BAT_LED0_ON;
@@ -84,6 +103,8 @@ void gCompute_Execute(void)
 	    {
 	    TFC_BAT_LED0_OFF;
 	    }
+
+	//si la ligne d'arrivee est trouvee
 	if (isStartStopFound)
 	    {
 	    TFC_BAT_LED1_ON;
@@ -92,13 +113,13 @@ void gCompute_Execute(void)
 	    {
 	    TFC_BAT_LED1_OFF;
 	    }
-	}
 
-    gInputInterStruct.gPosCam1 = theLinePosition;
-    gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
-    gComputeInterStruct.gCommandeMoteurGauche = 0;
-    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons
-	    / 100.0;
+	gInputInterStruct.gPosCam1 = theLinePosition;
+	gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
+	gComputeInterStruct.gCommandeMoteurGauche = 0;
+	gComputeInterStruct.gCommandeMoteurDroit =
+		gXbeeInterStruct.aMotorSpeedCons / 100.0;
+	}
 
     }
 
