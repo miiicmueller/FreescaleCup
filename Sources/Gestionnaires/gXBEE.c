@@ -8,6 +8,7 @@
 #include "TFC\TFC.h"
 #include "Gestionnaires\gMbox.h"
 #include "Gestionnaires/gXBEE.h"
+#include "Modules/mMotor.h"
 
 #define END_OF_TRAME '\n'
 #define CMD_MAX_SIZE 100
@@ -145,9 +146,9 @@ void gXBEE_Execute(void)
 
 	case kSpeed:
 	    // On envoie la vitesse des moteurs
-	    aValTab_f[0] = gInputInterStruct.gSpeed[0];
-	    aValTab_f[1] = gInputInterStruct.gSpeed[1];
-	    aValTab_f[2] = gComputeInterStruct.gConsigneMotor;
+	    aValTab_f[0] = gInputInterStruct.gFreq[0];
+	    aValTab_f[1] = gInputInterStruct.gFreq[1];
+	    aValTab_f[2] = (float) gComputeInterStruct.gConsigneMotor;
 	    send_val_float(SPEED_INFO, aValTab_f, 3);
 	    gStateSend = kPosCam;
 	    break;
@@ -177,7 +178,7 @@ void gXBEE_Execute(void)
 	    break;
 	case kPWM:
 	    //PWM des leds
-	    aValTab_i[0] = ((gComputeInterStruct.gPWMLeds + 1.0)/2.0) * 100;
+	    aValTab_i[0] = ((gComputeInterStruct.gPWMLeds + 1.0) / 2.0) * 100;
 	    send_val_int(LED_PWM, aValTab_i, 1);
 	    gStateSend = kExpTime;
 	    break;

@@ -25,7 +25,7 @@ typedef struct
 	uint8_t gPosCam2; //position de la ligne sur l'image de la caméra 2
 	uint8_t gAccel[3]; // 0 = X, 1=Y, 2=Z : accéléromètre
 	uint8_t gBattLev;
-	uint16_t gSpeed[2]; // 0 : vitesse moteur gauche, 1 : vitesse moteur droit
+	float gFreq[2]; // 0 : freq moteur gauche, 1 : freq moteur droit
     } InpInterStruct;
 
 // Création du type de la structure contenant les outputs

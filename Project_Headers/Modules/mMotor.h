@@ -15,8 +15,8 @@ typedef struct
 	tPIDStruct aPIDData;
 	uint8_t aStopped;
 	uint8_t aOverflowOld;
-	uint16_t aCapt;
-	float aSpeed;
+	uint32_t aCapt;
+	float aFreq ;
 	void(*mMotor_mesure)(void);
     } mMotorStruct;
 

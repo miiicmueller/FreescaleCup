@@ -6,7 +6,7 @@
  
 #include "kinetis_sysinit.h"
 #include "derivative.h"
-
+#include "TFC/TFC_BoardSupport.h"
 /**
  **===========================================================================
  **  External declarations
@@ -30,6 +30,7 @@ extern void __thumb_startup(void);
 void Default_Handler()
 {
 	__asm("bkpt");
+	TFC_HBRIDGE_DISABLE;
 }
 
 /**
