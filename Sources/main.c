@@ -38,10 +38,20 @@ int main(void)
 	    else
 		{
 		//Notre magnifique programme
-		gInput_Execute();
-		gCompute_Execute();
-		gOutput_Execute();
-		gXBEE_Execute();
+		if ((TFC_Ticker[0] >= 20) && (LineScanImageReady == 1))
+		    {
+		    TFC_Ticker[0] = 0;
+		    LineScanImageReady = 0;
+
+		    gInput_Execute();
+		    gCompute_Execute();
+		    gOutput_Execute();
+		    }
+		if (TFC_Ticker[1] >= 60)
+		    {
+		    TFC_Ticker[1] = 0;
+		    gXBEE_Execute();
+		    }
 		}
 
 	    break;

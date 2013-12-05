@@ -17,7 +17,7 @@
 #define N_OF							1
 #define F_COUNT							6000000.0
 
-#define FILTER_SIZE						3
+#define FILTER_SIZE						5
 
 /**
  * Instanciation des deux moteurs de propulsion

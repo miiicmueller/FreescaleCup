@@ -43,25 +43,31 @@ void tSuppressDC(int16_t* tab, uint16_t size)
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //		theScale: valeur max (absolue) que le tableau doit prendre
+//		aEcartMin: ecart minimal pour avoir le droit de faire le rescale
 //--------------------------------------------------------
-void tRescale(int16_t* tab, uint16_t size, uint16_t theScale)
+void tRescale(int16_t* tab, uint16_t size, uint16_t theScale,
+	uint16_t aEcartMin)
     {
     float theFactor;
     uint16_t oldMax = tAbs(tab[tMax(tab, size)]);
     uint16_t oldMin = tAbs(tab[tMin(tab, size)]);
 
-    if (oldMax > oldMin)
+    //on le fait seulement si l'ecart min est garanti
+    if (tAbs(oldMax - oldMin) > aEcartMin)
 	{
-	theFactor = (float) theScale / (float) oldMax;
-	}
-    else
-	{
-	theFactor = (float) theScale / (float) oldMin;
-	}
+	if (oldMax > oldMin)
+	    {
+	    theFactor = (float) theScale / (float) oldMax;
+	    }
+	else
+	    {
+	    theFactor = (float) theScale / (float) oldMin;
+	    }
 
-    for (uint16_t i = 0; i < size; i++)
-	{
-	tab[i] = (int16_t) ((float) tab[i] * theFactor);
+	for (uint16_t i = 0; i < size; i++)
+	    {
+	    tab[i] = (int16_t) ((float) tab[i] * theFactor);
+	    }
 	}
     }
 

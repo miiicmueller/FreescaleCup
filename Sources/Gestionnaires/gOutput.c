@@ -21,7 +21,7 @@ void gOutput_Setup(void)
     {
     TFC_SetServo(1, 0);
 
-    TFC_SetMotorPWM(0.0, 0.0); //Make sure motors are off
+    TFC_SetMotorPWM(0, 0); //Make sure motors are off
     TFC_HBRIDGE_ENABLE;
     }
 
@@ -31,16 +31,18 @@ void gOutput_Setup(void)
 //------------------------------------------------------------------------
 void gOutput_Execute(void)
     {
-    if ((TFC_Ticker[1] >= 20) && (gComputeInterStruct.isFinish == true))
-	{
-	TFC_Ticker[1] = 0;
-	gComputeInterStruct.isFinish = false;
+    //consigne de direction
+    TFC_SetServo(0, gComputeInterStruct.gCommandeServoDirection);
 
-	TFC_SetServo(0, gComputeInterStruct.gCommandeServoDirection);
+    //consignes de vitesse
+    TFC_SetMotorPWM(gComputeInterStruct.gCommandeMoteurDroit,
+	    gComputeInterStruct.gCommandeMoteurGauche);
 
-	TFC_SetMotorPWM(gComputeInterStruct.gCommandeMoteurDroit,
-		gComputeInterStruct.gCommandeMoteurGauche); //consignes de vitesse entre -1 et 1 . Attention au SENS !
-	}
+    //temps d'exposition et eclairage des leds pour la camera
+    TFC_SetLineScanExposureTime(
+	    (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0) + 1.0));
+    mLeds_writeDyC(gXbeeInterStruct.aPWMLeds);
+
     }
 
 //-----------------------------------------------------------------------------

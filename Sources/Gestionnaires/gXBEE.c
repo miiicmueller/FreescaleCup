@@ -29,8 +29,8 @@ typedef enum
     } aSendState;
 
 static aSendState gStateSend = kPIDMot;
-static uint8_t gCmdBuffer[CMD_MAX_SIZE];
-static uint16_t gLastCmdPointer = 0x00;
+static uint8_t gCmdBuffer[100];
+static char gLastCmdPointer = 0x00;
 
 //-----------------------------------------------------------------------------
 //fonctions publiques
@@ -70,8 +70,8 @@ void gXBEE_Setup(void)
     gInputInterStruct.gBattLev = 100;
 
     //PWM des leds
-    gComputeInterStruct.gPWMLeds = 0;
-    gComputeInterStruct.gExpTime = 0.0;
+    gXbeeInterStruct.aPWMLeds = 0;
+    gXbeeInterStruct.aExpTime = 0.0;
 
     gComputeInterStruct.gCommandeMoteurDroit = 0.0;
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
@@ -94,10 +94,8 @@ void gXBEE_Execute(void)
     uint8_t aValTab_i[5];
     float aValTab_f[5];
 
-    if ((BytesInQueue(&XBEE_SERIAL_OUTGOING_QUEUE) == 0)
-	    && (TFC_Ticker[2] >= 60))
+    if (BytesInQueue(&XBEE_SERIAL_OUTGOING_QUEUE) == 0)
 	{
-	TFC_Ticker[2] = 0;
 	switch (gStateSend)
 	    {
 
@@ -178,13 +176,15 @@ void gXBEE_Execute(void)
 	    break;
 	case kPWM:
 	    //PWM des leds
-	    aValTab_i[0] = ((gComputeInterStruct.gPWMLeds + 1.0) / 2.0) * 100;
+
+	    aValTab_i[0] = ((gXbeeInterStruct.aPWMLeds + 1.0) / 2.0) * 100;
+
 	    send_val_int(LED_PWM, aValTab_i, 1);
 	    gStateSend = kExpTime;
 	    break;
 	case kExpTime:
 	    //Temp d'exposition
-	    aValTab_f[0] = gComputeInterStruct.gExpTime;
+	    aValTab_f[0] = gXbeeInterStruct.aExpTime;
 	    send_val_float(EXPOSURE_T, aValTab_f, 1);
 	    gStateSend = kPIDMot;
 	    break;
@@ -192,8 +192,7 @@ void gXBEE_Execute(void)
 	}
 
     //Lecture des bytes recus
-    if ((BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0)
-	    && (TFC_Ticker[2] >= 60))
+    if (BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0)
 	{
 	bool endOfTrame = false;
 
@@ -202,13 +201,6 @@ void gXBEE_Execute(void)
 		BytesInQueue(&XBEE_SERIAL_INCOMING_QUEUE) > 0 && (!endOfTrame);
 		i++)
 	    {
-
-	    //Ce point ne devrait JAMAIS être atteint
-	    if (i >= CMD_MAX_SIZE)
-		{
-		i = 0;
-		}
-
 	    ByteDequeue(&XBEE_SERIAL_INCOMING_QUEUE, &gCmdBuffer[i]);
 
 	    // On enregistre la denière valeur de l'index
@@ -254,7 +246,7 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 		&gXbeeInterStruct.aGainPIDMotors.gDerivativeGain);
 	//On averti que l'on a changé les gains
 	gXbeeInterStruct.aPIDChangedMotors = true;
-	
+
 	break;
     case MOTOR_SPEED:
 	sscanf(aCommandBuffer, "J_%f\n", &gXbeeInterStruct.aMotorSpeedCons);
@@ -263,11 +255,11 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 	break;
 
     case EXPOSURE_T:
-	sscanf(aCommandBuffer, "H_%f\n", &gComputeInterStruct.gExpTime);
+	sscanf(aCommandBuffer, "H_%f\n", &gXbeeInterStruct.aExpTime);
 	break;
     case LED_PWM:
-	sscanf(aCommandBuffer, "I_%f\n", &gComputeInterStruct.gPWMLeds);
-	gComputeInterStruct.gPWMLeds = ((gComputeInterStruct.gPWMLeds / 100.0)
+	sscanf(aCommandBuffer, "I_%f\n", &gXbeeInterStruct.aPWMLeds);
+	gXbeeInterStruct.aPWMLeds = ((gXbeeInterStruct.aPWMLeds / 100.0)
 		* 2.0) - 1.0;
 	break;
     default:

@@ -9,12 +9,14 @@
 #include "Gestionnaires\gCompute.h"
 #include "Gestionnaires\gMbox.h"
 #include "Tools\tPID.h"
+#include "Tools\Tools.h"
 #include "Modules\mTrackline.h"
 #include "Modules/mMotor.h"
 
+#define kTailleFiltre 10
+
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
-static int16_t theLinePosition;
 
 //-----------------------------------------------------------------------------
 //fonctions publiques
@@ -24,13 +26,8 @@ static int16_t theLinePosition;
 //------------------------------------------------------------------------
 void gCompute_Setup(void)
     {
-    gComputeInterStruct.isFinish = false;
-
-    gComputeInterStruct.gPWMLeds = 0.0;
-    gComputeInterStruct.gExpTime = 0.0;
-
-    gComputeInterStruct.gCommandeMoteurDroit = -1.0;
-    gComputeInterStruct.gCommandeMoteurGauche = -1.0;
+    gComputeInterStruct.gCommandeMoteurDroit = 0.0;
+    gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0;
 
     thePIDServo.kp = 0.006; //val max pour kp servo = 1/64
@@ -48,79 +45,82 @@ void gCompute_Setup(void)
 //------------------------------------------------------------------------
 void gCompute_Execute(void)
     {
-    uint32_t valExposure;
-
-    if ((TFC_Ticker[0] >= 20) && (LineScanImageReady == 1)
-	    && (gComputeInterStruct.isFinish == false))
+    //lecture des donnees provenant du monitoring
+    if (gXbeeInterStruct.aPIDChangedServo)
 	{
-	TFC_Ticker[0] = 0;
-	LineScanImageReady = 0;
+	thePIDServo.kp = gXbeeInterStruct.aGainPIDServo.gProprortionalGain;
+	thePIDServo.ki = gXbeeInterStruct.aGainPIDServo.gIntegraleGain;
+	thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
+	}
 
-	//lecture des donnees provenant du monitoring
-	if (gXbeeInterStruct.aPIDChangedServo)
+    //lecture des donnees provenant du monitoring
+    if (gXbeeInterStruct.aPIDChangedMotors)
+	{
+	//Motor1
+	mMotor1.aPIDData.kp =
+		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+	mMotor1.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+	mMotor1.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+
+	//Motor 2
+	mMotor2.aPIDData.kp =
+		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+	mMotor2.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+	}
+
+    valExposure = (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0)
+	    + 1.0);
+
+    //recherche de la ligne
+    int16_t theLinePosition;
+    bool isLineFound;
+    bool isStartStopFound;
+    int16_t LineAnalyze[128];
+    for (uint16_t i = 0; i < 128; i++)
+	{
+	LineAnalyze[i] = LineScanImage0[i];
+	}
+
+    mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
+	    &isStartStopFound);
+
+    //si la ligne est trouvee
+    if (isLineFound)
+	{
+	TFC_BAT_LED0_ON;
+
+	//filtrage de la position de la ligne
+	static uint8_t posFiltre = 0;
+	static int16_t theLinePositionTab[kTailleFiltre];
+
+	theLinePositionTab[posFiltre] = theLinePosition;
+	if (posFiltre < kTailleFiltre - 1)
 	    {
-	    thePIDServo.kp = gXbeeInterStruct.aGainPIDServo.gProprortionalGain;
-	    thePIDServo.ki = gXbeeInterStruct.aGainPIDServo.gIntegraleGain;
-	    thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
-	    }
-
-	//lecture des donnees provenant du monitoring
-	if (gXbeeInterStruct.aPIDChangedMotors)
-	    {
-	    //Motor1
-	    mMotor1.aPIDData.kp =
-		    gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
-	    mMotor1.aPIDData.ki =
-		    gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
-	    mMotor1.aPIDData.kd =
-		    gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
-
-	    //Motor 2
-	    mMotor2.aPIDData.kp =
-		    gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
-	    mMotor2.aPIDData.ki =
-		    gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
-	    mMotor2.aPIDData.kd =
-		    gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
-	    }
-
-	valExposure =
-		(uint32_t) (((gComputeInterStruct.gExpTime + 1.0) * 5000.0)
-			+ 1.0);
-
-	TFC_SetLineScanExposureTime(valExposure);
-	mLeds_writeDyC(gComputeInterStruct.gPWMLeds);
-
-	gComputeInterStruct.isFinish = true;
-
-	//recherche de la ligne
-	bool isLineFound;
-	bool isStartStopFound;
-	int16_t LineAnalyze[128];
-	for (uint16_t i = 0; i < 128; i++)
-	    {
-	    LineAnalyze[i] = LineScanImage0[i];
-	    }
-
-	mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
-		&isStartStopFound);
-	if (isLineFound)
-	    {
-	    TFC_BAT_LED0_ON;
-	    tPID(&thePIDServo, (theLinePosition - 64));
+	    posFiltre++;
 	    }
 	else
 	    {
-	    TFC_BAT_LED0_OFF;
+	    posFiltre = 0;
 	    }
-	if (isStartStopFound)
-	    {
-	    TFC_BAT_LED1_ON;
-	    }
-	else
-	    {
-	    TFC_BAT_LED1_OFF;
-	    }
+	theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
+
+	// Mettre a jour le PID
+	tPID(&thePIDServo, (theLinePosition - 64));
+	}
+    else
+	{
+	TFC_BAT_LED0_OFF;
+	}
+
+    //si la ligne d'arrivee est trouvee
+    if (isStartStopFound)
+	{
+	TFC_BAT_LED1_ON;
+	}
+    else
+	{
+	TFC_BAT_LED1_OFF;
 	}
 
     //Appel des PID des moteurs
@@ -131,11 +131,12 @@ void gCompute_Execute(void)
 
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
+
 //    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
 //    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande ;
-    gComputeInterStruct.gCommandeMoteurGauche =
-	    gXbeeInterStruct.aMotorSpeedCons;
-    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons;
+    gComputeInterStruct.gCommandeMoteurGauche = 0;
+    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons
+	    / 100.0;
 
     }
 
