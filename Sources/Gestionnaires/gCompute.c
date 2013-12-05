@@ -12,7 +12,7 @@
 #include "Tools\Tools.h"
 #include "Modules\mTrackline.h"
 
-#define kTailleFiltre 10
+#define kTailleFiltre 16
 
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
@@ -44,6 +44,8 @@ void gCompute_Setup(void)
 //------------------------------------------------------------------------
 void gCompute_Execute(void)
     {
+    //TODO : séparer le code dans différentes fonctions afin d'améliorer la lisibilité
+
     //lecture des donnees provenant du monitoring
     if (gXbeeInterStruct.aPIDChangedServo)
 	{
@@ -53,7 +55,7 @@ void gCompute_Execute(void)
 	}
 
     //recherche de la ligne
-    int16_t theLinePosition;
+    static int16_t theLinePosition = 0;
     bool isLineFound;
     bool isStartStopFound;
     int16_t LineAnalyze[128];
@@ -61,10 +63,9 @@ void gCompute_Execute(void)
 	{
 	LineAnalyze[i] = LineScanImage0[i];
 	}
-
     mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
 	    &isStartStopFound);
-
+    //---------------------------------------------------------------------------
     //si la ligne est trouvee
     if (isLineFound)
 	{
@@ -84,17 +85,32 @@ void gCompute_Execute(void)
 	    posFiltre = 0;
 	    }
 	theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
-
-	// Mettre a jour le PID
-	tPID(&thePIDServo, (theLinePosition - 64));
 	}
     else
 	{
 	TFC_BAT_LED0_OFF;
 	}
+    // Mettre a jour le PID
+    tPID(&thePIDServo, (theLinePosition - 64));
 
+    //---------------------------------------------------------------------------
+    //TODO : faire une machine d'états pour contrôler la course(départ, arrivée, virage, ligne droite) afin de donner une bonne consigne aux moteurs
     //si la ligne d'arrivee est trouvee
-    if (isStartStopFound)
+    static bool isInRace = false;
+    static bool oldIsStartStopFound = false;
+    if (isStartStopFound && !(oldIsStartStopFound))
+	{
+	if (isInRace == true)
+	    {
+	    isInRace = false;
+	    }
+	else
+	    {
+	    isInRace = true;
+	    }
+	}
+    oldIsStartStopFound = isStartStopFound;
+    if (isInRace)
 	{
 	TFC_BAT_LED1_ON;
 	}
@@ -103,6 +119,9 @@ void gCompute_Execute(void)
 	TFC_BAT_LED1_OFF;
 	}
 
+    //TODO : ajouter le contrôle des moteurs (différentiel, filtrage, PID)
+
+    //---------------------------------------------------------------------------
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
     gComputeInterStruct.gCommandeMoteurGauche = 0;

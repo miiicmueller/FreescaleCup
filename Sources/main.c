@@ -38,7 +38,7 @@ int main(void)
 	    else
 		{
 		//Notre magnifique programme
-		if ((TFC_Ticker[0] >= 20) && (LineScanImageReady == 1))
+		if ((TFC_Ticker[0] >= 10) && (LineScanImageReady == 1))
 		    {
 		    TFC_Ticker[0] = 0;
 		    LineScanImageReady = 0;
