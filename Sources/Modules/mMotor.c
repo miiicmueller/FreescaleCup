@@ -17,11 +17,28 @@
 #define N_OF							1
 #define F_COUNT							6000000.0
 
+#define FILTER_SIZE						3
+
 /**
  * Instanciation des deux moteurs de propulsion
  */
 mMotorStruct mMotor1;
 mMotorStruct mMotor2;
+
+float aFreqMesTabMot1[FILTER_SIZE] =
+    {
+    0
+    };
+
+char aNumEchantillonsMot1 = 0;
+float aFreqMesTabMot2[FILTER_SIZE] =
+    {
+    0
+    };
+
+char aNumEchantillonsMot2 = 0;
+
+float median_filter_n(float *aTab, char aSize);
 
 /**
  * Permet de configurer les moteur
@@ -147,6 +164,8 @@ void FTM2_IRQHandler()
 	    mMotor1_oldCapt = 0;
 	    mMotor1.aCapt = 65535 * N_OF;
 	    mMotor1.aFreq = 0.0;
+	    //On vide le tableau
+	    aNumEchantillonsMot1 = 0;
 	    }
 	else
 	    {
@@ -159,6 +178,8 @@ void FTM2_IRQHandler()
 	    mMotor2_oldCapt = 0;
 	    mMotor2.aCapt = 65535 * N_OF;
 	    mMotor2.aFreq = 0.0;
+	    //On vide le tableau
+	    aNumEchantillonsMot2 = 0;
 	    }
 	else
 	    {
@@ -177,17 +198,29 @@ void FTM2_IRQHandler()
 	    {
 	    mMotor1.aOverflowOld = 0;
 	    }
+
 	mMotor1.aCapt = (TPM2_C0V + (65535 * mMotor1.aOverflowOld))
 		- mMotor1_oldCapt;
 
 	mMotor1_oldCapt = TPM2_C0V;
 
-	//On a avancé donc on oublie l'overflow
+	//On a avancé donc on oublie les overflow
 	mMotor1.aOverflowOld = 0;
 	mMotor1.aStopped = 0;
 
 	//Mise à jour de la vitesse
-	mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
+	if (aNumEchantillonsMot1 >= (FILTER_SIZE - 1))
+	    {
+	    aFreqMesTabMot1[0] = (F_COUNT) / mMotor1.aCapt;
+	    mMotor1.aFreq = median_filter_n(aFreqMesTabMot1, FILTER_SIZE);
+	    }
+	else
+	    {
+	    mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
+	    aFreqMesTabMot1[(FILTER_SIZE - 1) - aNumEchantillonsMot1] =
+		    mMotor1.aFreq;
+	    aNumEchantillonsMot1++;
+	    }
 
 	//Clear du flag
 	TPM2_C0SC |= TPM_CnSC_CHF_MASK;
@@ -207,10 +240,59 @@ void FTM2_IRQHandler()
 	mMotor2.aOverflowOld = 0;
 	mMotor2.aStopped = 0;
 
-	mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
+	//Mise à jour de la vitesse
+	if (aNumEchantillonsMot2 >= (FILTER_SIZE - 1))
+	    {
+	    aFreqMesTabMot2[0] = (F_COUNT) / mMotor2.aCapt;
+	    mMotor2.aFreq = median_filter_n(aFreqMesTabMot2, FILTER_SIZE);
+	    }
+	else
+	    {
+	    mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
+	    aFreqMesTabMot2[(FILTER_SIZE - 1) - aNumEchantillonsMot2] =
+		    mMotor2.aFreq;
+	    aNumEchantillonsMot2++;
+	    }
 
 	//Clear du flag
 	TPM2_C1SC |= TPM_CnSC_CHF_MASK;
 	}
+    }
+
+float median_filter_n(float *aTab, char aSize)
+    {
+    float aCpyTab[aSize];
+    char i = 0, j = 0;
+    float aTemp;
+
+    //Copie du tableau
+    for (i = 0; i < aSize; i++)
+	{
+	aCpyTab[i] = aTab[i];
+	}
+
+    //On décale l'indice du tableau pour la prochaine mesure
+    for (i = (aSize); i > 0; i--)
+	{
+	aTab[i] = aTab[i - 1];
+	}
+
+    //On trie le tableau
+    for (i = 0; i < aSize; i++)
+	{
+	for (j = 0; j < aSize; j++)
+	    {
+	    if (aCpyTab[j] > aCpyTab[j + 1])
+		{
+		// On swap les deux
+		aTemp = aCpyTab[j + 1];
+		aCpyTab[j + 1] = aCpyTab[j];
+		aCpyTab[j] = aTemp;
+		}
+	    }
+	}
+
+    //On prend la valeur du milieu
+    return aCpyTab[(aSize - 1) / 2];
     }
 
