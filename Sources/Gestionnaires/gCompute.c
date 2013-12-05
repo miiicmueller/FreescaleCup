@@ -45,6 +45,7 @@ void gCompute_Setup(void)
 //------------------------------------------------------------------------
 void gCompute_Execute(void)
     {
+    uint32_t valExposure = 0;
     //lecture des donnees provenant du monitoring
     if (gXbeeInterStruct.aPIDChangedServo)
 	{
@@ -69,8 +70,8 @@ void gCompute_Execute(void)
 	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
 	}
 
-    valExposure = (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0)
-	    + 1.0);
+    valExposure =
+	    (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0) + 1.0);
 
     //recherche de la ligne
     int16_t theLinePosition;
