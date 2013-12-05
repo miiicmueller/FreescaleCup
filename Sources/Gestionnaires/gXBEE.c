@@ -8,8 +8,10 @@
 #include "TFC\TFC.h"
 #include "Gestionnaires\gMbox.h"
 #include "Gestionnaires/gXBEE.h"
+#include "Modules/mMotor.h"
 
 #define END_OF_TRAME '\n'
+#define CMD_MAX_SIZE 100
 
 /* prototypes des fonctions statiques (propres au fichier) */
 
@@ -142,9 +144,9 @@ void gXBEE_Execute(void)
 
 	case kSpeed:
 	    // On envoie la vitesse des moteurs
-	    aValTab_f[0] = gInputInterStruct.gSpeed[0];
-	    aValTab_f[1] = gInputInterStruct.gSpeed[1];
-	    aValTab_f[2] = gComputeInterStruct.gConsigneMotor;
+	    aValTab_f[0] = gInputInterStruct.gFreq[0] / 3.0;
+	    aValTab_f[1] = gInputInterStruct.gFreq[1] / 3.0;
+	    aValTab_f[2] = (float) gComputeInterStruct.gConsigneMotor;
 	    send_val_float(SPEED_INFO, aValTab_f, 3);
 	    gStateSend = kPosCam;
 	    break;
@@ -174,7 +176,9 @@ void gXBEE_Execute(void)
 	    break;
 	case kPWM:
 	    //PWM des leds
-	    aValTab_i[0] = gXbeeInterStruct.aPWMLeds;
+
+	    aValTab_i[0] = ((gXbeeInterStruct.aPWMLeds + 1.0) / 2.0) * 100;
+
 	    send_val_int(LED_PWM, aValTab_i, 1);
 	    gStateSend = kExpTime;
 	    break;
@@ -242,9 +246,21 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 		&gXbeeInterStruct.aGainPIDMotors.gDerivativeGain);
 	//On averti que l'on a changé les gains
 	gXbeeInterStruct.aPIDChangedMotors = true;
+
 	break;
     case MOTOR_SPEED:
 	sscanf(aCommandBuffer, "J_%f\n", &gXbeeInterStruct.aMotorSpeedCons);
+	gXbeeInterStruct.aMotorSpeedCons = ((gXbeeInterStruct.aMotorSpeedCons
+		/ 100.0) * -1.0);
+	break;
+
+    case EXPOSURE_T:
+	sscanf(aCommandBuffer, "H_%f\n", &gXbeeInterStruct.aExpTime);
+	break;
+    case LED_PWM:
+	sscanf(aCommandBuffer, "I_%f\n", &gXbeeInterStruct.aPWMLeds);
+	gXbeeInterStruct.aPWMLeds = ((gXbeeInterStruct.aPWMLeds / 100.0)
+		* 2.0) - 1.0;
 	break;
     default:
 	break;

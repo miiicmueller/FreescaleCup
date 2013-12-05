@@ -42,6 +42,7 @@ void gOutput_Execute(void)
     TFC_SetLineScanExposureTime(
 	    (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0) + 1.0));
     mLeds_writeDyC(gXbeeInterStruct.aPWMLeds);
+
     }
 
 //-----------------------------------------------------------------------------

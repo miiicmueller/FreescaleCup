@@ -11,6 +11,7 @@
 #include "Tools\tPID.h"
 #include "Tools\Tools.h"
 #include "Modules\mTrackline.h"
+#include "Modules/mMotor.h"
 
 #define kTailleFiltre 16
 
@@ -46,6 +47,8 @@ void gCompute_Execute(void)
     {
     //TODO : séparer le code dans différentes fonctions afin d'améliorer la lisibilité
 
+    uint32_t valExposure = 0;
+
     //lecture des donnees provenant du monitoring
     if (gXbeeInterStruct.aPIDChangedServo)
 	{
@@ -53,6 +56,25 @@ void gCompute_Execute(void)
 	thePIDServo.ki = gXbeeInterStruct.aGainPIDServo.gIntegraleGain;
 	thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
 	}
+
+    //lecture des donnees provenant du monitoring
+    if (gXbeeInterStruct.aPIDChangedMotors)
+	{
+	//Motor1
+	mMotor1.aPIDData.kp =
+		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+	mMotor1.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+	mMotor1.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+
+	//Motor 2
+	mMotor2.aPIDData.kp =
+		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+	mMotor2.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+	}
+
+    valExposure =
+	    (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0) + 1.0);
 
     //recherche de la ligne
     static int16_t theLinePosition = 0;
@@ -122,8 +144,17 @@ void gCompute_Execute(void)
     //TODO : ajouter le contrôle des moteurs (différentiel, filtrage, PID)
 
     //---------------------------------------------------------------------------
+    //Appel des PID des moteurs
+    // PID Moteur 1
+    tPID(&mMotor1.aPIDData, (int16_t) (mMotor1.aFreq / 3.0)); // Frequence entre 0 et 100
+    // PID Moteur 2
+    tPID(&mMotor2.aPIDData, (int16_t) (mMotor2.aFreq / 3.0));
+
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
+
+//    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
+//    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande ;
     gComputeInterStruct.gCommandeMoteurGauche = 0;
     gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons
 	    / 100.0;

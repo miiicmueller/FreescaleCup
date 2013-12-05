@@ -28,6 +28,6 @@ void gInput_Setup(void)
 //------------------------------------------------------------------------
 void gInput_Execute(void)
     {
-    gInputInterStruct.gSpeed[0] = mMotor1.aCapt;
-    gInputInterStruct.gSpeed[1] = mMotor2.aCapt;
+    gInputInterStruct.gFreq[0] = mMotor1.aFreq;
+    gInputInterStruct.gFreq[1] = mMotor2.aFreq;
     }

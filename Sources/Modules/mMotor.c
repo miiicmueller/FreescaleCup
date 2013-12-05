@@ -12,26 +12,33 @@
 #define FTM2_MOD_VALUE	(int)((float)(PERIPHERAL_BUS_CLOCK)/TFC_MOTOR_SWITCHING_FREQUENCY)
 
 #define FTM2_CLOCK                                   	      (CORE_CLOCK/2)
-#define FTM2_CLK_PRESCALE                                 	7  // Prescale Selector value - see comments in Status Control (SC) section for more details
+#define FTM2_CLK_PRESCALE                                 	4  // Prescale Selector value - see comments in Status Control (SC) section for more details
 #define FTM2_OVERFLOW_FREQUENCY 				10000		
+#define N_OF							1
+#define F_COUNT							6000000.0
 
-// On a une consigne entre 0 -> 65535
-// le plus court env 3.3 ms  = 303Hz => on aura capt = 33 
-// Et au minimum capt = 65535 = 6.55 s.
-// Donc 1 = vitesse max et 0 vitesse min
-// ax + b 
-// a*33 + b == 65535
-// a*65535 +b == 0
-
-//TODO Utiliser des entiers
-#define CONVERSION_MES_CONS  		(int32_t)-1
-#define CONVERSION_MES_CONS_OFF 	(int32_t)65535
+#define FILTER_SIZE						5
 
 /**
  * Instanciation des deux moteurs de propulsion
  */
 mMotorStruct mMotor1;
 mMotorStruct mMotor2;
+
+float aFreqMesTabMot1[FILTER_SIZE] =
+    {
+    0.0
+    };
+
+char aNumEchantillonsMot1 = 0;
+float aFreqMesTabMot2[FILTER_SIZE] =
+    {
+    0.0
+    };
+
+char aNumEchantillonsMot2 = 0;
+
+float median_filter_n(float *aTab, char aSize);
 
 /**
  * Permet de configurer les moteur
@@ -80,7 +87,7 @@ void mMotor_mSetup()
     TFC_InitMotorPWM();
 
     //Set the Default duty cycle to 50% duty cycle
-    TFC_SetMotorPWM(-1.0, -1.0);
+    TFC_SetMotorPWM(0.0, 0.0);
 
     //initialaisation des moterus
     mMotor1.aCapt = 0;
@@ -91,8 +98,6 @@ void mMotor_mSetup()
     mMotor1.aPIDData.kp = 1;
     mMotor1.aPIDData.ki = 0;
     mMotor1.aPIDData.sommeErreurs = 0;
-//    mMotor1.aPIDData.conversionMesureConsigne = CONVERSION_MES_CONS;
-//    mMotor1.aPIDData.offsetMesureConsigne = CONVERSION_MES_CONS_OFF;
     mMotor1.aOverflowOld = 0;
 
     mMotor2.aCapt = 0;
@@ -103,8 +108,6 @@ void mMotor_mSetup()
     mMotor2.aPIDData.kp = 1;
     mMotor2.aPIDData.ki = 0;
     mMotor2.aPIDData.sommeErreurs = 0;
-//    mMotor2.aPIDData.conversionMesureConsigne = CONVERSION_MES_CONS;
-//    mMotor2.aPIDData.offsetMesureConsigne = CONVERSION_MES_CONS_OFF;
     mMotor2.aOverflowOld = 0;
 
     }
@@ -122,10 +125,10 @@ void mMotor_mOpen()
  */
 void mMotorCallPID()
     {
-    // PID Moteur 1
-    tPID(&mMotor1.aPIDData, mMotor1.aCapt);
-    // PID Moteur 2
-    tPID(&mMotor2.aPIDData, mMotor2.aCapt);
+//    // PID Moteur 1
+//    tPID(&mMotor1.aPIDData, mMotor1.aFreq);
+//    // PID Moteur 2
+//    tPID(&mMotor2.aPIDData, mMotor2.aFreq);
     }
 
 /**
@@ -149,28 +152,34 @@ uint8_t mMotor_isStopped(uint8_t aMotorNum)
  */
 void FTM2_IRQHandler()
     {
-    static uint16_t mMotor1_oldCapt = 0;
-    static uint16_t mMotor2_oldCapt = 0;
+    static uint32_t mMotor1_oldCapt = 0;
+    static uint32_t mMotor2_oldCapt = 0;
 
     // Overflow ?
     if ((TPM2_SC & TPM_SC_TOF_MASK))
 	{
-	if (mMotor1.aOverflowOld >= 10)
+	if (mMotor1.aOverflowOld > N_OF)
 	    {
 	    mMotor1.aStopped = 1;
 	    mMotor1_oldCapt = 0;
-	    mMotor1.aCapt = 65535;
+	    mMotor1.aCapt = 65535 * N_OF;
+	    mMotor1.aFreq = 0.0;
+	    //On vide le tableau
+	    aNumEchantillonsMot1 = 0;
 	    }
 	else
 	    {
 	    mMotor1.aOverflowOld++;
 	    }
 
-	if (mMotor2.aOverflowOld >= 10)
+	if (mMotor2.aOverflowOld > N_OF)
 	    {
 	    mMotor2.aStopped = 1;
 	    mMotor2_oldCapt = 0;
-	    mMotor1.aCapt = 65535;
+	    mMotor2.aCapt = 65535 * N_OF;
+	    mMotor2.aFreq = 0.0;
+	    //On vide le tableau
+	    aNumEchantillonsMot2 = 0;
 	    }
 	else
 	    {
@@ -184,41 +193,106 @@ void FTM2_IRQHandler()
     //Test quel canal à interrrompu
     if (TPM2_C0SC & TPM_CnSC_CHF_MASK)
 	{
-	if (TPM2_C0V > mMotor1_oldCapt)
+
+	if (mMotor1.aStopped == 1)
 	    {
-	    mMotor1.aCapt = TPM2_C0V - mMotor1_oldCapt;
+	    mMotor1.aOverflowOld = 0;
+	    }
+
+	mMotor1.aCapt = (TPM2_C0V + (65535 * mMotor1.aOverflowOld))
+		- mMotor1_oldCapt;
+
+	mMotor1_oldCapt = TPM2_C0V;
+
+	//On a avancé donc on oublie les overflow
+	mMotor1.aOverflowOld = 0;
+	mMotor1.aStopped = 0;
+
+	//Mise à jour de la vitesse
+	if (aNumEchantillonsMot1 >= (FILTER_SIZE - 1))
+	    {
+	    aFreqMesTabMot1[0] = (F_COUNT) / mMotor1.aCapt;
+	    mMotor1.aFreq = median_filter_n(aFreqMesTabMot1, FILTER_SIZE);
 	    }
 	else
 	    {
-	    mMotor1.aCapt = TPM2_C0V + (65535 - mMotor1_oldCapt);
+	    mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
+	    aFreqMesTabMot1[(FILTER_SIZE - 1) - aNumEchantillonsMot1] =
+		    mMotor1.aFreq;
+	    aNumEchantillonsMot1++;
 	    }
-	mMotor1_oldCapt = TPM2_C0V;
-
-	//On a avancé donc on oublie l'overflow
-	mMotor1.aOverflowOld = 0;
-	mMotor1.aStopped = 0;
 
 	//Clear du flag
 	TPM2_C0SC |= TPM_CnSC_CHF_MASK;
 	}
     if (TPM2_C1SC & TPM_CnSC_CHF_MASK)
 	{
-	if (TPM2_C1V > mMotor2_oldCapt)
+	if (mMotor2.aStopped == 1)
 	    {
-	    mMotor2.aCapt = TPM2_C1V - mMotor2_oldCapt;
+	    mMotor2.aOverflowOld = 0;
 	    }
-	else
-	    {
-	    mMotor2.aCapt = TPM2_C1V + (65535 - mMotor2_oldCapt);
-	    }
+
+	mMotor2.aCapt = (TPM2_C1V + (65535 * mMotor2.aOverflowOld))
+		- mMotor2_oldCapt;
 	mMotor2_oldCapt = TPM2_C1V;
 
 	//On a avancé donc on oublie l'overflow
 	mMotor2.aOverflowOld = 0;
 	mMotor2.aStopped = 0;
 
+	//Mise à jour de la vitesse
+	if (aNumEchantillonsMot2 >= (FILTER_SIZE - 1))
+	    {
+	    aFreqMesTabMot2[0] = (F_COUNT) / mMotor2.aCapt;
+	    mMotor2.aFreq = median_filter_n(aFreqMesTabMot2, FILTER_SIZE);
+	    }
+	else
+	    {
+	    mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
+	    aFreqMesTabMot2[(FILTER_SIZE - 1) - aNumEchantillonsMot2] =
+		    mMotor2.aFreq;
+	    aNumEchantillonsMot2++;
+	    }
+
 	//Clear du flag
 	TPM2_C1SC |= TPM_CnSC_CHF_MASK;
 	}
+    }
+
+float median_filter_n(float *aTab, char aSize)
+    {
+    float aCpyTab[aSize];
+    char i = 0, j = 0;
+    float aTemp;
+
+    //Copie du tableau
+    for (i = 0; i < aSize; i++)
+	{
+	aCpyTab[i] = aTab[i];
+	}
+
+    //On décale l'indice du tableau pour la prochaine mesure
+    for (i = (aSize); i > 0; i--)
+	{
+	aTab[i] = aTab[i - 1];
+	}
+
+    //On trie le tableau
+    for (i = 0; i < aSize; i++)
+	{
+	for (j = 0; j < aSize; j++)
+	    {
+	    if (aCpyTab[j] > aCpyTab[j + 1])
+		{
+		// On swap les deux
+		aTemp = aCpyTab[j + 1];
+		aCpyTab[j + 1] = aCpyTab[j];
+		aCpyTab[j] = aTemp;
+		}
+	    }
+	}
+
+    //On prend la valeur du milieu
+    return aCpyTab[(aSize - 1) / 2];
     }
 
