@@ -146,8 +146,8 @@ void gXBEE_Execute(void)
 
 	case kSpeed:
 	    // On envoie la vitesse des moteurs
-	    aValTab_f[0] = gInputInterStruct.gFreq[0];
-	    aValTab_f[1] = gInputInterStruct.gFreq[1];
+	    aValTab_f[0] = gInputInterStruct.gFreq[0] / 3.0;
+	    aValTab_f[1] = gInputInterStruct.gFreq[1] / 3.0;
 	    aValTab_f[2] = (float) gComputeInterStruct.gConsigneMotor;
 	    send_val_float(SPEED_INFO, aValTab_f, 3);
 	    gStateSend = kPosCam;
@@ -254,6 +254,7 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 		&gXbeeInterStruct.aGainPIDMotors.gDerivativeGain);
 	//On averti que l'on a changé les gains
 	gXbeeInterStruct.aPIDChangedMotors = true;
+	
 	break;
     case MOTOR_SPEED:
 	sscanf(aCommandBuffer, "J_%f\n", &gXbeeInterStruct.aMotorSpeedCons);

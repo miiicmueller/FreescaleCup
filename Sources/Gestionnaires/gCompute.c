@@ -10,6 +10,7 @@
 #include "Gestionnaires\gMbox.h"
 #include "Tools\tPID.h"
 #include "Modules\mTrackline.h"
+#include "Modules/mMotor.h"
 
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
@@ -63,6 +64,26 @@ void gCompute_Execute(void)
 	    thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
 	    }
 
+	//lecture des donnees provenant du monitoring
+	if (gXbeeInterStruct.aPIDChangedMotors)
+	    {
+	    //Motor1
+	    mMotor1.aPIDData.kp =
+		    gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+	    mMotor1.aPIDData.ki =
+		    gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+	    mMotor1.aPIDData.kd =
+		    gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+
+	    //Motor 2
+	    mMotor2.aPIDData.kp =
+		    gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+	    mMotor2.aPIDData.ki =
+		    gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+	    mMotor2.aPIDData.kd =
+		    gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+	    }
+
 	valExposure =
 		(uint32_t) (((gComputeInterStruct.gExpTime + 1.0) * 5000.0)
 			+ 1.0);
@@ -102,9 +123,18 @@ void gCompute_Execute(void)
 	    }
 	}
 
+    //Appel des PID des moteurs
+    // PID Moteur 1
+    tPID(&mMotor1.aPIDData, (int16_t) (mMotor1.aFreq / 3.0)); // Frequence entre 0 et 100
+    // PID Moteur 2
+    tPID(&mMotor2.aPIDData, (int16_t) (mMotor2.aFreq / 3.0));
+
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
-    gComputeInterStruct.gCommandeMoteurGauche = gXbeeInterStruct.aMotorSpeedCons;
+//    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
+//    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande ;
+    gComputeInterStruct.gCommandeMoteurGauche =
+	    gXbeeInterStruct.aMotorSpeedCons;
     gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons;
 
     }

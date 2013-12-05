@@ -27,13 +27,13 @@ mMotorStruct mMotor2;
 
 float aFreqMesTabMot1[FILTER_SIZE] =
     {
-    0
+    0.0
     };
 
 char aNumEchantillonsMot1 = 0;
 float aFreqMesTabMot2[FILTER_SIZE] =
     {
-    0
+    0.0
     };
 
 char aNumEchantillonsMot2 = 0;
@@ -87,7 +87,7 @@ void mMotor_mSetup()
     TFC_InitMotorPWM();
 
     //Set the Default duty cycle to 50% duty cycle
-    TFC_SetMotorPWM(-1.0, -1.0);
+    TFC_SetMotorPWM(0.0, 0.0);
 
     //initialaisation des moterus
     mMotor1.aCapt = 0;
@@ -125,10 +125,10 @@ void mMotor_mOpen()
  */
 void mMotorCallPID()
     {
-    // PID Moteur 1
-    tPID(&mMotor1.aPIDData, mMotor1.aFreq);
-    // PID Moteur 2
-    tPID(&mMotor2.aPIDData, mMotor2.aFreq);
+//    // PID Moteur 1
+//    tPID(&mMotor1.aPIDData, mMotor1.aFreq);
+//    // PID Moteur 2
+//    tPID(&mMotor2.aPIDData, mMotor2.aFreq);
     }
 
 /**

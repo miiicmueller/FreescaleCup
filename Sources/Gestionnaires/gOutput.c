@@ -39,7 +39,7 @@ void gOutput_Execute(void)
 	TFC_SetServo(0, gComputeInterStruct.gCommandeServoDirection);
 
 	TFC_SetMotorPWM(gComputeInterStruct.gCommandeMoteurDroit,
-		gComputeInterStruct.gCommandeMoteurGauche); //consignes de vitesse
+		gComputeInterStruct.gCommandeMoteurGauche); //consignes de vitesse entre -1 et 1 . Attention au SENS !
 	}
     }
 
