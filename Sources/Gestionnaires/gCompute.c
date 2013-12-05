@@ -142,7 +142,6 @@ void gCompute_Execute(void)
 	}
 
     //TODO : ajouter le contrôle des moteurs (différentiel, filtrage, PID)
-
     //---------------------------------------------------------------------------
     //Appel des PID des moteurs
     // PID Moteur 1
@@ -150,14 +149,15 @@ void gCompute_Execute(void)
     // PID Moteur 2
     tPID(&mMotor2.aPIDData, (int16_t) (mMotor2.aFreq / 3.0));
 
+    //---------------------------------------------------------------------------
+    //mise à jour des sorties de gCompute
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 
 //    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
 //    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande ;
-    gComputeInterStruct.gCommandeMoteurGauche = 0;
-    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons
-	    / 100.0;
+    gComputeInterStruct.gCommandeMoteurGauche = gXbeeInterStruct.aMotorSpeedCons;
+    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons;
 
     }
 

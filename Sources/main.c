@@ -16,6 +16,8 @@ int main(void)
 
     TFC_Init();
 
+    PORTA_PCR4 = PORT_PCR_MUX(1);
+
     for (;;)
 	{
 	//TFC_Task must be called in your main loop.  This keeps certain processing happy (I.E. Serial port queue check)
@@ -185,4 +187,20 @@ int main(void)
 	}
 
     return 0;
+    }
+
+void NMI_Handler()
+    {
+    __asm("bkpt");
+    TFC_HBRIDGE_DISABLE;
+    }
+void HardFault_Handler()
+    {
+    __asm("bkpt");
+    TFC_HBRIDGE_DISABLE;
+    }
+void SVC_Handler()
+    {
+    __asm("bkpt");
+    TFC_HBRIDGE_DISABLE;
     }

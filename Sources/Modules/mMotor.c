@@ -69,8 +69,8 @@ void mMotor_mSetup()
     TPM2_MOD = 0xFFFF; //(FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
 
     //Setup Channels 0 & 1 in input capture rising edge with interrupt
-    TPM2_C0SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
-    TPM2_C1SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
+    TPM2_C0SC = TPM_CnSC_ELSB_MASK | TPM_CnSC_CHIE_MASK;
+    TPM2_C1SC = TPM_CnSC_ELSB_MASK | TPM_CnSC_CHIE_MASK;
 
     //Enable the Counter
 
@@ -208,19 +208,20 @@ void FTM2_IRQHandler()
 	mMotor1.aOverflowOld = 0;
 	mMotor1.aStopped = 0;
 
+	mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
 	//Mise à jour de la vitesse
-	if (aNumEchantillonsMot1 >= (FILTER_SIZE - 1))
-	    {
-	    aFreqMesTabMot1[0] = (F_COUNT) / mMotor1.aCapt;
-	    mMotor1.aFreq = median_filter_n(aFreqMesTabMot1, FILTER_SIZE);
-	    }
-	else
-	    {
-	    mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
-	    aFreqMesTabMot1[(FILTER_SIZE - 1) - aNumEchantillonsMot1] =
-		    mMotor1.aFreq;
-	    aNumEchantillonsMot1++;
-	    }
+//	if (aNumEchantillonsMot1 >= (FILTER_SIZE - 1))
+//	    {
+//	    aFreqMesTabMot1[0] = (F_COUNT) / mMotor1.aCapt;
+//	    mMotor1.aFreq = median_filter_n(aFreqMesTabMot1, FILTER_SIZE);
+//	    }
+//	else
+//	    {
+//	    mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
+//	    aFreqMesTabMot1[(FILTER_SIZE - 1) - aNumEchantillonsMot1] =
+//		    mMotor1.aFreq;
+//	    aNumEchantillonsMot1++;
+//	    }
 
 	//Clear du flag
 	TPM2_C0SC |= TPM_CnSC_CHF_MASK;
@@ -240,19 +241,21 @@ void FTM2_IRQHandler()
 	mMotor2.aOverflowOld = 0;
 	mMotor2.aStopped = 0;
 
-	//Mise à jour de la vitesse
-	if (aNumEchantillonsMot2 >= (FILTER_SIZE - 1))
-	    {
-	    aFreqMesTabMot2[0] = (F_COUNT) / mMotor2.aCapt;
-	    mMotor2.aFreq = median_filter_n(aFreqMesTabMot2, FILTER_SIZE);
-	    }
-	else
-	    {
-	    mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
-	    aFreqMesTabMot2[(FILTER_SIZE - 1) - aNumEchantillonsMot2] =
-		    mMotor2.aFreq;
-	    aNumEchantillonsMot2++;
-	    }
+	mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
+
+//	//Mise à jour de la vitesse
+//	if (aNumEchantillonsMot2 >= (FILTER_SIZE - 1))
+//	    {
+//	    aFreqMesTabMot2[0] = (F_COUNT) / mMotor2.aCapt;
+//	    mMotor2.aFreq = median_filter_n(aFreqMesTabMot2, FILTER_SIZE);
+//	    }
+//	else
+//	    {
+//	    mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
+//	    aFreqMesTabMot2[(FILTER_SIZE - 1) - aNumEchantillonsMot2] =
+//		    mMotor2.aFreq;
+//	    aNumEchantillonsMot2++;
+//	    }
 
 	//Clear du flag
 	TPM2_C1SC |= TPM_CnSC_CHF_MASK;
