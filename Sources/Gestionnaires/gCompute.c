@@ -135,9 +135,8 @@ void gCompute_Execute(void)
 
 //    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
 //    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande ;
-    gComputeInterStruct.gCommandeMoteurGauche = 0;
-    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons
-	    / 100.0;
+    gComputeInterStruct.gCommandeMoteurGauche = 0.8;
+    gComputeInterStruct.gCommandeMoteurDroit = 0.8;
 
     }
 

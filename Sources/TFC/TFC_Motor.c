@@ -6,7 +6,7 @@
 
 #define FTM0_CLOCK                                   	      (CORE_CLOCK/2)
 #define FTM0_CLK_PRESCALE                                 	   0  // Prescale Selector value - see comments in Status Control (SC) section for more details
-#define FTM0_OVERFLOW_FREQUENCY 20000				  //
+#define FTM0_OVERFLOW_FREQUENCY 				5000				  //
 
 
 /**********************************************************************************************/
