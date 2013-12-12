@@ -153,10 +153,11 @@ void gCompute_Execute(void)
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 
-//    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-//    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande ;
-    gComputeInterStruct.gCommandeMoteurGauche = 0.8;
-    gComputeInterStruct.gCommandeMoteurDroit = 0.8;
+    gComputeInterStruct.gCommandeMoteurGauche =
+	    gXbeeInterStruct.aMotorSpeedCons; // mMotor1.aPIDData.commande;
+    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons; // mMotor2.aPIDData.commande ;
+//    gComputeInterStruct.gCommandeMoteurGauche = 0.8;
+//    gComputeInterStruct.gCommandeMoteurDroit = 0.8;
 
     }
 

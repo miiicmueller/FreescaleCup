@@ -18,6 +18,7 @@
 #define F_COUNT							6000000.0
 
 #define FILTER_SIZE						5
+#define DT_MIN 							60
 
 /**
  * Instanciation des deux moteurs de propulsion
@@ -69,8 +70,8 @@ void mMotor_mSetup()
     TPM2_MOD = 0xFFFF; //(FTM2_CLOCK / (1 << FTM2_CLK_PRESCALE)) / FTM2_OVERFLOW_FREQUENCY;
 
     //Setup Channels 0 & 1 in input capture rising edge with interrupt
-    TPM2_C0SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
-    TPM2_C1SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_CHIE_MASK;
+    TPM2_C0SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_ELSB_MASK | TPM_CnSC_CHIE_MASK;
+    TPM2_C1SC = TPM_CnSC_ELSA_MASK | TPM_CnSC_ELSB_MASK | TPM_CnSC_CHIE_MASK;
 
     //Enable the Counter
 
@@ -155,9 +156,20 @@ void FTM2_IRQHandler()
     static uint32_t mMotor1_oldCapt = 0;
     static uint32_t mMotor2_oldCapt = 0;
 
+    static uint32_t mMotor1_CaptFlancPos = 0;
+    static uint32_t mMotor1_CaptFlancNeg = 0;
+
+    static uint32_t mMotor2_CaptFlancPos = 0;
+    static uint32_t mMotor2_CaptFlancNeg = 0;
+
+
+    bool isSignalOk1 = false;
+    bool isSignalOk2 = false;
+
     // Overflow ?
     if ((TPM2_SC & TPM_SC_TOF_MASK))
 	{
+
 	if (mMotor1.aOverflowOld > N_OF)
 	    {
 	    mMotor1.aStopped = 1;
@@ -193,33 +205,56 @@ void FTM2_IRQHandler()
     //Test quel canal à interrrompu
     if (TPM2_C0SC & TPM_CnSC_CHF_MASK)
 	{
+	uint32_t dt = 0;
 
-	if (mMotor1.aStopped == 1)
+	//Test du flanc
+	if ((GPIOA_PDIR & 0x02) == 0x02) // Montant
 	    {
-	    mMotor1.aOverflowOld = 0;
-	    }
+	    mMotor1_CaptFlancPos = (TPM2_C0V + (65535 * mMotor1.aOverflowOld));
 
-	mMotor1.aCapt = (TPM2_C0V + (65535 * mMotor1.aOverflowOld))
-		- mMotor1_oldCapt;
+	    dt = mMotor1_CaptFlancPos - mMotor1_CaptFlancNeg;
 
-	mMotor1_oldCapt = TPM2_C0V;
-
-	//On a avancé donc on oublie les overflow
-	mMotor1.aOverflowOld = 0;
-	mMotor1.aStopped = 0;
-
-	//Mise à jour de la vitesse
-	if (aNumEchantillonsMot1 >= (FILTER_SIZE - 1))
-	    {
-	    aFreqMesTabMot1[0] = (F_COUNT) / mMotor1.aCapt;
-	    mMotor1.aFreq = median_filter_n(aFreqMesTabMot1, FILTER_SIZE);
+	    //C'est un parasite
+	    if (dt > DT_MIN)
+		{
+		isSignalOk1 = true;
+		}
 	    }
 	else
 	    {
-	    mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
-	    aFreqMesTabMot1[(FILTER_SIZE - 1) - aNumEchantillonsMot1] =
-		    mMotor1.aFreq;
-	    aNumEchantillonsMot1++;
+	    mMotor1_CaptFlancNeg = (TPM2_C0V + (65535 * mMotor1.aOverflowOld));
+	    }
+
+	if (isSignalOk1)
+	    {
+
+	    if (mMotor1.aStopped == 1)
+		{
+		mMotor1.aOverflowOld = 0;
+		}
+
+	    mMotor1.aCapt = (TPM2_C0V + (65535 * mMotor1.aOverflowOld))
+		    - mMotor1_oldCapt;
+
+	    mMotor1_oldCapt = TPM2_C0V;
+
+	    //On a avancé donc on oublie les overflow
+	    mMotor1.aOverflowOld = 0;
+	    mMotor1.aStopped = 0;
+
+	    //Mise à jour de la vitesse
+	    if (aNumEchantillonsMot1 >= (FILTER_SIZE - 1))
+		{
+		aFreqMesTabMot1[0] = (F_COUNT) / mMotor1.aCapt;
+		mMotor1.aFreq = median_filter_n(aFreqMesTabMot1, FILTER_SIZE);
+		}
+	    else
+		{
+		mMotor1.aFreq = (F_COUNT) / mMotor1.aCapt;
+		aFreqMesTabMot1[(FILTER_SIZE - 1) - aNumEchantillonsMot1] =
+			mMotor1.aFreq;
+		aNumEchantillonsMot1++;
+		}
 	    }
 
 	//Clear du flag
@@ -227,33 +262,56 @@ void FTM2_IRQHandler()
 	}
     if (TPM2_C1SC & TPM_CnSC_CHF_MASK)
 	{
-	if (mMotor2.aStopped == 1)
+	uint32_t dt = 0;
+
+	//Test du flanc
+	if ((GPIOA_PDIR & 0x04) == 0x04) // Montant
 	    {
-	    mMotor2.aOverflowOld = 0;
-	    }
+	    mMotor2_CaptFlancPos = (TPM2_C1V + (65535 * mMotor2.aOverflowOld));
 
-	mMotor2.aCapt = (TPM2_C1V + (65535 * mMotor2.aOverflowOld))
-		- mMotor2_oldCapt;
-	mMotor2_oldCapt = TPM2_C1V;
+	    dt = mMotor2_CaptFlancPos - mMotor2_CaptFlancNeg;
 
-	//On a avancé donc on oublie l'overflow
-	mMotor2.aOverflowOld = 0;
-	mMotor2.aStopped = 0;
-
-	//Mise à jour de la vitesse
-	if (aNumEchantillonsMot2 >= (FILTER_SIZE - 1))
-	    {
-	    aFreqMesTabMot2[0] = (F_COUNT) / mMotor2.aCapt;
-	    mMotor2.aFreq = median_filter_n(aFreqMesTabMot2, FILTER_SIZE);
+	    //C'est un parasite
+	    if (dt > DT_MIN)
+		{
+		isSignalOk2 = true;
+		}
 	    }
 	else
 	    {
-	    mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
-	    aFreqMesTabMot2[(FILTER_SIZE - 1) - aNumEchantillonsMot2] =
-		    mMotor2.aFreq;
-	    aNumEchantillonsMot2++;
+	    mMotor2_CaptFlancNeg = (TPM2_C1V + (65535 * mMotor2.aOverflowOld));
 	    }
 
+	if (isSignalOk2)
+	    {
+
+	    if (mMotor2.aStopped == 1)
+		{
+		mMotor2.aOverflowOld = 0;
+		}
+
+	    mMotor2.aCapt = (TPM2_C1V + (65535 * mMotor2.aOverflowOld))
+		    - mMotor2_oldCapt;
+	    mMotor2_oldCapt = TPM2_C1V;
+
+	    //On a avancé donc on oublie l'overflow
+	    mMotor2.aOverflowOld = 0;
+	    mMotor2.aStopped = 0;
+
+	    //Mise à jour de la vitesse
+	    if (aNumEchantillonsMot2 >= (FILTER_SIZE - 1))
+		{
+		aFreqMesTabMot2[0] = (F_COUNT) / mMotor2.aCapt;
+		mMotor2.aFreq = median_filter_n(aFreqMesTabMot2, FILTER_SIZE);
+		}
+	    else
+		{
+		mMotor2.aFreq = (F_COUNT) / mMotor2.aCapt;
+		aFreqMesTabMot2[(FILTER_SIZE - 1) - aNumEchantillonsMot2] =
+			mMotor2.aFreq;
+		aNumEchantillonsMot2++;
+		}
+	    }
 	//Clear du flag
 	TPM2_C1SC |= TPM_CnSC_CHF_MASK;
 	}
