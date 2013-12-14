@@ -250,8 +250,7 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 	break;
     case MOTOR_SPEED:
 	sscanf(aCommandBuffer, "J_%f\n", &gXbeeInterStruct.aMotorSpeedCons);
-	gXbeeInterStruct.aMotorSpeedCons = ((gXbeeInterStruct.aMotorSpeedCons
-		/ 100.0) * -1.0);
+	gXbeeInterStruct.aMotorSpeedCons = ((gXbeeInterStruct.aMotorSpeedCons));
 	break;
 
     case EXPOSURE_T:
@@ -259,8 +258,8 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 	break;
     case LED_PWM:
 	sscanf(aCommandBuffer, "I_%f\n", &gXbeeInterStruct.aPWMLeds);
-	gXbeeInterStruct.aPWMLeds = ((gXbeeInterStruct.aPWMLeds / 100.0)
-		* 2.0) - 1.0;
+	gXbeeInterStruct.aPWMLeds = ((gXbeeInterStruct.aPWMLeds / 100.0) * 2.0)
+		- 1.0;
 	break;
     default:
 	break;

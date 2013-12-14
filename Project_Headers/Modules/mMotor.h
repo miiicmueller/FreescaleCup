@@ -10,13 +10,18 @@
 
 #include "Tools/tPID.h"
 
+#define FILTER_SIZE	7
+#define F_COUNT		6000000.0
+
 typedef struct
     {
 	tPIDStruct aPIDData;
 	uint8_t aStopped;
-	uint8_t aOverflowOld;
+	uint16_t aOverflowOld;
 	uint32_t aCapt;
-	float aFreq ;
+	float aFreq;
+	char aNumEchantillonsMot;
+	uint32_t aCaptTab[FILTER_SIZE];
 	void(*mMotor_mesure)(void);
     } mMotorStruct;
 
