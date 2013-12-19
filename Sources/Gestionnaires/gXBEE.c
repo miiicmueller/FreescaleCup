@@ -144,9 +144,9 @@ void gXBEE_Execute(void)
 
 	case kSpeed:
 	    // On envoie la vitesse des moteurs
-	    aValTab_f[0] = gInputInterStruct.gFreq[0] / 3.0;
-	    aValTab_f[1] = gInputInterStruct.gFreq[1] / 3.0;
-	    aValTab_f[2] = (float) gComputeInterStruct.gConsigneMotor;
+	    aValTab_f[0] = ((float) gInputInterStruct.gFreq[0] / 3.0);
+	    aValTab_f[1] = ((float) gInputInterStruct.gFreq[1] / 3.0);
+	    aValTab_f[2] = ((float) gComputeInterStruct.gConsigneMotor);
 	    send_val_float(SPEED_INFO, aValTab_f, 3);
 	    gStateSend = kPosCam;
 	    break;
@@ -321,7 +321,8 @@ void send_val_float(char aType, float aValTab[], uint8_t aSize)
 // On écrit les valeurs des paramètres
     for (int i = 0; i < aSize; i++)
 	{
-	sprintf(aBufferParam, "_%.3f", aValTab[i]);
+	float temp = aValTab[i];
+	sprintf(aBufferParam, "_%.3f", temp);
 	strcat(aBufferToSend, aBufferParam);
 	}
 

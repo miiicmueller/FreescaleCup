@@ -159,7 +159,14 @@ void gCompute_Execute(void)
 	{
 	uint32_t aCaptMedian = 0;
 	aCaptMedian = median_filter_n(mMotor1.aCaptTab, FILTER_SIZE);
-	gInputInterStruct.gFreq[0] = (F_COUNT) / aCaptMedian;
+	if (aCaptMedian != 0)
+	    {
+	    gInputInterStruct.gFreq[0] = (float) (F_COUNT) / aCaptMedian;
+	    }
+	else
+	    {
+	    gInputInterStruct.gFreq[0] = 0.0;
+	    }
 	}
     else
 	{
@@ -171,7 +178,14 @@ void gCompute_Execute(void)
 	{
 	uint32_t aCaptMedian = 0;
 	aCaptMedian = median_filter_n(mMotor2.aCaptTab, FILTER_SIZE);
-	gInputInterStruct.gFreq[1] = (F_COUNT) / aCaptMedian;
+	if (aCaptMedian != 0)
+	    {
+	    gInputInterStruct.gFreq[1] = (float) (F_COUNT) / aCaptMedian;
+	    }
+	else
+	    {
+	    gInputInterStruct.gFreq[1] = 0.0;
+	    }
 	}
     else
 	{
@@ -190,10 +204,17 @@ void gCompute_Execute(void)
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 
+    if (mMotor1.aPIDData.commande < 0.0)
+	{
+	mMotor1.aPIDData.commande = 0.0;
+	}
+    if (mMotor2.aPIDData.commande < 0.0)
+	{
+	mMotor2.aPIDData.commande = 0.0;
+	}
     gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
+
     gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
-//    gComputeInterStruct.gCommandeMoteurGauche = 0.8;
-//    gComputeInterStruct.gCommandeMoteurDroit = 0.8;
 
     }
 
