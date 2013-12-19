@@ -18,18 +18,18 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     {
     //calcul de la nouvelle erreur
     //la mesure doit etre convertie dans la grandeur de la consigne
-    float nouvelleErreur = (float)((thePIDStruct->consigne) - theMesure)
+    float nouvelleErreur = (float) ((thePIDStruct->consigne) - theMesure)
 	    * thePIDStruct->coeffNormalisation;
 
     //integration des erreurs successives
     thePIDStruct->sommeErreurs += nouvelleErreur;
-    if (thePIDStruct->sommeErreurs > 35)
+    if (thePIDStruct->sommeErreurs > 1)
 	{
-	thePIDStruct->sommeErreurs = 35;
+	thePIDStruct->sommeErreurs = 1;
 	}
-    else if (thePIDStruct->sommeErreurs < -35)
+    else if (thePIDStruct->sommeErreurs < -1)
 	{
-	thePIDStruct->sommeErreurs = -35;
+	thePIDStruct->sommeErreurs = -1;
 	}
 
     //nouvelle consigne avec un regulateur PID

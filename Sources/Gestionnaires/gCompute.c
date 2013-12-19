@@ -18,9 +18,21 @@
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
 
+float aFreqMesTabMot1[FILTER_SIZE] =
+    {
+    0.0
+    };
+
+float aFreqMesTabMot2[FILTER_SIZE] =
+    {
+    0.0
+    };
+
 //-----------------------------------------------------------------------------
 //fonctions publiques
 //-----------------------------------------------------------------------------
+uint32_t median_filter_n(uint32_t *aTab, char aSize);
+
 //------------------------------------------------------------------------
 // Initialisation de la structure de données de gCompute
 //------------------------------------------------------------------------
@@ -141,13 +153,39 @@ void gCompute_Execute(void)
 	TFC_BAT_LED1_OFF;
 	}
 
+    //Filtrage des valeur du moteur
+    //Moteur 1 ;
+    if (mMotor1.aNumEchantillonsMot >= (FILTER_SIZE - 1))
+	{
+	uint32_t aCaptMedian = 0;
+	aCaptMedian = median_filter_n(mMotor1.aCaptTab, FILTER_SIZE);
+	gInputInterStruct.gFreq[0] = (F_COUNT) / aCaptMedian;
+	}
+    else
+	{
+	//On laisse la valeur d'entrée inchangée dans GInput
+	}
+
+    //Moteur 2 ;
+    if (mMotor2.aNumEchantillonsMot >= (FILTER_SIZE - 1))
+	{
+	uint32_t aCaptMedian = 0;
+	aCaptMedian = median_filter_n(mMotor2.aCaptTab, FILTER_SIZE);
+	gInputInterStruct.gFreq[1] = (F_COUNT) / aCaptMedian;
+	}
+    else
+	{
+	//On laisse la valeur d'entrée inchangée dans GInput
+	}
+
     //TODO : ajouter le contrôle des moteurs (différentiel, filtrage, PID)
+
     //---------------------------------------------------------------------------
     //Appel des PID des moteurs
     // PID Moteur 1
-    tPID(&mMotor1.aPIDData, (int16_t) (mMotor1.aFreq / 3.0)); // Frequence entre 0 et 100
+    tPID(&mMotor1.aPIDData, (int16_t) (gInputInterStruct.gFreq[0] / 3.0)); // Frequence entre 0 et 100
     // PID Moteur 2
-    tPID(&mMotor2.aPIDData, (int16_t) (mMotor2.aFreq / 3.0));
+    tPID(&mMotor2.aPIDData, (int16_t) (gInputInterStruct.gFreq[1] / 3.0));
 
     //---------------------------------------------------------------------------
     //mise à jour des sorties de gCompute
@@ -155,9 +193,7 @@ void gCompute_Execute(void)
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 
     gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande ;
-//    gComputeInterStruct.gCommandeMoteurGauche = gXbeeInterStruct.aMotorSpeedCons;
-//    gComputeInterStruct.gCommandeMoteurDroit = gXbeeInterStruct.aMotorSpeedCons;
+    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
 //    gComputeInterStruct.gCommandeMoteurGauche = 0.8;
 //    gComputeInterStruct.gCommandeMoteurDroit = 0.8;
 
@@ -166,3 +202,40 @@ void gCompute_Execute(void)
 //-----------------------------------------------------------------------------
 //fonctions statiques
 //-----------------------------------------------------------------------------
+
+uint32_t median_filter_n(uint32_t *aTab, char aSize)
+    {
+    uint32_t aCpyTab[aSize];
+    char i = 0, j = 0;
+    uint32_t aTemp;
+
+    //Copie du tableau
+    for (i = 0; i < aSize; i++)
+	{
+	aCpyTab[i] = aTab[i];
+	}
+
+    //On décale l'indice du tableau pour la prochaine mesure
+    for (i = (aSize - 1); i > 0; i--)
+	{
+	aTab[i] = aTab[i - 1];
+	}
+
+    //On trie le tableau
+    for (i = 0; i < aSize; i++)
+	{
+	for (j = 0; j < (aSize - 1); j++)
+	    {
+	    if (aCpyTab[j] > aCpyTab[j + 1])
+		{
+		// On swap les deux
+		aTemp = aCpyTab[j + 1];
+		aCpyTab[j + 1] = aCpyTab[j];
+		aCpyTab[j] = aTemp;
+		}
+	    }
+	}
+
+    //On prend la valeur du milieu
+    return aCpyTab[(aSize - 1) / 2];
+    }
