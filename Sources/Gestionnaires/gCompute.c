@@ -201,6 +201,8 @@ void gCompute_Execute(void)
     // PID Moteur 2
     tPID(&mMotor2.aPIDData, (int16_t) (gInputInterStruct.gFreq[1] / 3.0));
 
+    //---------------------------------------------------------------------------
+    //mise à jour des sorties de gCompute
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 

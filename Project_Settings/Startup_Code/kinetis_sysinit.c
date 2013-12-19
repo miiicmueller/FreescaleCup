@@ -3,7 +3,7 @@
  *                     		Kinetis ARM systems
  *    Copyright © 2012 Freescale semiConductor Inc. All Rights Reserved.
  */
- 
+
 #include "kinetis_sysinit.h"
 #include "derivative.h"
 #include "TFC/TFC_BoardSupport.h"
@@ -13,7 +13,8 @@
  **===========================================================================
  */
 #if __cplusplus
-extern "C" {
+extern "C"
+    {
 #endif
 extern uint32_t __vector_table[];
 extern unsigned long _estack;
@@ -28,10 +29,10 @@ extern void __thumb_startup(void);
  **===========================================================================
  */
 void Default_Handler()
-{
-	__asm("bkpt");
-	TFC_HBRIDGE_DISABLE;
-}
+    {
+    __asm("bkpt");
+    TFC_HBRIDGE_DISABLE;
+    }
 
 /**
  **===========================================================================
@@ -39,12 +40,12 @@ void Default_Handler()
  **===========================================================================
  */
 void __init_hardware()
-{
-	SCB_VTOR = (uint32_t)__vector_table; /* Set the interrupt vector table position */
-	
-	// Disable the Watchdog because it may reset the core before entering main().
-	SIM_COPC = KINETIS_WDOG_DISABLED_CTRL;
-}
+    {
+    SCB_VTOR = (uint32_t) __vector_table; /* Set the interrupt vector table position */
+
+    // Disable the Watchdog because it may reset the core before entering main().
+    SIM_COPC = KINETIS_WDOG_DISABLED_CTRL;
+    }
 
 /* Weak definitions of handlers point to Default_Handler if not implemented */
 void NMI_Handler() __attribute__ ((weak, alias("Default_Handler")));
@@ -85,7 +86,8 @@ void PORTA_IRQHandler() __attribute__ ((weak, alias("Default_Handler")));
 void PORTD_IRQHandler() __attribute__ ((weak, alias("Default_Handler")));
 
 /* The Interrupt Vector Table */
-void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
+void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) =
+    {
     /* Processor exceptions */
     (void(*)(void)) &_estack,
     __thumb_startup,
@@ -137,5 +139,5 @@ void (* const InterruptVector[])() __attribute__ ((section(".vectortable"))) = {
     Default_Handler, /* Reserved interrupt 45/29 */
     PORTA_IRQHandler, /* Port A interrupt */
     PORTD_IRQHandler /* Port D interrupt */
-};
+}	;
 
