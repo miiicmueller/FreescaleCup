@@ -16,7 +16,8 @@
 #define kLengthLineMin	4	//longueur min de la ligne a trouver (en pixels)
 #define kLengthLineMax	20	//longueur max de la ligne a trouver (en pixels)
 #define kLengthStartStopMin	10	//longueur min d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
-#define kLengthStartStopMax	16	//longueur max d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
+//Attention aux contours, la largeur augmente
+#define kLengthStartStopMax	40	//longueur max d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
 //--
 
 //definitions de types et structures

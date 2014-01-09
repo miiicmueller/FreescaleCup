@@ -250,7 +250,7 @@ void commandAnalyser(uint8_t *aCommandBuffer)
 	break;
     case MOTOR_SPEED:
 	sscanf(aCommandBuffer, "J_%f\n", &gXbeeInterStruct.aMotorSpeedCons);
-	gXbeeInterStruct.aMotorSpeedCons = ((gXbeeInterStruct.aMotorSpeedCons));
+	//gXbeeInterStruct.aMotorSpeedCons = ((gXbeeInterStruct.aMotorSpeedCons));
 	break;
 
     case EXPOSURE_T:

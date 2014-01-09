@@ -14,6 +14,8 @@
 #include "Modules/mMotor.h"
 
 #define kTailleFiltre 16
+#define T_ERROR_MAX_BREAK 30
+#define K_BREAK_FACTOR 0.6
 
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
@@ -193,7 +195,15 @@ void gCompute_Execute(void)
 	}
 
     //TODO : ajouter le contrôle des moteurs (différentiel, filtrage, PID)
-
+    
+    
+    
+    //Anticipation d'un virage. Si l'erreur dépasse un certain seuil, on doit ralantir
+    if(tAbs((int16_t)(thePIDServo.erreurPrecedente*64.0))>= T_ERROR_MAX_BREAK)
+	{
+	    mMotor1.aPIDData.consigne *= K_BREAK_FACTOR ;
+	    mMotor2.aPIDData.consigne *= K_BREAK_FACTOR ;
+	}
     //---------------------------------------------------------------------------
     //Appel des PID des moteurs
     // PID Moteur 1
