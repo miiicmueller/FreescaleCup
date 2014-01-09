@@ -40,17 +40,8 @@ void gInput_Execute(void)
 	{
 	mMotor1.aCaptTab[(FILTER_SIZE - 1) - mMotor1.aNumEchantillonsMot] =
 		mMotor1.aCapt;
-	mMotor1.aNumEchantillonsMot += 1;
-
-	//Test de division par 0
-	if (mMotor1.aCapt == 0)
-	    {
-	    gInputInterStruct.gFreq[0] = 0.0;
-	    }
-	else
-	    {
-	    gInputInterStruct.gFreq[0] = (float) (F_COUNT) / mMotor1.aCapt;
-	    }
+	mMotor1.aNumEchantillonsMot++;
+	gInputInterStruct.gFreq[0] = (F_COUNT) / mMotor1.aCapt;
 	}
 
     //Moteur 2 ;
@@ -62,16 +53,8 @@ void gInput_Execute(void)
 	{
 	mMotor2.aCaptTab[(FILTER_SIZE - 1) - mMotor2.aNumEchantillonsMot] =
 		mMotor2.aCapt;
-	mMotor2.aNumEchantillonsMot += 1;
-	//Test de division par 0
-	if (mMotor2.aCapt == 0)
-	    {
-	    gInputInterStruct.gFreq[1] = 0.0;
-	    }
-	else
-	    {
-	    gInputInterStruct.gFreq[1] = (float) (F_COUNT) / mMotor2.aCapt;
-	    }
+	mMotor2.aNumEchantillonsMot++;
+	gInputInterStruct.gFreq[1] = (F_COUNT) / mMotor2.aCapt;
 	}
 
     mMotor1.aPIDData.consigne = (int16_t) (gXbeeInterStruct.aMotorSpeedCons);

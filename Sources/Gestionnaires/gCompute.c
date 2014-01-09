@@ -35,6 +35,21 @@ float aFreqMesTabMot2[FILTER_SIZE] =
 //-----------------------------------------------------------------------------
 uint32_t median_filter_n(uint32_t *aTab, char aSize);
 
+//-----------------------------------------------------------------------------
+// Fonctions privees
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Compute differential
+// param : aAngleServo --> Consigne du servoMoteur
+//
+// Description : 	Avec aAngleServo a 0.51, pour 1 tour de la roue exterieur
+//					la roue interieur en fait 0.66.
+//
+//					Cette fonction calcul le differentiel à appliquer
+//					aux moteurs selon aAngleServo.
+//-----------------------------------------------------------------------------
+static void compute_differential(const float aAngleServo);
+
 //------------------------------------------------------------------------
 // Initialisation de la structure de données de gCompute
 //------------------------------------------------------------------------
@@ -101,6 +116,7 @@ void gCompute_Execute(void)
 	}
     mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
 	    &isStartStopFound);
+
     //---------------------------------------------------------------------------
     //si la ligne est trouvee
     if (isLineFound)
@@ -109,7 +125,7 @@ void gCompute_Execute(void)
 
 	//filtrage de la position de la ligne
 	static uint8_t posFiltre = 0;
-	static int16_t theLinePositionTab[kTailleFiltre];
+	static uint32_t theLinePositionTab[kTailleFiltre];
 
 	theLinePositionTab[posFiltre] = theLinePosition;
 	if (posFiltre < kTailleFiltre - 1)
@@ -120,7 +136,8 @@ void gCompute_Execute(void)
 	    {
 	    posFiltre = 0;
 	    }
-	theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
+	theLinePosition = median_filter_n(theLinePositionTab, kTailleFiltre);
+	//theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
 	}
     else
 	{
@@ -157,6 +174,7 @@ void gCompute_Execute(void)
 	
 	}
 
+    //---------------------------------------------------------------------------
     //Filtrage des valeur du moteur
     //Moteur 1 ;
     if (mMotor1.aNumEchantillonsMot >= (FILTER_SIZE - 1))
@@ -196,7 +214,7 @@ void gCompute_Execute(void)
 	//On laisse la valeur d'entrée inchangée dans GInput
 	}
 
-    //TODO : ajouter le contrôle des moteurs (différentiel, filtrage, PID)
+    //TODO : ajouter le contrôle des moteurs (différentiel)
 
     compute_differential(gComputeInterStruct.gCommandeServoDirection);
 

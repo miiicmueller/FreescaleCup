@@ -164,19 +164,29 @@ int main(void)
 		TERMINAL_PRINTF("\r\n");
 		TERMINAL_PRINTF("L:");
 
+		TFC_Ticker[2] = 0;
 		for (i = 0; i < 128; i++)
 		    {
-		    TERMINAL_PRINTF("%d,", LineScanImage0[i]);
+		    TERMINAL_PRINTF("%d", i);
+		    //LineScanImage0[i]>>3);
+		    // >>3 pour avoir de 0 à 512 (4096 / 8)
+		    if (i == 127)
+			TERMINAL_PRINTF("\n");
+		    else
+			TERMINAL_PRINTF(",");
+		    while (TFC_Ticker[2] < 3000)
+			;
+		    TFC_Ticker[2] = 0; //pour éviter de saturer le xBee
 		    }
 
-		for (i = 0; i < 128; i++)
-		    {
-		    TERMINAL_PRINTF("%d", LineAnalyze[i]);
-		    if (i == 127)
-			TERMINAL_PRINTF("\r\n", LineAnalyze[i]);
-		    else
-			TERMINAL_PRINTF(",", LineAnalyze[i]);
-		    }
+//		for (i = 0; i < 128; i++)
+//		    {
+//		    TERMINAL_PRINTF("%d", LineAnalyze[i]);
+//		    if (i == 127)
+//			TERMINAL_PRINTF("\r\n");
+//		    else
+//			TERMINAL_PRINTF(",");
+//		    }
 		}
 
 	    TFC_SetMotorPWM(0, 0); //Make sure motors are off

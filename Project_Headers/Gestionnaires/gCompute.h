@@ -35,19 +35,5 @@ void gCompute_Setup ( void );
 //------------------------------------------------------------------------
 void gCompute_Execute ( void );
 
-//-----------------------------------------------------------------------------
-// Fonctions privees
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-// Compute differential
-// param : aAngleServo --> Consigne du servoMoteur
-//
-// Description : 	Avec aAngleServo a 0.51, pour 1 tour de la roue exterieur
-//					la roue interieur en fait 0.66.
-//
-//					Cette fonction calcul le differentiel à appliquer
-//					aux moteurs selon aAngleServo.
-//-----------------------------------------------------------------------------
-static void compute_differential(const float aAngleServo);
 
 #endif /* GCOMPUTE_H_ */
