@@ -209,17 +209,17 @@ uint32_t median_filter_n(uint32_t *aTab, char aSize) {
 
 static void compute_differential(const float aAngleServo) {
 	
-	float m = -(0.34)/0.51;
+	float m = -0.34/0.51;
 	
-	if((aAngleServo >=0.0))
+	if(aAngleServo >=0.0)
 	{
 		mMotor1.aDifferential = 1.0;
-		mMotor2.aDifferential = m * aAngleServo + 1.0;
+		mMotor2.aDifferential = m * tAbs(aAngleServo)+ 1.0;
 		
 	}
 	else
 	{
-		mMotor1.aDifferential = -m * aAngleServo + 1.0;
+		mMotor1.aDifferential = m * tAbs(aAngleServo) + 1.0;
 		mMotor2.aDifferential = 1.0;
 	}
 }
