@@ -127,6 +127,7 @@ void gCompute_Execute(void)
 	    {
 	    posFiltre = 0;
 	    }
+
 	theLinePosition = median_filter_n(theLinePositionTab, kTailleFiltre);
 	//theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
 	}
@@ -162,52 +163,38 @@ void gCompute_Execute(void)
 	{
 	TFC_BAT_LED1_OFF;
 	//TFC_HBRIDGE_DISABLE;
-	
+
 	}
 
     //---------------------------------------------------------------------------
     //Filtrage des valeur du moteur
     //Moteur 1 ;
-    if (mMotor1.aNumEchantillonsMot >= (FILTER_SIZE - 1))
+    uint32_t aCaptMedian = 0;
+    aCaptMedian = median_filter_n(mMotor1.aCaptTab, FILTER_SIZE);
+    if (aCaptMedian != 0)
 	{
-	uint32_t aCaptMedian = 0;
-	aCaptMedian = median_filter_n(mMotor1.aCaptTab, FILTER_SIZE);
-	if (aCaptMedian != 0)
-	    {
-	    gInputInterStruct.gFreq[0] = (float) (F_COUNT) / aCaptMedian;
-	    }
-	else
-	    {
-	    gInputInterStruct.gFreq[0] = 0.0;
-	    }
+	gInputInterStruct.gFreq[0] = (float) (F_COUNT) / aCaptMedian;
 	}
     else
 	{
-	//On laisse la valeur d'entrée inchangée dans GInput
+	gInputInterStruct.gFreq[0] = 0.0;
 	}
 
     //Moteur 2 ;
-    if (mMotor2.aNumEchantillonsMot >= (FILTER_SIZE - 1))
+    aCaptMedian = median_filter_n(mMotor2.aCaptTab, FILTER_SIZE);
+    if (aCaptMedian != 0)
 	{
-	uint32_t aCaptMedian = 0;
-	aCaptMedian = median_filter_n(mMotor2.aCaptTab, FILTER_SIZE);
-	if (aCaptMedian != 0)
-	    {
-	    gInputInterStruct.gFreq[1] = (float) (F_COUNT) / aCaptMedian;
-	    }
-	else
-	    {
-	    gInputInterStruct.gFreq[1] = 0.0;
-	    }
+	gInputInterStruct.gFreq[1] = (float) (F_COUNT) / aCaptMedian;
 	}
     else
 	{
-	//On laisse la valeur d'entrée inchangée dans GInput
+	gInputInterStruct.gFreq[1] = 0.0;
 	}
 
-    //TODO : ajouter le contrôle des moteurs (différentiel)
-
     compute_differential(gComputeInterStruct.gCommandeServoDirection);
+
+    mMotor1.aPIDData.consigne *= mMotor1.aDifferential;
+    mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
 
     //---------------------------------------------------------------------------
     //Appel des PID des moteurs
@@ -220,14 +207,6 @@ void gCompute_Execute(void)
     //mise à jour des sorties de gCompute
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
-    // TODO : Implementer la régulation des moteurs 
-    //   gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-    //   gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
-
-    gComputeInterStruct.gCommandeMoteurGauche =
-	    (gXbeeInterStruct.aMotorSpeedCons / 100) * mMotor1.aDifferential;
-    gComputeInterStruct.gCommandeMoteurDroit = (gXbeeInterStruct.aMotorSpeedCons
-	    / 100) * mMotor2.aDifferential;
 
     if (mMotor1.aPIDData.commande < 0.0)
 	{
@@ -237,11 +216,11 @@ void gCompute_Execute(void)
 	{
 	mMotor2.aPIDData.commande = 0.0;
 	}
-    gComputeInterStruct.gCommandeMoteurGauche =
-	    gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
+    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
+    //gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
 
-    gComputeInterStruct.gCommandeMoteurDroit =
-	    gComputeInterStruct.gCommandeMoteurDroit; //mMotor2.aPIDData.commande;
+    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
+    //gComputeInterStruct.gCommandeMoteurDroit; //mMotor2.aPIDData.commande;
 
     }
 
@@ -251,7 +230,7 @@ void gCompute_Execute(void)
 
 uint32_t median_filter_n(uint32_t *aTab, char aSize)
     {
-    uint32_t aCpyTab[aSize];
+    uint32_t aCpyTab[20];
     signed char i = 0, j = 0;
     uint32_t aTemp;
 
@@ -259,12 +238,6 @@ uint32_t median_filter_n(uint32_t *aTab, char aSize)
     for (i = 0; i < aSize; i++)
 	{
 	aCpyTab[i] = aTab[i];
-	}
-
-//On décale l'indice du tableau pour la prochaine mesure
-    for (i = (aSize - 1); i > 0; i--)
-	{
-	aTab[i] = aTab[i - 1];
 	}
 
 //On trie le tableau
@@ -289,24 +262,21 @@ uint32_t median_filter_n(uint32_t *aTab, char aSize)
 static void compute_differential(const float aAngleServo)
     {
 
-    float m = -0.34 / 0.51;
-    float speedScaleFactor = - 0.5*tAbs_float(aAngleServo) + 1.0 ;
-
-    
+    float m = -0.6667; //-0.34 / 0.51;
+    float speedScaleFactor = -0.5 * tAbs_float(aAngleServo) + 1.0;
 
     if (aAngleServo >= 0.0)
 	{
-	mMotor1.aDifferential = 1.0 * speedScaleFactor;
-	mMotor2.aDifferential = (m * tAbs_float(aAngleServo) + 1.0) * speedScaleFactor ;
-
-	
+	mMotor1.aDifferential = speedScaleFactor;
+	mMotor2.aDifferential = (m * tAbs_float(aAngleServo) + 1.0)
+		* speedScaleFactor;
 
 	}
     else
 	{
-	mMotor1.aDifferential = (m * tAbs_float(aAngleServo) + 1.0)  * speedScaleFactor;
-	mMotor2.aDifferential = 1.0  * speedScaleFactor;
+	mMotor1.aDifferential = (m * tAbs_float(aAngleServo) + 1.0)
+		* speedScaleFactor;
+	mMotor2.aDifferential = speedScaleFactor;
 	}
     }
-
 

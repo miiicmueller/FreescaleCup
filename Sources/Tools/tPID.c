@@ -7,6 +7,7 @@
 
 //fichiers utilises
 #include "Tools/tPID.h"
+#define LimiteIntegrale 2
 
 //--------------------------------------------------------
 // regulateur PID
@@ -23,13 +24,13 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
 
     //integration des erreurs successives
     thePIDStruct->sommeErreurs += nouvelleErreur;
-    if (thePIDStruct->sommeErreurs > 1)
+    if (thePIDStruct->sommeErreurs > LimiteIntegrale)
 	{
-	thePIDStruct->sommeErreurs = 1;
+	thePIDStruct->sommeErreurs = LimiteIntegrale;
 	}
-    else if (thePIDStruct->sommeErreurs < -1)
+    else if (thePIDStruct->sommeErreurs < -LimiteIntegrale)
 	{
-	thePIDStruct->sommeErreurs = -1;
+	thePIDStruct->sommeErreurs = -LimiteIntegrale;
 	}
 
     //nouvelle consigne avec un regulateur PID
