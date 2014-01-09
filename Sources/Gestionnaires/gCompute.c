@@ -153,6 +153,8 @@ void gCompute_Execute(void)
     else
 	{
 	TFC_BAT_LED1_OFF;
+	//TFC_HBRIDGE_DISABLE;
+	
 	}
 
     //Filtrage des valeur du moteur
@@ -279,16 +281,23 @@ static void compute_differential(const float aAngleServo)
     {
 
     float m = -0.34 / 0.51;
+    float speedScaleFactor = - 0.5*tAbs_float(aAngleServo) + 1.0 ;
+
+    
 
     if (aAngleServo >= 0.0)
 	{
-	mMotor1.aDifferential = 1.0;
-	mMotor2.aDifferential = m * tAbs(aAngleServo) + 1.0;
+	mMotor1.aDifferential = 1.0 * speedScaleFactor;
+	mMotor2.aDifferential = (m * tAbs_float(aAngleServo) + 1.0) * speedScaleFactor ;
+
+	
 
 	}
     else
 	{
-	mMotor1.aDifferential = m * tAbs(aAngleServo) + 1.0;
-	mMotor2.aDifferential = 1.0;
+	mMotor1.aDifferential = (m * tAbs_float(aAngleServo) + 1.0)  * speedScaleFactor;
+	mMotor2.aDifferential = 1.0  * speedScaleFactor;
 	}
     }
+
+

@@ -101,7 +101,7 @@ void gXBEE_Execute(void)
 
 	case kPIDMot:
 	    // Envoi des valeurs de gain
-	    if (gXbeeInterStruct.aPIDChangedMotors)
+	    if (1)//(gXbeeInterStruct.aPIDChangedMotors)
 		{
 		gXbeeInterStruct.aPIDChangedMotors = false;
 
@@ -118,7 +118,7 @@ void gXBEE_Execute(void)
 
 	case kPIDSer:
 
-	    if (gXbeeInterStruct.aPIDChangedServo)
+	    if(1)// (gXbeeInterStruct.aPIDChangedServo)
 		{
 		gXbeeInterStruct.aPIDChangedServo = false;
 

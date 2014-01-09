@@ -175,3 +175,13 @@ int16_t tAbs(int16_t x)
     return x;
     }
 
+float tAbs_float(float x)
+    {
+    if (x < 0.0)
+	{
+	x = (-x);
+	}
+
+    return x;
+    }
+
