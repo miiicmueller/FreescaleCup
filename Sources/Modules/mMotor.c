@@ -16,7 +16,6 @@
 #define FTM2_OVERFLOW_FREQUENCY 				500		
 #define N_OF							1000
 
-
 #define DT_MIN 							5000
 
 /**
@@ -98,7 +97,6 @@ void mMotor_mSetup()
     mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aOverflowOld = 0;
     mMotor2.aNumEchantillonsMot = 0;
-
     }
 
 /**
@@ -167,8 +165,6 @@ void FTM2_IRQHandler()
 	    mMotor1_CaptFlancNeg = 0;
 	    mMotor1.aCapt = 0;
 	    mMotor1.aFreq = 0.0;
-	    //On vide le tableau
-	    mMotor1.aNumEchantillonsMot = 0;
 	    }
 	else
 	    {
@@ -183,8 +179,6 @@ void FTM2_IRQHandler()
 	    mMotor2_CaptFlancNeg = 0;
 	    mMotor2.aCapt = 0;
 	    mMotor2.aFreq = 0.0;
-	    //On vide le tableau
-	    mMotor2.aNumEchantillonsMot = 0;
 	    }
 	else
 	    {

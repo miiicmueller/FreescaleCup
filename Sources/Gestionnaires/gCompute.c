@@ -99,6 +99,7 @@ void gCompute_Execute(void)
 	}
     mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
 	    &isStartStopFound);
+
     //---------------------------------------------------------------------------
     //si la ligne est trouvee
     if (isLineFound)
@@ -118,7 +119,8 @@ void gCompute_Execute(void)
 	    {
 	    posFiltre = 0;
 	    }
-	theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
+	theLinePosition = median_filter_n(theLinePositionTab, kTailleFiltre);
+	//theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
 	}
     else
 	{
@@ -153,6 +155,7 @@ void gCompute_Execute(void)
 	TFC_BAT_LED1_OFF;
 	}
 
+    //---------------------------------------------------------------------------
     //Filtrage des valeur du moteur
     //Moteur 1 ;
     if (mMotor1.aNumEchantillonsMot >= (FILTER_SIZE - 1))
@@ -178,7 +181,7 @@ void gCompute_Execute(void)
 	//On laisse la valeur d'entrée inchangée dans GInput
 	}
 
-    //TODO : ajouter le contrôle des moteurs (différentiel, filtrage, PID)
+    //TODO : ajouter le contrôle des moteurs (différentiel)
 
     //---------------------------------------------------------------------------
     //Appel des PID des moteurs
