@@ -86,4 +86,6 @@ int16_t tMean(int16_t* tab, uint16_t size);
 //--------------------------------------------------------
 int16_t tAbs(int16_t x);
 
+float tAbs_float(float x);
+
 #endif /* TOOLS_H_ */
