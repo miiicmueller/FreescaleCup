@@ -1789,7 +1789,7 @@ unsigned char atc(unsigned char irc_select, int irc_freq, int mcg_out_freq)
 
 int fll_freq(int fll_ref)
 {
-  int fll_freq_hz;
+  int fll_freq_hz = 0;
   
   // Check that only allowed ranges have been selected
   if (((MCG_C4 & MCG_C4_DRST_DRS_MASK) >> MCG_C4_DRST_DRS_SHIFT) > 0x1) 
@@ -1848,7 +1848,7 @@ int fll_freq(int fll_ref)
       else if (fll_freq_hz > 100000000) {return 0x3A;}
       break;
     }
-  }    
+  }
   return fll_freq_hz;
 } // fll_freq
 

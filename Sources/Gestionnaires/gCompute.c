@@ -13,12 +13,23 @@
 #include "Modules\mTrackline.h"
 #include "Modules/mMotor.h"
 
-#define kTailleFiltre 16
+#define kTailleFiltre 15
 #define T_ERROR_MAX_BREAK 30
 #define K_BREAK_FACTOR 0.6
 
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
+//-----------------------------------------------------------------------------
+// Compute differential
+// param : aAngleServo --> Consigne du servoMoteur
+//
+// Description : 	Avec aAngleServo a 0.51, pour 1 tour de la roue exterieur
+//					la roue interieur en fait 0.66.
+//
+//					Cette fonction calcul le differentiel à appliquer
+//					aux moteurs selon aAngleServo.
+//-----------------------------------------------------------------------------
+static void compute_differential(const float aAngleServo);
 
 float aFreqMesTabMot1[FILTER_SIZE] =
     {
@@ -34,21 +45,6 @@ float aFreqMesTabMot2[FILTER_SIZE] =
 //fonctions publiques
 //-----------------------------------------------------------------------------
 uint32_t median_filter_n(uint32_t *aTab, char aSize);
-
-//-----------------------------------------------------------------------------
-// Fonctions privees
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-// Compute differential
-// param : aAngleServo --> Consigne du servoMoteur
-//
-// Description : 	Avec aAngleServo a 0.51, pour 1 tour de la roue exterieur
-//					la roue interieur en fait 0.66.
-//
-//					Cette fonction calcul le differentiel à appliquer
-//					aux moteurs selon aAngleServo.
-//-----------------------------------------------------------------------------
-static void compute_differential(const float aAngleServo);
 
 //------------------------------------------------------------------------
 // Initialisation de la structure de données de gCompute
@@ -76,8 +72,6 @@ void gCompute_Execute(void)
     {
     //TODO : séparer le code dans différentes fonctions afin d'améliorer la lisibilité
 
-    uint32_t valExposure = 0;
-
     //lecture des donnees provenant du monitoring
     if (gXbeeInterStruct.aPIDChangedServo)
 	{
@@ -101,9 +95,6 @@ void gCompute_Execute(void)
 	mMotor2.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
 	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
 	}
-
-    valExposure =
-	    (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0) + 1.0);
 
     //recherche de la ligne
     static int16_t theLinePosition = 0;
@@ -259,7 +250,7 @@ void gCompute_Execute(void)
 uint32_t median_filter_n(uint32_t *aTab, char aSize)
     {
     uint32_t aCpyTab[aSize];
-    char i = 0, j = 0;
+    signed char i = 0, j = 0;
     uint32_t aTemp;
 
 //Copie du tableau

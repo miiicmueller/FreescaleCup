@@ -11,7 +11,7 @@
 
 int main(void)
     {
-    uint32_t t, i = 0;
+    uint32_t t = 0, i = 0;
     bool autoMode = false; //flag indiquant si le mode automatique est en cours
 
     TFC_Init();

@@ -29,7 +29,7 @@ typedef enum
     } aSendState;
 
 static aSendState gStateSend = kPIDMot;
-static uint8_t gCmdBuffer[100];
+static char gCmdBuffer[100];
 static char gLastCmdPointer = 0x00;
 
 //-----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ void gXBEE_Execute(void)
 	}
     }
 
-void commandAnalyser(uint8_t *aCommandBuffer)
+void commandAnalyser(char *aCommandBuffer)
     {
     //On commence par tester la comamnde recue
     switch (aCommandBuffer[0])
