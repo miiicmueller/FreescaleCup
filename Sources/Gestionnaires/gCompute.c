@@ -35,6 +35,21 @@ float aFreqMesTabMot2[FILTER_SIZE] =
 //-----------------------------------------------------------------------------
 uint32_t median_filter_n(uint32_t *aTab, char aSize);
 
+//-----------------------------------------------------------------------------
+// Fonctions privees
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Compute differential
+// param : aAngleServo --> Consigne du servoMoteur
+//
+// Description : 	Avec aAngleServo a 0.51, pour 1 tour de la roue exterieur
+//					la roue interieur en fait 0.66.
+//
+//					Cette fonction calcul le differentiel à appliquer
+//					aux moteurs selon aAngleServo.
+//-----------------------------------------------------------------------------
+static void compute_differential(const float aAngleServo);
+
 //------------------------------------------------------------------------
 // Initialisation de la structure de données de gCompute
 //------------------------------------------------------------------------
@@ -110,7 +125,7 @@ void gCompute_Execute(void)
 
 	//filtrage de la position de la ligne
 	static uint8_t posFiltre = 0;
-	static int16_t theLinePositionTab[kTailleFiltre];
+	static uint32_t theLinePositionTab[kTailleFiltre];
 
 	theLinePositionTab[posFiltre] = theLinePosition;
 	if (posFiltre < kTailleFiltre - 1)
