@@ -95,7 +95,7 @@ void UART2_IRQHandler()
 
     if (UART2_S1 & UART_S1_RDRF_MASK)
 	{
-	//TODO Test Xon Xoff bytes
+	// Test si c'est un parasite que nous avons recu
 	Temp = UART2_D;
 	if ((Temp <32 && Temp != '\n') ||  (Temp >122 && Temp !='\n') )
 	    {

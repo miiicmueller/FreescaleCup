@@ -36,11 +36,12 @@ void gOutput_Execute(void)
 
     //consignes de vitesse
     TFC_SetMotorPWM(gComputeInterStruct.gCommandeMoteurDroit,
-	    gComputeInterStruct.gCommandeMoteurGauche);
+	    gComputeInterStruct.gCommandeMoteurGauche );
+
+    
 
     //temps d'exposition et eclairage des leds pour la camera
-    TFC_SetLineScanExposureTime(
-	    (uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0) + 1.0));
+    TFC_SetLineScanExposureTime((uint32_t) (((gXbeeInterStruct.aExpTime + 1.0) * 5000.0) + 1.0));
     mLeds_writeDyC(gXbeeInterStruct.aPWMLeds);
 
     }

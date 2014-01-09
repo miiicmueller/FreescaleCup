@@ -45,7 +45,7 @@ typedef struct
 	float aMotorSpeedCons;
 	bool aPIDChangedServo;
 	bool aPIDChangedMotors;
-	uint8_t aPWMLeds;
+	float aPWMLeds;
 	float aExpTime;
     } xBeeInterStruct;
 

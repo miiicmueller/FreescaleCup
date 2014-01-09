@@ -49,12 +49,15 @@ void tRescale(int16_t* tab, uint16_t size, uint16_t theScale,
 	uint16_t aEcartMin)
     {
     float theFactor;
-    uint16_t oldMax = tAbs(tab[tMax(tab, size)]);
-    uint16_t oldMin = tAbs(tab[tMin(tab, size)]);
+    int16_t oldMax = tab[tMax(tab, size)];
+    int16_t oldMin = tab[tMin(tab, size)];
 
     //on le fait seulement si l'ecart min est garanti
-    if (tAbs(oldMax - oldMin) > aEcartMin)
+    if ((oldMax - oldMin) > aEcartMin)
 	{
+	oldMax = tAbs(oldMax);
+	oldMin = tAbs(oldMin);
+		
 	if (oldMax > oldMin)
 	    {
 	    theFactor = (float) theScale / (float) oldMax;

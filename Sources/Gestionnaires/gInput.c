@@ -20,8 +20,8 @@
 //------------------------------------------------------------------------
 void gInput_Setup(void)
     {
-    mMotor1.aNumEchantillonsMot = 0;
-    mMotor2.aNumEchantillonsMot = 0;
+    gInputInterStruct.gFreq[0] = (float) 0.0;
+    gInputInterStruct.gFreq[1] = (float) 0.0;
     }
 
 //------------------------------------------------------------------------

@@ -14,6 +14,8 @@
 #include "Modules/mMotor.h"
 
 #define kTailleFiltre 16
+#define T_ERROR_MAX_BREAK 30
+#define K_BREAK_FACTOR 0.6
 
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
@@ -162,7 +164,14 @@ void gCompute_Execute(void)
 	{
 	uint32_t aCaptMedian = 0;
 	aCaptMedian = median_filter_n(mMotor1.aCaptTab, FILTER_SIZE);
-	gInputInterStruct.gFreq[0] = (F_COUNT) / aCaptMedian;
+	if (aCaptMedian != 0)
+	    {
+	    gInputInterStruct.gFreq[0] = (float) (F_COUNT) / aCaptMedian;
+	    }
+	else
+	    {
+	    gInputInterStruct.gFreq[0] = 0.0;
+	    }
 	}
     else
 	{
@@ -174,7 +183,14 @@ void gCompute_Execute(void)
 	{
 	uint32_t aCaptMedian = 0;
 	aCaptMedian = median_filter_n(mMotor2.aCaptTab, FILTER_SIZE);
-	gInputInterStruct.gFreq[1] = (F_COUNT) / aCaptMedian;
+	if (aCaptMedian != 0)
+	    {
+	    gInputInterStruct.gFreq[1] = (float) (F_COUNT) / aCaptMedian;
+	    }
+	else
+	    {
+	    gInputInterStruct.gFreq[1] = 0.0;
+	    }
 	}
     else
 	{
@@ -182,6 +198,8 @@ void gCompute_Execute(void)
 	}
 
     //TODO : ajouter le contrôle des moteurs (différentiel)
+
+    compute_differential(gComputeInterStruct.gCommandeServoDirection);
 
     //---------------------------------------------------------------------------
     //Appel des PID des moteurs
@@ -194,11 +212,28 @@ void gCompute_Execute(void)
     //mise à jour des sorties de gCompute
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
+    // TODO : Implementer la régulation des moteurs 
+    //   gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
+    //   gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
 
-    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
-//    gComputeInterStruct.gCommandeMoteurGauche = 0.8;
-//    gComputeInterStruct.gCommandeMoteurDroit = 0.8;
+    gComputeInterStruct.gCommandeMoteurGauche =
+	    (gXbeeInterStruct.aMotorSpeedCons / 100) * mMotor1.aDifferential;
+    gComputeInterStruct.gCommandeMoteurDroit = (gXbeeInterStruct.aMotorSpeedCons
+	    / 100) * mMotor2.aDifferential;
+
+    if (mMotor1.aPIDData.commande < 0.0)
+	{
+	mMotor1.aPIDData.commande = 0.0;
+	}
+    if (mMotor2.aPIDData.commande < 0.0)
+	{
+	mMotor2.aPIDData.commande = 0.0;
+	}
+    gComputeInterStruct.gCommandeMoteurGauche =
+	    gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
+
+    gComputeInterStruct.gCommandeMoteurDroit =
+	    gComputeInterStruct.gCommandeMoteurDroit; //mMotor2.aPIDData.commande;
 
     }
 
@@ -212,19 +247,19 @@ uint32_t median_filter_n(uint32_t *aTab, char aSize)
     char i = 0, j = 0;
     uint32_t aTemp;
 
-    //Copie du tableau
+//Copie du tableau
     for (i = 0; i < aSize; i++)
 	{
 	aCpyTab[i] = aTab[i];
 	}
 
-    //On décale l'indice du tableau pour la prochaine mesure
+//On décale l'indice du tableau pour la prochaine mesure
     for (i = (aSize - 1); i > 0; i--)
 	{
 	aTab[i] = aTab[i - 1];
 	}
 
-    //On trie le tableau
+//On trie le tableau
     for (i = 0; i < aSize; i++)
 	{
 	for (j = 0; j < (aSize - 1); j++)
@@ -239,6 +274,24 @@ uint32_t median_filter_n(uint32_t *aTab, char aSize)
 	    }
 	}
 
-    //On prend la valeur du milieu
+//On prend la valeur du milieu
     return aCpyTab[(aSize - 1) / 2];
+    }
+
+static void compute_differential(const float aAngleServo)
+    {
+
+    float m = -0.34 / 0.51;
+
+    if (aAngleServo >= 0.0)
+	{
+	mMotor1.aDifferential = 1.0;
+	mMotor2.aDifferential = m * tAbs(aAngleServo) + 1.0;
+
+	}
+    else
+	{
+	mMotor1.aDifferential = m * tAbs(aAngleServo) + 1.0;
+	mMotor2.aDifferential = 1.0;
+	}
     }
