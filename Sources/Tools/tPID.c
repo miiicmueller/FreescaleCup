@@ -7,6 +7,7 @@
 
 //fichiers utilises
 #include "Tools/tPID.h"
+#define LimiteIntegrale 2
 
 #define WINDOW_SIZE  10 // ~100ms 
 //--------------------------------------------------------
@@ -44,15 +45,14 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
 	thePIDStruct->sommeErreurs += theIntergratorError[i];
 	}
 
-    //ecrétage de la somme des erreurs
-    if (thePIDStruct->sommeErreurs > 1)
+   /* if (thePIDStruct->sommeErreurs > LimiteIntegrale)
 	{
-	thePIDStruct->sommeErreurs = 1;
+	thePIDStruct->sommeErreurs = LimiteIntegrale;
 	}
-    else if (thePIDStruct->sommeErreurs < -1)
+    else if (thePIDStruct->sommeErreurs < -LimiteIntegrale)
 	{
-	thePIDStruct->sommeErreurs = -1;
-	}
+	thePIDStruct->sommeErreurs = -LimiteIntegrale;
+	}*/
 
     //nouvelle consigne avec un regulateur PID
     thePIDStruct->commande = (thePIDStruct->kp * nouvelleErreur); //partie proportionelle

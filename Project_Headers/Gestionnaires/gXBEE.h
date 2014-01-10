@@ -50,7 +50,7 @@ typedef struct
  */
 void send_cmd(char aType, uint8_t aValTab[], uint8_t aSize);
 void send_val_float(char aType, float aValTab[], uint8_t aSize);
-void commandAnalyser(uint8_t *aCommandBuffer);
+void commandAnalyser(char *aCommandBuffer);
 void send_val_int(char aType, uint8_t aValTab[], uint8_t aSize);
 
 //------------------------------------------------------------------------

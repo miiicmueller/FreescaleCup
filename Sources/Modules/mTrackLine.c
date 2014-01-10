@@ -13,8 +13,8 @@
 #define kThresholdTab	40	//seuil a partir duquel un flanc est considere comme significatif
 #define kEcartMin	3*kThresholdTab	//ecart minimal entre le min et le max de la derivee pour que l'on considere que quelquechose se trouve dans le champ de vision
 #define kSizeEdgesTab	10	//nombre de flancs maximum que l'on peut trouver
-#define kLengthLineMin	4	//longueur min de la ligne a trouver (en pixels)
-#define kLengthLineMax	20	//longueur max de la ligne a trouver (en pixels)
+#define kLengthLineMin	5	//longueur min de la ligne a trouver (en pixels)
+#define kLengthLineMax	30	//longueur max de la ligne a trouver (en pixels)
 #define kLengthStartStopMin	10	//longueur min d'un morceau de la ligne de départ/arrivée a trouver (en pixels)
 //Attention aux contours, la largeur augmente
 #define kLengthStartStopMax	40	//longueur max d'un morceau de la ligne de départ/arrivée a trouver (en pixels)

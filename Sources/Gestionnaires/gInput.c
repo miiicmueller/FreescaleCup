@@ -31,47 +31,18 @@ void gInput_Setup(void)
 void gInput_Execute(void)
     {
 
-    //Moteur 1 ;
-    if (mMotor1.aNumEchantillonsMot >= (FILTER_SIZE - 1))
+    //Moteur 1 et 2 ;
+    static uint8_t posFiltre = 0;
+
+    mMotor1.aCaptTab[posFiltre] = mMotor1.aCapt;
+    mMotor2.aCaptTab[posFiltre] = mMotor2.aCapt;
+    if (posFiltre < FILTER_SIZE - 1)
 	{
-	mMotor1.aCaptTab[0] = mMotor1.aCapt;
+	posFiltre++;
 	}
     else
 	{
-	mMotor1.aCaptTab[(FILTER_SIZE - 1) - mMotor1.aNumEchantillonsMot] =
-		mMotor1.aCapt;
-	mMotor1.aNumEchantillonsMot += 1;
-
-	//Test de division par 0
-	if (mMotor1.aCapt == 0)
-	    {
-	    gInputInterStruct.gFreq[0] = 0.0;
-	    }
-	else
-	    {
-	    gInputInterStruct.gFreq[0] = (float) (F_COUNT) / mMotor1.aCapt;
-	    }
-	}
-
-    //Moteur 2 ;
-    if (mMotor2.aNumEchantillonsMot >= (FILTER_SIZE - 1))
-	{
-	mMotor2.aCaptTab[0] = mMotor2.aCapt;
-	}
-    else
-	{
-	mMotor2.aCaptTab[(FILTER_SIZE - 1) - mMotor2.aNumEchantillonsMot] =
-		mMotor2.aCapt;
-	mMotor2.aNumEchantillonsMot += 1;
-	//Test de division par 0
-	if (mMotor2.aCapt == 0)
-	    {
-	    gInputInterStruct.gFreq[1] = 0.0;
-	    }
-	else
-	    {
-	    gInputInterStruct.gFreq[1] = (float) (F_COUNT) / mMotor2.aCapt;
-	    }
+	posFiltre = 0;
 	}
 
     mMotor1.aPIDData.consigne = (int16_t) (gXbeeInterStruct.aMotorSpeedCons);

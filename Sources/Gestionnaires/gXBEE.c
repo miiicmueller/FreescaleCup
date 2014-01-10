@@ -29,7 +29,7 @@ typedef enum
     } aSendState;
 
 static aSendState gStateSend = kPIDMot;
-static uint8_t gCmdBuffer[100];
+static char gCmdBuffer[100];
 static char gLastCmdPointer = 0x00;
 
 //-----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ void gXBEE_Execute(void)
 
 	case kPIDMot:
 	    // Envoi des valeurs de gain
-	    if (gXbeeInterStruct.aPIDChangedMotors)
+	    if (1)//(gXbeeInterStruct.aPIDChangedMotors)
 		{
 		gXbeeInterStruct.aPIDChangedMotors = false;
 
@@ -118,7 +118,7 @@ void gXBEE_Execute(void)
 
 	case kPIDSer:
 
-	    if (gXbeeInterStruct.aPIDChangedServo)
+	    if(1)// (gXbeeInterStruct.aPIDChangedServo)
 		{
 		gXbeeInterStruct.aPIDChangedServo = false;
 
@@ -221,7 +221,7 @@ void gXBEE_Execute(void)
 	}
     }
 
-void commandAnalyser(uint8_t *aCommandBuffer)
+void commandAnalyser(char *aCommandBuffer)
     {
     //On commence par tester la comamnde recue
     switch (aCommandBuffer[0])
