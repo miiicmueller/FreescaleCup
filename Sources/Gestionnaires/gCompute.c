@@ -70,8 +70,7 @@ void gCompute_Setup(void)
 //------------------------------------------------------------------------
 void gCompute_Execute(void)
     {
-    //TODO : séparer le code dans différentes fonctions afin d'améliorer la lisibilité
-
+    //---------------------------------------------------------------------------
     //lecture des donnees provenant du monitoring
     if (gXbeeInterStruct.aPIDChangedServo)
 	{
@@ -80,6 +79,7 @@ void gCompute_Execute(void)
 	thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
 	}
 
+    //---------------------------------------------------------------------------
     //lecture des donnees provenant du monitoring
     if (gXbeeInterStruct.aPIDChangedMotors)
 	{
@@ -96,6 +96,7 @@ void gCompute_Execute(void)
 	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
 	}
 
+    //---------------------------------------------------------------------------
     //recherche de la ligne
     static int16_t theLinePosition = 0;
     bool isLineFound;
@@ -139,22 +140,20 @@ void gCompute_Execute(void)
     tPID(&thePIDServo, (theLinePosition - 64));
 
     //---------------------------------------------------------------------------
-    //TODO : faire une machine d'états pour contrôler la course(départ, arrivée, virage, ligne droite) afin de donner une bonne consigne aux moteurs
     //si la ligne d'arrivee est trouvee
     static bool isInRace = false;
     static bool oldIsStartStopFound = false;
     if (isStartStopFound && !(oldIsStartStopFound))
 	{
-	if (isInRace == true)
-	    {
-	    isInRace = false;
-	    }
-	else
-	    {
-	    isInRace = true;
-	    }
+	isInRace = false;
 	}
     oldIsStartStopFound = isStartStopFound;
+
+    if (TFC_PUSH_BUTTON_0_PRESSED)
+	{
+	isInRace = true;
+	}
+
     if (isInRace)
 	{
 	TFC_BAT_LED1_ON;
@@ -193,8 +192,16 @@ void gCompute_Execute(void)
 
     compute_differential(gComputeInterStruct.gCommandeServoDirection);
 
-    mMotor1.aPIDData.consigne *= mMotor1.aDifferential;
-    mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
+    if (isInRace)
+	{
+	mMotor1.aPIDData.consigne *= mMotor1.aDifferential;
+	mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
+	}
+    else
+	{
+	mMotor1.aPIDData.consigne = 0;
+	mMotor2.aPIDData.consigne = 0;
+	}
 
     //---------------------------------------------------------------------------
     //Appel des PID des moteurs
