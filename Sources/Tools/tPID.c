@@ -8,6 +8,7 @@
 //fichiers utilises
 #include "Tools/tPID.h"
 
+#define WINDOW_SIZE  10 // ~100ms 
 //--------------------------------------------------------
 // regulateur PID
 // parametre de retour	: int16_t : la valeur de la commande a assigner
@@ -21,8 +22,29 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     float nouvelleErreur = (float) ((thePIDStruct->consigne) - theMesure)
 	    * thePIDStruct->coeffNormalisation;
 
+    // Fenêtre glissante pour rendre le régulateur I plus stable
+    static uint8_t posFiltre = 0;
+    static float theIntergratorError[WINDOW_SIZE];
+
+    theIntergratorError[posFiltre] = nouvelleErreur;
+    if (posFiltre < WINDOW_SIZE - 1)
+	{
+	posFiltre++;
+	}
+    else
+	{
+	posFiltre = 0;
+	}
+
     //integration des erreurs successives
-    thePIDStruct->sommeErreurs += nouvelleErreur;
+    thePIDStruct->sommeErreurs = 0;
+    for (int i = 0; i < WINDOW_SIZE; i++)
+	{
+	// On somme les "WINDOW_SIZE" dernières valeurs
+	thePIDStruct->sommeErreurs += theIntergratorError[i];
+	}
+
+    //ecrétage de la somme des erreurs
     if (thePIDStruct->sommeErreurs > 1)
 	{
 	thePIDStruct->sommeErreurs = 1;
