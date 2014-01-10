@@ -7,7 +7,6 @@
 
 //fichiers utilises
 #include "Tools/tPID.h"
-#define LimiteIntegrale 2
 
 //--------------------------------------------------------
 // regulateur PID
