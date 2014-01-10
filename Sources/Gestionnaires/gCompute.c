@@ -62,6 +62,7 @@ void gCompute_Setup(void)
     thePIDServo.erreurPrecedente = 0;
     thePIDServo.sommeErreurs = 0;
     thePIDServo.coeffNormalisation = 1.0 / 64.0;
+    thePIDServo.posFiltre = 0;
     }
 
 //------------------------------------------------------------------------
