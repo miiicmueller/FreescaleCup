@@ -10,6 +10,8 @@
 
 #include "TFC/TFC.h"
 #define WINDOWPID_SIZE 10
+#define ERROR_ARRAY_MEM_SIZE 3
+
 
 //fichiers utilises
 typedef struct
@@ -23,6 +25,7 @@ typedef struct
 	float commande; //commande a appliquer a l'actionneur
 	float coeffNormalisation; //coefficient pour normaliser la sortie du PID
 	float theIntegratorError[WINDOWPID_SIZE];
+	float thePastError[ERROR_ARRAY_MEM_SIZE];
 	uint8_t posFiltre;
     } tPIDStruct;
 

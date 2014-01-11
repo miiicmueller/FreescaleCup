@@ -59,19 +59,30 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     thePIDStruct->erreurPrecedente = nouvelleErreur;
     }
 
+/**
+ * Nouvel algorithme de calcul PID. Calculé mathématiquement !
+ */
 void tPID_v2(tPIDStruct* thePIDStruct, int16_t theMesure)
     {
     //calcul de la nouvelle erreur
     //la mesure doit etre convertie dans la grandeur de la consigne
-    float nouvelleErreur = (float) ((thePIDStruct->consigne) - theMesure)
-	    * thePIDStruct->coeffNormalisation;
-    float a = ;
-    float b = ;
-    float c = ;
-        
-    
+    thePIDStruct->thePastError[0] = (float) ((thePIDStruct->consigne)
+	    - theMesure) * thePIDStruct->coeffNormalisation;
+
+    float a = thePIDStruct->kp * (1.0 + thePIDStruct->kd);
+    float b = thePIDStruct->kp
+	    * ((1.0 / thePIDStruct->ki) - 1.0 - 2.0 * thePIDStruct->kd);
+    float c = thePIDStruct->kd;
+
     // Algorithme calculé : u[k] = u[k-1] + a *  e[k] + b* e[k-1] + c* e[k-2]
-    
-    thePIDStruct->commande = thePIDStruct->commande + 
+
+    thePIDStruct->commande = thePIDStruct->commande
+	    + a * thePIDStruct->thePastError[0]
+	    + b * thePIDStruct->thePastError[1]
+	    + c * thePIDStruct->thePastError[2];
+
+    //Décalage du tableau d'erreur pour la prochaine boucle
+    thePIDStruct->thePastError[2] = thePIDStruct->thePastError[1];
+    thePIDStruct->thePastError[1] = thePIDStruct->thePastError[0];
 
     }
