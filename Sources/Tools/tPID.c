@@ -45,14 +45,14 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
 	thePIDStruct->sommeErreurs += theIntergratorError[i];
 	}
 
-   /* if (thePIDStruct->sommeErreurs > LimiteIntegrale)
-	{
-	thePIDStruct->sommeErreurs = LimiteIntegrale;
-	}
-    else if (thePIDStruct->sommeErreurs < -LimiteIntegrale)
-	{
-	thePIDStruct->sommeErreurs = -LimiteIntegrale;
-	}*/
+    /* if (thePIDStruct->sommeErreurs > LimiteIntegrale)
+     {
+     thePIDStruct->sommeErreurs = LimiteIntegrale;
+     }
+     else if (thePIDStruct->sommeErreurs < -LimiteIntegrale)
+     {
+     thePIDStruct->sommeErreurs = -LimiteIntegrale;
+     }*/
 
     //nouvelle consigne avec un regulateur PID
     thePIDStruct->commande = (thePIDStruct->kp * nouvelleErreur); //partie proportionelle
@@ -64,3 +64,19 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     thePIDStruct->erreurPrecedente = nouvelleErreur;
     }
 
+void tPID_v2(tPIDStruct* thePIDStruct, int16_t theMesure)
+    {
+    //calcul de la nouvelle erreur
+    //la mesure doit etre convertie dans la grandeur de la consigne
+    float nouvelleErreur = (float) ((thePIDStruct->consigne) - theMesure)
+	    * thePIDStruct->coeffNormalisation;
+    float a = ;
+    float b = ;
+    float c = ;
+        
+    
+    // Algorithme calculé : u[k] = u[k-1] + a *  e[k] + b* e[k-1] + c* e[k-2]
+    
+    thePIDStruct->commande = thePIDStruct->commande + 
+
+    }
