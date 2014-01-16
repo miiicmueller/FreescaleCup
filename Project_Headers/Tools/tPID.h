@@ -38,5 +38,7 @@ typedef struct
 //--------------------------------------------------------
 void tPID(tPIDStruct* thePIDStruct, int16_t theMesure);
 
+void tPID_v2(tPIDStruct* thePIDStruct, int16_t theMesure);
+
 #endif /* TPID_H_ */
 

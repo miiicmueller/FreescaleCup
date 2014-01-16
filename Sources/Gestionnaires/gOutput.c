@@ -32,7 +32,7 @@ void gOutput_Setup(void)
 void gOutput_Execute(void)
     {
     //consigne de direction
-    TFC_SetServo(0, gComputeInterStruct.gCommandeServoDirection);
+    TFC_SetServo(0, gComputeInterStruct.gCommandeServoDirection+TFC_ReadPot(0));
 
     //consignes de vitesse
     TFC_SetMotorPWM(gComputeInterStruct.gCommandeMoteurDroit,

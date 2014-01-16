@@ -13,10 +13,13 @@
 #include "Modules\mTrackline.h"
 #include "Modules/mMotor.h"
 
-#define kTailleFiltre 15
+#define kTailleFiltre 7
 #define T_ERROR_MAX_BREAK 30
-#define K_BREAK_FACTOR 0.6
+#define K_BRAKE_FACTOR 0.7
+#define K_BRAKE_FACTOR_DER 0.0
+#define K_SPEED_LOWEST 38.0
 
+#define K_LOST_MAX_NUM 300  // 3s
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
 //-----------------------------------------------------------------------------
@@ -29,7 +32,8 @@ static tPIDStruct thePIDServo;
 //					Cette fonction calcul le differentiel à appliquer
 //					aux moteurs selon aAngleServo.
 //-----------------------------------------------------------------------------
-static void compute_differential(const float aAngleServo);
+static void compute_differential(const float aAngleServo,
+	tPIDStruct* thePIDStruct);
 
 float aFreqMesTabMot1[FILTER_SIZE] =
     {
@@ -55,18 +59,18 @@ void gCompute_Setup(void)
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0;
 
-    thePIDServo.kp = 0.006; //val max pour kp servo = 1/64
-    thePIDServo.ki = 0.00;
-    thePIDServo.kd = 0.006;
+    thePIDServo.kp = 0.9; //val max pour kp servo = 1/64
+    thePIDServo.ki = 1.0;
+    thePIDServo.kd = 0.01;
     thePIDServo.consigne = 0; //ligne au milieu du champ de vision (étendue de -64 à 64)
     thePIDServo.erreurPrecedente = 0;
     thePIDServo.sommeErreurs = 0;
     thePIDServo.coeffNormalisation = 1.0 / 64.0;
     thePIDServo.posFiltre = 0;
-    thePIDServo.thePastError[0] = 0.0 ;
-    thePIDServo.thePastError[1] = 0.0 ;
-    thePIDServo.thePastError[2] = 0.0 ;
-        
+    thePIDServo.thePastError[0] = 0.0;
+    thePIDServo.thePastError[1] = 0.0;
+    thePIDServo.thePastError[2] = 0.0;
+
     }
 
 //------------------------------------------------------------------------
@@ -104,8 +108,11 @@ void gCompute_Execute(void)
     //---------------------------------------------------------------------------
     //recherche de la ligne
     static int16_t theLinePosition = 0;
-    bool isLineFound;
-    bool isStartStopFound;
+    static int16_t theLinePositionOld = 0;
+    static int16_t theLinePositionLostComp = 0;
+
+    bool isLineFound = false;
+    bool isStartStopFound = false;
     int16_t LineAnalyze[128];
     for (uint16_t i = 0; i < 128; i++)
 	{
@@ -119,6 +126,8 @@ void gCompute_Execute(void)
     if (isLineFound)
 	{
 	TFC_BAT_LED0_ON;
+	//On reset le compteur de perte de ligne
+	theLinePositionLostComp = 0;
 
 	//filtrage de la position de la ligne
 	static uint8_t posFiltre = 0;
@@ -134,32 +143,58 @@ void gCompute_Execute(void)
 	    posFiltre = 0;
 	    }
 
+	//On enregistre l'ancienne valeur de la ligne
+	theLinePositionOld = theLinePosition;
 	theLinePosition = median_filter_n(theLinePositionTab, kTailleFiltre);
 	//theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
 	}
     else
 	{
+	//Si on pert la ligne, on interpole
+	int16_t aLinePosDiff = 0;
+	theLinePositionOld = theLinePosition; // On enregistre la position de la ligne
+	aLinePosDiff = tAbs(theLinePosition - theLinePositionOld);
+	// ON sélectionne le sens de correction
+	if (theLinePosition > 64)
+	    {
+	    //    theLinePosition += aLinePosDiff;
+	    }
+	else
+	    {
+	    //  theLinePosition -= aLinePosDiff;
+	    }
+	theLinePositionLostComp++;
 	TFC_BAT_LED0_OFF;
+	}
+
+    if (tAbs_float(gComputeInterStruct.gCommandeServoDirection) < 0.4)
+	{
+	thePIDServo.kd *= tAbs_float(
+		gComputeInterStruct.gCommandeServoDirection);
 	}
     // Mettre a jour le PID
     tPID(&thePIDServo, (theLinePosition - 64));
-
+    //tPID_v2(&thePIDServo, (theLinePosition - 64));
     //---------------------------------------------------------------------------
     //si la ligne d'arrivee est trouvee
-    static bool isInRace = false;
+    static uint8_t isInRace = 0;
     static bool oldIsStartStopFound = false;
-    if (isStartStopFound && !(oldIsStartStopFound))
+    if ((isStartStopFound && !(oldIsStartStopFound))
+	    || ((theLinePositionLostComp >= K_LOST_MAX_NUM)))
 	{
-	isInRace = false;
+	if (isInRace > 0)
+	    {
+	    isInRace--;
+	    }
 	}
     oldIsStartStopFound = isStartStopFound;
 
     if (TFC_PUSH_BUTTON_0_PRESSED)
 	{
-	isInRace = true;
+	isInRace = 2;
 	}
 
-    if (isInRace)
+    if (isInRace > 0)
 	{
 	TFC_BAT_LED1_ON;
 	}
@@ -195,12 +230,23 @@ void gCompute_Execute(void)
 	gInputInterStruct.gFreq[1] = 0.0;
 	}
 
-    compute_differential(gComputeInterStruct.gCommandeServoDirection);
+    compute_differential(gComputeInterStruct.gCommandeServoDirection,
+	    &thePIDServo);
 
-    if (isInRace)
+    if (isInRace > 0)
 	{
 	mMotor1.aPIDData.consigne *= mMotor1.aDifferential;
+	if (mMotor1.aPIDData.consigne <= K_SPEED_LOWEST)
+	    {
+	    mMotor1.aPIDData.consigne = K_SPEED_LOWEST;
+	    }
+
 	mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
+	if (mMotor1.aPIDData.consigne <= K_SPEED_LOWEST)
+	    {
+	    mMotor1.aPIDData.consigne = K_SPEED_LOWEST;
+	    }
+
 	}
     else
 	{
@@ -220,17 +266,16 @@ void gCompute_Execute(void)
     gInputInterStruct.gPosCam1 = theLinePosition;
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 
-    if (mMotor1.aPIDData.commande < 0.0)
+    if (mMotor1.aPIDData.commande < -0.3)
 	{
-	mMotor1.aPIDData.commande = 0.0;
+	mMotor1.aPIDData.commande = -0.3;
 	}
-    if (mMotor2.aPIDData.commande < 0.0)
+    if (mMotor2.aPIDData.commande < -0.3)
 	{
-	mMotor2.aPIDData.commande = 0.0;
+	mMotor2.aPIDData.commande = -0.3;
 	}
     gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
     //gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
-
     gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
     //gComputeInterStruct.gCommandeMoteurDroit; //mMotor2.aPIDData.commande;
 
@@ -271,11 +316,15 @@ uint32_t median_filter_n(uint32_t *aTab, char aSize)
     return aCpyTab[(aSize - 1) / 2];
     }
 
-static void compute_differential(const float aAngleServo)
+static void compute_differential(const float aAngleServo,
+	tPIDStruct* thePIDStruct)
     {
 
     float m = -0.6667; //-0.34 / 0.51;
-    float speedScaleFactor = -0.5 * tAbs_float(aAngleServo) + 1.0;
+    //float speedScaleFactor = -((float) gXbeeInterStruct.aMotorSpeedCons / 160.0)
+//	    * tAbs_float(aAngleServo) + 1.0;
+    float speedScaleFactor = -K_BRAKE_FACTOR
+	    * tAbs_float(thePIDStruct->thePastError[0]) + 1.0;
 
     if (aAngleServo >= 0.0)
 	{

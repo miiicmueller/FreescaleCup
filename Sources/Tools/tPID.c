@@ -21,6 +21,8 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
     float nouvelleErreur = (float) ((thePIDStruct->consigne) - theMesure)
 	    * thePIDStruct->coeffNormalisation;
 
+    thePIDStruct->thePastError[0] = nouvelleErreur;
+
     // Fenêtre glissante pour rendre le régulateur I plus stable
     thePIDStruct->theIntegratorError[thePIDStruct->posFiltre] = nouvelleErreur;
     if (thePIDStruct->posFiltre < WINDOWPID_SIZE - 1)
@@ -57,6 +59,10 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
 
     //mettre a jour l'erreur precedente pour la partie derivee
     thePIDStruct->erreurPrecedente = nouvelleErreur;
+
+    //Décalage du tableau d'erreur pour la prochaine boucle
+    thePIDStruct->thePastError[2] = thePIDStruct->thePastError[1];
+    thePIDStruct->thePastError[1] = thePIDStruct->thePastError[0];
     }
 
 /**
@@ -64,15 +70,30 @@ void tPID(tPIDStruct* thePIDStruct, int16_t theMesure)
  */
 void tPID_v2(tPIDStruct* thePIDStruct, int16_t theMesure)
     {
+    static float a = (float) 0.0;
+    static float b = (float) 0.0;
+    static float c = (float) 0.0;
+
     //calcul de la nouvelle erreur
     //la mesure doit etre convertie dans la grandeur de la consigne
     thePIDStruct->thePastError[0] = (float) ((thePIDStruct->consigne)
 	    - theMesure) * thePIDStruct->coeffNormalisation;
 
-    float a = thePIDStruct->kp * (1.0 + thePIDStruct->kd);
-    float b = thePIDStruct->kp
-	    * ((1.0 / thePIDStruct->ki) - 1.0 - 2.0 * thePIDStruct->kd);
-    float c = thePIDStruct->kd;
+    //On augmente le gain kp si la ligne se trouve au bord de la caméra
+    if (tAbs_float(thePIDStruct->thePastError[0]) > 0.8)
+	{
+	thePIDStruct->kp *= 2.0;
+	}
+    //On diminue la correction si l'erreur est petite
+    if (tAbs_float(thePIDStruct->thePastError[0]) < 0.2)
+	{
+	//thePIDStruct->kp *= 0.5;
+	}
+
+    a = (float) thePIDStruct->kp * (1.0 + thePIDStruct->kd);
+    b = (float) thePIDStruct->kp
+	    * ((0.002 / thePIDStruct->ki) - 1.0 - 2.0 * thePIDStruct->kd);
+    c = (float) thePIDStruct->kd;
 
     // Algorithme calculé : u[k] = u[k-1] + a *  e[k] + b* e[k-1] + c* e[k-2]
 
@@ -80,6 +101,15 @@ void tPID_v2(tPIDStruct* thePIDStruct, int16_t theMesure)
 	    + a * thePIDStruct->thePastError[0]
 	    + b * thePIDStruct->thePastError[1]
 	    + c * thePIDStruct->thePastError[2];
+
+    if (thePIDStruct->commande >= 1.0)
+	{
+	thePIDStruct->commande = 1.0;
+	}
+    else if (thePIDStruct->commande <= -1.0)
+	{
+	thePIDStruct->commande = -1.0;
+	}
 
     //Décalage du tableau d'erreur pour la prochaine boucle
     thePIDStruct->thePastError[2] = thePIDStruct->thePastError[1];
