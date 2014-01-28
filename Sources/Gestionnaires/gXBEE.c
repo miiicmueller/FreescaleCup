@@ -9,6 +9,7 @@
 #include "Gestionnaires\gMbox.h"
 #include "Gestionnaires/gXBEE.h"
 #include "Modules/mMotor.h"
+#include "parameters.h"
 
 #define END_OF_TRAME '\n'
 #define CMD_MAX_SIZE 100
@@ -46,7 +47,7 @@ void gXBEE_Setup(void)
     gXbeeInterStruct.aGainPIDMotors.gDerivativeGain = 0.045;
 
     // Config de la vitesse maximale des moteurs
-    gXbeeInterStruct.aMotorSpeedCons = 53.0;
+    gXbeeInterStruct.aMotorSpeedCons = kSPEED_DUTY; //53.0
 
     // Config des gain du servo
     gXbeeInterStruct.aGainPIDServo.gProprortionalGain = 0.0;
@@ -101,7 +102,7 @@ void gXBEE_Execute(void)
 
 	case kPIDMot:
 	    // Envoi des valeurs de gain
-	    if (1)//(gXbeeInterStruct.aPIDChangedMotors)
+	    if (1) //(gXbeeInterStruct.aPIDChangedMotors)
 		{
 		gXbeeInterStruct.aPIDChangedMotors = false;
 
@@ -118,7 +119,7 @@ void gXBEE_Execute(void)
 
 	case kPIDSer:
 
-	    if(1)// (gXbeeInterStruct.aPIDChangedServo)
+	    if (1) // (gXbeeInterStruct.aPIDChangedServo)
 		{
 		gXbeeInterStruct.aPIDChangedServo = false;
 

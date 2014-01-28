@@ -13,12 +13,12 @@
 #include "Tools/angle_cal.h"
 #include "Modules\mTrackline.h"
 #include "Modules/mMotor.h"
+#include "parameters.h"
 
 #define kTailleFiltre 11
 #define T_ERROR_MAX_BREAK 30
 #define K_BRAKE_FACTOR 0.4
 #define K_BRAKE_FACTOR_DER 0.0
-#define K_SPEED_LOWEST 38.0
 
 #define K_LOST_MAX_NUM 300  // 3s
 /* prototypes des fonctions statiques (propres au fichier) */
@@ -83,7 +83,6 @@ void gCompute_Setup(void)
     gComputeInterStruct.aAccelPlanMagn[1] = 0;
     gComputeInterStruct.aAccelPlanMagn[2] = 0;
 
-
     }
 
 //------------------------------------------------------------------------
@@ -134,11 +133,10 @@ void gCompute_Execute(void)
 	}
     mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
 	    &isStartStopFound);
-   // mTrackLine_Correlation(LineAnalyze, 128, &theLinePosition, &isLineFound,
+    // mTrackLine_Correlation(LineAnalyze, 128, &theLinePosition, &isLineFound,
 //	    &isStartStopFound);
 
     //---------------------------------------------------------------------------
-
 
     //---------------------------------------------------------------------------
     //si la ligne est trouvee
@@ -168,17 +166,17 @@ void gCompute_Execute(void)
     else
 	{
 	//On test si on est arrivé sur la bosse
-	if (tAbs(theLinePosition - 64) > 10)
+	if (tAbs(theLinePosition - 64) > 6)
 	    {
 	    //Si on pert la ligne, on interpole
 	    // ON sélectionne le sens de correction
 	    if (theLinePosition > 64)
 		{
-		theLinePosition += 7;
+		theLinePosition += 10;
 		}
 	    else
 		{
-		theLinePosition -= 7;
+		theLinePosition -= 10;
 		}
 	    theLinePositionLostComp++;
 	    TFC_BAT_LED0_OFF;
@@ -274,8 +272,8 @@ void gCompute_Execute(void)
 	aSpeedTotFactor =
 		((K_SPEED_LOWEST - aSpeedFact) < 0.0) ?
 			0.0 : (K_SPEED_LOWEST - aSpeedFact);
-	aSpeedTotFactor  = K_SPEED_LOWEST ;
-		
+	aSpeedTotFactor = K_SPEED_LOWEST;
+
 	if (mMotor1.aPIDData.consigne <= aSpeedTotFactor)
 	    {
 	    mMotor1.aPIDData.consigne = aSpeedTotFactor;
@@ -329,20 +327,22 @@ void gCompute_Execute(void)
 	}
 
     //Test si la fréquence du moteur est supérieur à vitesse min on autorise le freinage
-//    if ((gInputInterStruct.gFreq[0] / 3.0) > K_SPEED_LOWEST)
-//	{
-//
-//	if (full_break == true)
-//	    {
-//	    mMotor1.aPIDData.commande = -0.75;
-//	    mMotor2.aPIDData.commande = -0.75;
-//	    }
-//	else if (half_break == true)
-//	    {
-//	    mMotor1.aPIDData.commande = -0.1;
-//	    mMotor2.aPIDData.commande = -0.1;
-//	    }
-//	}
+    if ((gInputInterStruct.gFreq[0] / 3.0) > K_SPEED_LOWEST)
+	{
+
+	if (full_break == true)
+	    {
+	    mMotor1.aPIDData.commande = kFULL_BRAKE;
+	    mMotor2.aPIDData.commande = kFULL_BRAKE;
+	    }
+	else if (half_break == true)
+	    {
+	    mMotor1.aPIDData.commande = kHALF_BRAKE;
+	    mMotor2.aPIDData.commande = kHALF_BRAKE;
+	    }
+	half_break = false;
+	full_break = false;
+	}
 
     gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
 //gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
@@ -390,7 +390,7 @@ static void compute_differential(const float aAngleServo,
 	tPIDStruct* thePIDStruct)
     {
 
-    float m = -0.6667;
+    float m = -0.8;
     //Moyenne des erreurs
     float aMoyenneError = tAbs_float(
 	    (1.0 / 3)
@@ -403,19 +403,27 @@ static void compute_differential(const float aAngleServo,
 	aMoyenneError = 0;
 	full_break = false;
 	half_break = false;
+	TFC_BAT_LED2_OFF;
+	TFC_BAT_LED3_OFF;
 	}
     // Si on a perdu la ligne plus de ~30ms et que l'on braque à fond , on freine comme des porcs
-    else if ((aMoyenneError > 0.5) && (tAbs_float(aAngleServo) > 0.7))
+    else if ((aMoyenneError > 0.25) && (tAbs_float(aAngleServo) > 0.35)
+	    && ((gInputInterStruct.gFreq[0] / 3.0) > (K_SPEED_LOWEST - 15)))
 	{
-	full_break = false;
+	TFC_BAT_LED2_ON;
+	full_break = true;
 	}
     // Sinon on freine un peu moins si on se trouve au bord et on corrige assez fort
-    else if ((aMoyenneError > 0.6) && (tAbs_float(aAngleServo) > 0.6))
+    else if ((aMoyenneError > 0.20) && (tAbs_float(aAngleServo) > 0.15)
+	    && ((gInputInterStruct.gFreq[0] / 3.0) > (K_SPEED_LOWEST - 15)))
 	{
+	TFC_BAT_LED3_ON;
 	half_break = true;
 	}
     else
 	{
+	TFC_BAT_LED2_OFF;
+	TFC_BAT_LED3_OFF;
 	full_break = false;
 	half_break = false;
 	}
