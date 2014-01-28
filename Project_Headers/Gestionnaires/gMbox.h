@@ -26,6 +26,9 @@ typedef struct
 	uint8_t gAccel[3]; // 0 = X, 1=Y, 2=Z : accéléromètre
 	uint8_t gBattLev;
 	float gFreq[2]; // 0 : freq moteur gauche, 1 : freq moteur droit
+	int16_t gAccelXYZ[3];
+	int16_t gAccelResXYZ[3];
+	
     } InpInterStruct;
 
 // Création du type de la structure contenant les outputs
@@ -35,6 +38,10 @@ typedef struct
 	float gCommandeMoteurGauche;
 	float gCommandeServoDirection;
 	uint16_t gConsigneMotor;
+	int16_t aAccelPlanAngle[3];
+	int16_t aAccelPlanMagn[3];
+		
+	
     } ComputeInterStruct;
 
 // Création du type de la structure contenant les outputs

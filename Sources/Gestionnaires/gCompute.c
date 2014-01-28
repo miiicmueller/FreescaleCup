@@ -10,18 +10,21 @@
 #include "Gestionnaires\gMbox.h"
 #include "Tools\tPID.h"
 #include "Tools\Tools.h"
+#include "Tools/angle_cal.h"
 #include "Modules\mTrackline.h"
 #include "Modules/mMotor.h"
 
-#define kTailleFiltre 7
+#define kTailleFiltre 11
 #define T_ERROR_MAX_BREAK 30
-#define K_BRAKE_FACTOR 0.7
+#define K_BRAKE_FACTOR 0.4
 #define K_BRAKE_FACTOR_DER 0.0
 #define K_SPEED_LOWEST 38.0
 
 #define K_LOST_MAX_NUM 300  // 3s
 /* prototypes des fonctions statiques (propres au fichier) */
 static tPIDStruct thePIDServo;
+static bool full_break = false;
+static bool half_break = false;
 //-----------------------------------------------------------------------------
 // Compute differential
 // param : aAngleServo --> Consigne du servoMoteur
@@ -57,11 +60,12 @@ void gCompute_Setup(void)
     {
     gComputeInterStruct.gCommandeMoteurDroit = 0.0;
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
-    gComputeInterStruct.gCommandeServoDirection = 0;
+    gComputeInterStruct.gCommandeServoDirection = 0.0;
 
-    thePIDServo.kp = 0.9; //val max pour kp servo = 1/64
-    thePIDServo.ki = 1.0;
-    thePIDServo.kd = 0.01;
+    thePIDServo.kp = 0.3; //val max pour kp servo = 1/64
+    thePIDServo.ki = 0;
+    thePIDServo.kd = 0;
+    thePIDServo.kp_init = thePIDServo.kp;
     thePIDServo.consigne = 0; //ligne au milieu du champ de vision (étendue de -64 à 64)
     thePIDServo.erreurPrecedente = 0;
     thePIDServo.sommeErreurs = 0;
@@ -70,6 +74,15 @@ void gCompute_Setup(void)
     thePIDServo.thePastError[0] = 0.0;
     thePIDServo.thePastError[1] = 0.0;
     thePIDServo.thePastError[2] = 0.0;
+
+    gComputeInterStruct.aAccelPlanAngle[0] = 0;
+    gComputeInterStruct.aAccelPlanAngle[1] = 0;
+    gComputeInterStruct.aAccelPlanAngle[2] = 0;
+
+    gComputeInterStruct.aAccelPlanMagn[0] = 0;
+    gComputeInterStruct.aAccelPlanMagn[1] = 0;
+    gComputeInterStruct.aAccelPlanMagn[2] = 0;
+
 
     }
 
@@ -81,45 +94,51 @@ void gCompute_Execute(void)
     {
     //---------------------------------------------------------------------------
     //lecture des donnees provenant du monitoring
-    if (gXbeeInterStruct.aPIDChangedServo)
-	{
-	thePIDServo.kp = gXbeeInterStruct.aGainPIDServo.gProprortionalGain;
-	thePIDServo.ki = gXbeeInterStruct.aGainPIDServo.gIntegraleGain;
-	thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
-	}
+//    if (gXbeeInterStruct.aPIDChangedServo)
+//	{
+//	thePIDServo.kp = gXbeeInterStruct.aGainPIDServo.gProprortionalGain;
+//	thePIDServo.ki = gXbeeInterStruct.aGainPIDServo.gIntegraleGain;
+//	thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
+//	thePIDServo.kp_init = thePIDServo.kp;
+//	}
 
     //---------------------------------------------------------------------------
     //lecture des donnees provenant du monitoring
-    if (gXbeeInterStruct.aPIDChangedMotors)
-	{
-	//Motor1
-	mMotor1.aPIDData.kp =
-		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
-	mMotor1.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
-	mMotor1.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
-
-	//Motor 2
-	mMotor2.aPIDData.kp =
-		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
-	mMotor2.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
-	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
-	}
+//    if (gXbeeInterStruct.aPIDChangedMotors)
+//	{
+//	//Motor1
+//	mMotor1.aPIDData.kp =
+//		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+//	mMotor1.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+//	mMotor1.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+//
+//	//Motor 2
+//	mMotor2.aPIDData.kp =
+//		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
+//	mMotor2.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
+//	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
+//	}
 
     //---------------------------------------------------------------------------
     //recherche de la ligne
     static int16_t theLinePosition = 0;
-    static int16_t theLinePositionOld = 0;
     static int16_t theLinePositionLostComp = 0;
 
     bool isLineFound = false;
     bool isStartStopFound = false;
     int16_t LineAnalyze[128];
+
     for (uint16_t i = 0; i < 128; i++)
 	{
 	LineAnalyze[i] = LineScanImage0[i];
 	}
     mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
 	    &isStartStopFound);
+   // mTrackLine_Correlation(LineAnalyze, 128, &theLinePosition, &isLineFound,
+//	    &isStartStopFound);
+
+    //---------------------------------------------------------------------------
+
 
     //---------------------------------------------------------------------------
     //si la ligne est trouvee
@@ -144,35 +163,40 @@ void gCompute_Execute(void)
 	    }
 
 	//On enregistre l'ancienne valeur de la ligne
-	theLinePositionOld = theLinePosition;
 	theLinePosition = median_filter_n(theLinePositionTab, kTailleFiltre);
-	//theLinePosition = tMean(theLinePositionTab, kTailleFiltre);
 	}
     else
 	{
-	//Si on pert la ligne, on interpole
-	int16_t aLinePosDiff = 0;
-	theLinePositionOld = theLinePosition; // On enregistre la position de la ligne
-	aLinePosDiff = tAbs(theLinePosition - theLinePositionOld);
-	// ON sélectionne le sens de correction
-	if (theLinePosition > 64)
+	//On test si on est arrivé sur la bosse
+	if (tAbs(theLinePosition - 64) > 10)
 	    {
-	    //    theLinePosition += aLinePosDiff;
+	    //Si on pert la ligne, on interpole
+	    // ON sélectionne le sens de correction
+	    if (theLinePosition > 64)
+		{
+		theLinePosition += 7;
+		}
+	    else
+		{
+		theLinePosition -= 7;
+		}
+	    theLinePositionLostComp++;
+	    TFC_BAT_LED0_OFF;
 	    }
-	else
-	    {
-	    //  theLinePosition -= aLinePosDiff;
-	    }
-	theLinePositionLostComp++;
-	TFC_BAT_LED0_OFF;
 	}
+    thePIDServo.kp = thePIDServo.kp_init;
 
-    if (tAbs_float(gComputeInterStruct.gCommandeServoDirection) < 0.4)
-	{
-	thePIDServo.kd *= tAbs_float(
-		gComputeInterStruct.gCommandeServoDirection);
-	}
+    // On diminue l'effet de P avec la vitesse
+    // Consigne va de 0-1 => *2 => kp = 1/2 * kp si consigne max sinon kp=1/1 * kp si consigne =0.5 ;
+    // Elle augmente si on va lentement
+    // thePIDServo.kp /= (thePIDServo. * 0.05) + 1.0;
+
     // Mettre a jour le PID
+    //if (tAbs((theLinePosition - 64)) < 20)
+    //{
+    //theLinePosition = 64;
+    //}
+
     tPID(&thePIDServo, (theLinePosition - 64));
     //tPID_v2(&thePIDServo, (theLinePosition - 64));
     //---------------------------------------------------------------------------
@@ -235,16 +259,31 @@ void gCompute_Execute(void)
 
     if (isInRace > 0)
 	{
+	float aSpeedFact = 0.0;
+	float aSpeedTotFactor = 0.0;
+
 	mMotor1.aPIDData.consigne *= mMotor1.aDifferential;
-	if (mMotor1.aPIDData.consigne <= K_SPEED_LOWEST)
+	mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
+
+	if ((thePIDServo.thePastError[0] - thePIDServo.thePastError[1]) < 0.0)
 	    {
-	    mMotor1.aPIDData.consigne = K_SPEED_LOWEST;
+	    aSpeedFact = (thePIDServo.thePastError[1]
+		    - thePIDServo.thePastError[0]) * 6.5;
 	    }
 
-	mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
-	if (mMotor1.aPIDData.consigne <= K_SPEED_LOWEST)
+	aSpeedTotFactor =
+		((K_SPEED_LOWEST - aSpeedFact) < 0.0) ?
+			0.0 : (K_SPEED_LOWEST - aSpeedFact);
+	aSpeedTotFactor  = K_SPEED_LOWEST ;
+		
+	if (mMotor1.aPIDData.consigne <= aSpeedTotFactor)
 	    {
-	    mMotor1.aPIDData.consigne = K_SPEED_LOWEST;
+	    mMotor1.aPIDData.consigne = aSpeedTotFactor;
+	    }
+
+	if (mMotor2.aPIDData.consigne <= aSpeedTotFactor)
+	    {
+	    mMotor2.aPIDData.consigne = aSpeedTotFactor;
 	    }
 
 	}
@@ -254,30 +293,61 @@ void gCompute_Execute(void)
 	mMotor2.aPIDData.consigne = 0;
 	}
 
-    //---------------------------------------------------------------------------
-    //Appel des PID des moteurs
-    // PID Moteur 1
+//---------------------------------------------------------------------------
+//Appel des PID des moteurs
+// PID Moteur 1
     tPID(&mMotor1.aPIDData, (int16_t) (gInputInterStruct.gFreq[0] / 3.0)); // Frequence entre 0 et 100
-    // PID Moteur 2
+// PID Moteur 2
     tPID(&mMotor2.aPIDData, (int16_t) (gInputInterStruct.gFreq[1] / 3.0));
 
-    //---------------------------------------------------------------------------
-    //mise à jour des sorties de gCompute
+//---------------------------------------------------------------------------
+//mise à jour des sorties de gCompute
     gInputInterStruct.gPosCam1 = theLinePosition;
+
+    // Limitation des servo moteurs
+    if (tAbs_float(thePIDServo.commande) > 0.8)
+	{
+	if (thePIDServo.commande < 0.0)
+	    {
+	    thePIDServo.commande = -0.8;
+	    }
+	else
+	    {
+	    thePIDServo.commande = 0.8;
+	    }
+	}
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 
-    if (mMotor1.aPIDData.commande < -0.3)
+// Test de freinage
+    if ((mMotor1.aPIDData.commande < 0.0))
 	{
-	mMotor1.aPIDData.commande = -0.3;
+	mMotor1.aPIDData.commande = 0.0;
 	}
-    if (mMotor2.aPIDData.commande < -0.3)
+    if ((mMotor2.aPIDData.commande < 0.0))
 	{
-	mMotor2.aPIDData.commande = -0.3;
+	mMotor2.aPIDData.commande = 0.0;
 	}
+
+    //Test si la fréquence du moteur est supérieur à vitesse min on autorise le freinage
+//    if ((gInputInterStruct.gFreq[0] / 3.0) > K_SPEED_LOWEST)
+//	{
+//
+//	if (full_break == true)
+//	    {
+//	    mMotor1.aPIDData.commande = -0.75;
+//	    mMotor2.aPIDData.commande = -0.75;
+//	    }
+//	else if (half_break == true)
+//	    {
+//	    mMotor1.aPIDData.commande = -0.1;
+//	    mMotor2.aPIDData.commande = -0.1;
+//	    }
+//	}
+
     gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-    //gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
+//gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
     gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
-    //gComputeInterStruct.gCommandeMoteurDroit; //mMotor2.aPIDData.commande;
+//gComputeInterStruct.gCommandeMoteurDroit; //mMotor2.aPIDData.commande;
 
     }
 
@@ -320,11 +390,37 @@ static void compute_differential(const float aAngleServo,
 	tPIDStruct* thePIDStruct)
     {
 
-    float m = -0.6667; //-0.34 / 0.51;
-    //float speedScaleFactor = -((float) gXbeeInterStruct.aMotorSpeedCons / 160.0)
-//	    * tAbs_float(aAngleServo) + 1.0;
-    float speedScaleFactor = -K_BRAKE_FACTOR
-	    * tAbs_float(thePIDStruct->thePastError[0]) + 1.0;
+    float m = -0.6667;
+    //Moyenne des erreurs
+    float aMoyenneError = tAbs_float(
+	    (1.0 / 3)
+		    * (thePIDStruct->thePastError[0]
+			    + thePIDStruct->thePastError[1]
+			    + thePIDStruct->thePastError[2]));
+
+    if (aMoyenneError < 0.3)
+	{
+	aMoyenneError = 0;
+	full_break = false;
+	half_break = false;
+	}
+    // Si on a perdu la ligne plus de ~30ms et que l'on braque à fond , on freine comme des porcs
+    else if ((aMoyenneError > 0.5) && (tAbs_float(aAngleServo) > 0.7))
+	{
+	full_break = false;
+	}
+    // Sinon on freine un peu moins si on se trouve au bord et on corrige assez fort
+    else if ((aMoyenneError > 0.6) && (tAbs_float(aAngleServo) > 0.6))
+	{
+	half_break = true;
+	}
+    else
+	{
+	full_break = false;
+	half_break = false;
+	}
+
+    float speedScaleFactor = -K_BRAKE_FACTOR * aMoyenneError + 1.0;
 
     if (aAngleServo >= 0.0)
 	{

@@ -143,6 +143,48 @@ int8_t tMax(int16_t* tab, uint16_t size)
     return indexMax;
     }
 
+
+//--------------------------------------------------------
+//renvoie l'indice de la valeur max du signal
+// parametre de retour	: indice de la valeur max
+// parametres : tab	: adresse du tableau a traiter
+//		size	: longueur du tableau
+//--------------------------------------------------------
+int8_t tMax_32(int32_t* tab, uint16_t size)
+    {
+    uint16_t indexMax = 0;
+
+    for (uint16_t i = 1; i < size; i++)
+	{
+	if (tab[i] > tab[indexMax])
+	    {
+	    indexMax = i;
+	    }
+	}
+    return indexMax;
+    }
+
+
+//--------------------------------------------------------
+//renvoie l'indice de la valeur max du signal
+// parametre de retour	: indice de la valeur max
+// parametres : tab	: adresse du tableau a traiter
+//		size	: longueur du tableau
+//--------------------------------------------------------
+int8_t tMax_f(float* tab, uint16_t size)
+    {
+    uint8_t indexMax = 0;
+
+    for (uint8_t i = 1; i < size; i++)
+	{
+	if (tab[i] > tab[indexMax])
+	    {
+	    indexMax = i;
+	    }
+	}
+    return indexMax;
+    }
+
 //--------------------------------------------------------
 // renvoie la valeur de la moyenne du tableau
 // parametre de retour	: valeur moyenne

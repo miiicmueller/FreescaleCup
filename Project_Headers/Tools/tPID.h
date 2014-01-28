@@ -19,6 +19,7 @@ typedef struct
 	float kp; //facteur proportionnel
 	float ki; //facteur integral
 	float kd; //facteur differentiel
+	float kp_init ;
 	float sommeErreurs; //integrale des erreurs
 	int16_t consigne; //valeur cible de la grandeur mesuree
 	float erreurPrecedente; //derniere erreur

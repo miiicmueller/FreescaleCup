@@ -70,6 +70,8 @@ uint16_t tMin(int16_t* tab, uint16_t size);
 //		size	: longueur du tableau
 //--------------------------------------------------------
 int8_t tMax(int16_t* tab, uint16_t size);
+int8_t tMax_f(float* tab, uint16_t size);
+int8_t tMax_32(int32_t* tab, uint16_t size);
 
 //--------------------------------------------------------
 // renvoie la valeur de la moyenne du tableau

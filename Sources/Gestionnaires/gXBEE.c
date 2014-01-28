@@ -41,12 +41,12 @@ static char gLastCmdPointer = 0x00;
 void gXBEE_Setup(void)
     {
     // Config des gain des moteurs
-    gXbeeInterStruct.aGainPIDMotors.gProprortionalGain = 0.0;
-    gXbeeInterStruct.aGainPIDMotors.gIntegraleGain = 0.0;
-    gXbeeInterStruct.aGainPIDMotors.gDerivativeGain = 0.0;
+    gXbeeInterStruct.aGainPIDMotors.gProprortionalGain = 1.5;
+    gXbeeInterStruct.aGainPIDMotors.gIntegraleGain = 0.2;
+    gXbeeInterStruct.aGainPIDMotors.gDerivativeGain = 0.045;
 
     // Config de la vitesse maximale des moteurs
-    gXbeeInterStruct.aMotorSpeedCons = 0.0;
+    gXbeeInterStruct.aMotorSpeedCons = 53.0;
 
     // Config des gain du servo
     gXbeeInterStruct.aGainPIDServo.gProprortionalGain = 0.0;

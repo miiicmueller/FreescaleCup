@@ -78,9 +78,9 @@ void mMotor_mSetup()
     mMotor1.aStopped = 1;
     mMotor1.aPIDData.consigne = 0.4;
     mMotor1.aPIDData.erreurPrecedente = 0;
-    mMotor1.aPIDData.kd = 0.1;
-    mMotor1.aPIDData.kp = 1.0;
-    mMotor1.aPIDData.ki = 0.05;
+    mMotor1.aPIDData.kd = 0.045;
+    mMotor1.aPIDData.kp = 1.5;
+    mMotor1.aPIDData.ki = 0.3;
     mMotor1.aPIDData.coeffNormalisation = 0.01;
     mMotor1.aPIDData.sommeErreurs = 0;
     mMotor1.aPIDData.thePastError[0] = 0.0;
@@ -94,9 +94,9 @@ void mMotor_mSetup()
     mMotor2.aStopped = 1;
     mMotor2.aPIDData.consigne = 0.4;
     mMotor2.aPIDData.erreurPrecedente = 0;
-    mMotor2.aPIDData.kd = 0.1;
-    mMotor2.aPIDData.kp = 1.0;
-    mMotor2.aPIDData.ki = 0.05;
+    mMotor2.aPIDData.kd = 0.045;
+    mMotor2.aPIDData.kp = 1.5;
+    mMotor2.aPIDData.ki = 0.3;
     mMotor2.aPIDData.sommeErreurs = 0;
     mMotor2.aPIDData.thePastError[0] = 0.0;
     mMotor2.aPIDData.thePastError[1] = 0.0;

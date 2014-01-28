@@ -3,13 +3,18 @@
 #include "Modules\mLeds.h"
 #include "Modules\mTrackLine.h"
 #include "Modules/mMotor.h"
+#include "Modules/hal_dev_mma8451.h"
 #include "Gestionnaires\gMbox.h"
 #include "Gestionnaires\gInput.h"
 #include "Gestionnaires\gCompute.h"
 #include "Gestionnaires\gOutput.h"
 #include "Gestionnaires/gXBEE.h"
+#include "Tools/angle_cal.h"
 
-int main(void)    {
+#define FREEDOM 
+
+int main(void)
+    {
     uint32_t t = 0, i = 0;
     bool autoMode = false; //flag indiquant si le mode automatique est en cours
 
@@ -50,7 +55,7 @@ int main(void)    {
 		    gOutput_Execute();
 		    TFC_BAT_LED2_OFF;
 		    }
-		if (TFC_Ticker[1] >= 60)
+		if (TFC_Ticker[1] >= 40)
 		    {
 		    TFC_Ticker[1] = 0;
 		    gXBEE_Execute();
@@ -62,11 +67,13 @@ int main(void)    {
 	case 1:
 
 	    //Demo mode 1 will just move the servos with the on-board potentiometers
-	    if (TFC_Ticker[0] >= 20)
+	    if (TFC_Ticker[0] >= 10)
 		{
 		TFC_Ticker[0] = 0; //reset the Ticker
 		//Every 20 mSeconds, update the Servos
-		TFC_SetServo(0, TFC_ReadPot(0));
+		float aCommand = TFC_ReadPot(0);
+		TFC_SetServo(0, aCommand);
+
 		TFC_SetServo(1, TFC_ReadPot(1));
 		}
 	    //Let's put a pattern on the LEDs
@@ -198,6 +205,37 @@ int main(void)    {
 	}
 
     return 0;
+    }
+
+void accel_read(void)
+    {
+    if ((hal_dev_mma8451_read_reg(0x00) & 0xf) != 0)
+	{
+	gInputInterStruct.gAccelXYZ[0] = hal_dev_mma8451_read_reg(0x01) << 8;
+	gInputInterStruct.gAccelXYZ[0] |= hal_dev_mma8451_read_reg(0x02);
+	gInputInterStruct.gAccelXYZ[0] >>= 2;
+
+	gInputInterStruct.gAccelXYZ[1] = hal_dev_mma8451_read_reg(0x03) << 8;
+	gInputInterStruct.gAccelXYZ[1] |= hal_dev_mma8451_read_reg(0x04);
+	gInputInterStruct.gAccelXYZ[1] >>= 2;
+
+	gInputInterStruct.gAccelXYZ[2] = hal_dev_mma8451_read_reg(0x05) << 8;
+	gInputInterStruct.gAccelXYZ[2] |= hal_dev_mma8451_read_reg(0x06);
+	gInputInterStruct.gAccelXYZ[2] >>= 2;
+
+	gInputInterStruct.gAccelResXYZ[0] = hal_dev_mma8451_read_reg(0x01) << 8;
+	gInputInterStruct.gAccelResXYZ[0] |= hal_dev_mma8451_read_reg(0x02);
+	gInputInterStruct.gAccelResXYZ[0] >>= 8;
+
+	gInputInterStruct.gAccelResXYZ[1] = hal_dev_mma8451_read_reg(0x03) << 8;
+	gInputInterStruct.gAccelResXYZ[1] |= hal_dev_mma8451_read_reg(0x04);
+	gInputInterStruct.gAccelResXYZ[1] >>= 8;
+
+	gInputInterStruct.gAccelResXYZ[2] = hal_dev_mma8451_read_reg(0x05) << 8;
+	gInputInterStruct.gAccelResXYZ[2] |= hal_dev_mma8451_read_reg(0x06);
+	gInputInterStruct.gAccelResXYZ[2] >>= 8;
+
+	}
     }
 
 void NMI_Handler()
