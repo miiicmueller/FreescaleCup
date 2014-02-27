@@ -7,6 +7,7 @@
 
 //fichiers utilises
 #include "Tools/tPID.h"
+#include "Tools/Tools.h"
 
 //--------------------------------------------------------
 // regulateur PID

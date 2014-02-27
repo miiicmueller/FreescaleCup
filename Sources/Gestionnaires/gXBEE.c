@@ -5,8 +5,8 @@
  *      Author: cyrille.savy
  */
 
-#include "TFC\TFC.h"
-#include "Gestionnaires\gMbox.h"
+#include "TFC/TFC.h"
+#include "Gestionnaires/gMbox.h"
 #include "Gestionnaires/gXBEE.h"
 #include "Modules/mMotor.h"
 #include "parameters.h"
@@ -21,7 +21,6 @@ typedef enum
     kSpeed,
     kServAngle,
     kPosCam,
-    kAccel,
     kPWM,
     kBattLed,
     kPIDMot,
@@ -61,11 +60,6 @@ void gXBEE_Setup(void)
     //Config de la position initiale
     gInputInterStruct.gPosCam1 = 0;
     gInputInterStruct.gPosCam2 = 0;
-
-    //Accéléromètre
-    gInputInterStruct.gAccel[0] = 0;
-    gInputInterStruct.gAccel[1] = 0;
-    gInputInterStruct.gAccel[2] = 0;
 
     //Niveau batterie
     gInputInterStruct.gBattLev = 100;
@@ -157,15 +151,6 @@ void gXBEE_Execute(void)
 	    aValTab_i[0] = gInputInterStruct.gPosCam1;
 	    aValTab_i[1] = gInputInterStruct.gPosCam2;
 	    send_val_int(CAM_POS_1_2, aValTab_i, 2);
-	    gStateSend = kAccel;
-	    break;
-
-	case kAccel:
-	    //Envoie de l'accéléromètre
-	    aValTab_i[0] = gInputInterStruct.gAccel[0];
-	    aValTab_i[1] = gInputInterStruct.gAccel[1];
-	    aValTab_i[2] = gInputInterStruct.gAccel[2];
-	    send_val_int(ACCEL, aValTab_i, 3);
 	    gStateSend = kBattLed;
 	    break;
 

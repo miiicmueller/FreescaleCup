@@ -115,17 +115,6 @@ void mMotor_mOpen()
     }
 
 /**
- * Permet d'appeler la fonction de regulation de la vitesse
- */
-void mMotorCallPID()
-    {
-//    // PID Moteur 1
-//    tPID(&mMotor1.aPIDData, mMotor1.aFreq);
-//    // PID Moteur 2
-//    tPID(&mMotor2.aPIDData, mMotor2.aFreq);
-    }
-
-/**
  * Permet de tester si un moteur est à l'arrêt
  * aMotorNum : Numéro du moteur 0 ou 1
  */
@@ -200,7 +189,7 @@ void FTM2_IRQHandler()
     if (TPM2_C0SC & TPM_CnSC_CHF_MASK)
 	{
 	//Test du flanc
-	if ((GPIOA_PDIR & 0x02) == 0x02) // Montant
+	if ((GPIOA_PDIR & 0x02) == 0x02)// Montant
 	    {
 	    mMotor1_CaptFlancPos = (TPM2_C0V + (65535 * mMotor1.aOverflowOld));
 
@@ -240,7 +229,7 @@ void FTM2_IRQHandler()
 	{
 
 	//Test du flanc
-	if ((GPIOA_PDIR & 0x04) == 0x04) // Montant
+	if ((GPIOA_PDIR & 0x04) == 0x04)// Montant
 	    {
 	    mMotor2_CaptFlancPos = (TPM2_C1V + (65535 * mMotor2.aOverflowOld));
 

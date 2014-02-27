@@ -23,7 +23,7 @@ typedef struct
 	float aFreq;
 	char aNumEchantillonsMot;
 	uint32_t aCaptTab[FILTER_SIZE];
-	void(*mMotor_mesure)(void);
+	void (*mMotor_mesure)(void);
     } mMotorStruct;
 
 //exportation des variables

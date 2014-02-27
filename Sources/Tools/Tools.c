@@ -57,7 +57,7 @@ void tRescale(int16_t* tab, uint16_t size, uint16_t theScale,
 	{
 	oldMax = tAbs(oldMax);
 	oldMin = tAbs(oldMin);
-		
+
 	if (oldMax > oldMin)
 	    {
 	    theFactor = (float) theScale / (float) oldMax;
@@ -143,7 +143,6 @@ int8_t tMax(int16_t* tab, uint16_t size)
     return indexMax;
     }
 
-
 //--------------------------------------------------------
 //renvoie l'indice de la valeur max du signal
 // parametre de retour	: indice de la valeur max
@@ -163,7 +162,6 @@ int8_t tMax_32(int32_t* tab, uint16_t size)
 	}
     return indexMax;
     }
-
 
 //--------------------------------------------------------
 //renvoie l'indice de la valeur max du signal
@@ -227,3 +225,39 @@ float tAbs_float(float x)
     return x;
     }
 
+//--------------------------------------------------------
+// renvoie la valeur mediane du tableau passe en entree
+// parametre de retour	: valeur mediane
+// parametres : *aTab	: tableau a filtrer
+// 	      : aSize	: longueur du tableau
+//--------------------------------------------------------
+uint32_t median_filter_n(uint32_t *aTab, char aSize)
+    {
+    uint32_t aCpyTab[20];
+    signed char i = 0, j = 0;
+    uint32_t aTemp;
+
+    //Copie du tableau
+    for (i = 0; i < aSize; i++)
+	{
+	aCpyTab[i] = aTab[i];
+	}
+
+    //On trie le tableau
+    for (i = 0; i < aSize; i++)
+	{
+	for (j = 0; j < (aSize - 1); j++)
+	    {
+	    if (aCpyTab[j] > aCpyTab[j + 1])
+		{
+		// On swap les deux
+		aTemp = aCpyTab[j + 1];
+		aCpyTab[j + 1] = aCpyTab[j];
+		aCpyTab[j] = aTemp;
+		}
+	    }
+	}
+
+    //On prend la valeur du milieu
+    return aCpyTab[(aSize - 1) / 2];
+    }

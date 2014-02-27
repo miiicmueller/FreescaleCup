@@ -5,15 +5,16 @@
  *      Author: cyrille.savy
  */
 
-#include "TFC\TFC.h"
-#include "Gestionnaires\gCompute.h"
-#include "Gestionnaires\gMbox.h"
-#include "Tools\tPID.h"
-#include "Tools\Tools.h"
+#include "TFC/TFC.h"
+#include "Gestionnaires/gCompute.h"
+#include "Gestionnaires/gMbox.h"
+#include "Tools/tPID.h"
+#include "Tools/Tools.h"
 #include "Tools/angle_cal.h"
-#include "Modules\mTrackline.h"
+#include "Modules/mTrackline.h"
 #include "Modules/mMotor.h"
 #include "parameters.h"
+#include "Tools/tDifferential.h"
 
 #define kTailleFiltre 11
 #define T_ERROR_MAX_BREAK 30
@@ -25,18 +26,6 @@
 static tPIDStruct thePIDServo;
 static bool full_break = false;
 static bool half_break = false;
-//-----------------------------------------------------------------------------
-// Compute differential
-// param : aAngleServo --> Consigne du servoMoteur
-//
-// Description : 	Avec aAngleServo a 0.51, pour 1 tour de la roue exterieur
-//					la roue interieur en fait 0.66.
-//
-//					Cette fonction calcul le differentiel à appliquer
-//					aux moteurs selon aAngleServo.
-//-----------------------------------------------------------------------------
-static void compute_differential(const float aAngleServo,
-	tPIDStruct* thePIDStruct);
 
 float aFreqMesTabMot1[FILTER_SIZE] =
     {
@@ -47,11 +36,6 @@ float aFreqMesTabMot2[FILTER_SIZE] =
     {
     0.0
     };
-
-//-----------------------------------------------------------------------------
-//fonctions publiques
-//-----------------------------------------------------------------------------
-uint32_t median_filter_n(uint32_t *aTab, char aSize);
 
 //------------------------------------------------------------------------
 // Initialisation de la structure de données de gCompute
@@ -74,15 +58,6 @@ void gCompute_Setup(void)
     thePIDServo.thePastError[0] = 0.0;
     thePIDServo.thePastError[1] = 0.0;
     thePIDServo.thePastError[2] = 0.0;
-
-    gComputeInterStruct.aAccelPlanAngle[0] = 0;
-    gComputeInterStruct.aAccelPlanAngle[1] = 0;
-    gComputeInterStruct.aAccelPlanAngle[2] = 0;
-
-    gComputeInterStruct.aAccelPlanMagn[0] = 0;
-    gComputeInterStruct.aAccelPlanMagn[1] = 0;
-    gComputeInterStruct.aAccelPlanMagn[2] = 0;
-
     }
 
 //------------------------------------------------------------------------
@@ -91,6 +66,57 @@ void gCompute_Setup(void)
 //------------------------------------------------------------------------
 void gCompute_Execute(void)
     {
+    //___________________________________________________________________________
+    //---------------------------------------------------------------------------
+    //===========================================================================
+    //structure pour la nouvelle version de gCompute
+    //===========================================================================
+    //---------------------------------------------------------------------------
+ 
+    //---------------------------------------------------------------------------
+    // 1 : analyse des lignes (camera proche : ligne et arrivee)
+    //			      (camera lointaine : ligne)
+    //---------------------------------------------------------------------------
+    
+    //---------------------------------------------------------------------------
+    // 2 : filtrage des positions des lignes et des vitesse des moteurs
+    //---------------------------------------------------------------------------
+    
+    //---------------------------------------------------------------------------
+    // 3 : ligne d'arrivee trouvee (machine d'etat + temps) -> on s'arrete
+    //---------------------------------------------------------------------------
+    
+    //---------------------------------------------------------------------------
+    // 4 : case suivant les lignes trouvees (cf. structo papier)
+    //	   calcul des consignes de direction et de vitesse
+    //---------------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	// 4.1 : aucune ligne trouvee pendant plus de 2s -> on s'arrete
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	// 4.2 : seule la ligne proche trouvee -> on regule sur cette ligne
+	//	 en tenant compte de si on est en virage ou non
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	// 4.3 : seule la ligne lointaine est trouvee -> on regule sur cette ligne
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	// 4.4 : les deux lignes sont trouvees -> on detecte les virages sur la 
+	//	 ligne lointaine et on regule sur la ligne proche
+	//-----------------------------------------------------------------------
+    
+    //---------------------------------------------------------------------------
+    // 5 : différentiel
+    //---------------------------------------------------------------------------
+    
+    //---------------------------------------------------------------------------
+    // 6 : application des PID
+    //---------------------------------------------------------------------------
+    
+    
+    
+    
+    
     //---------------------------------------------------------------------------
     //lecture des donnees provenant du monitoring
 //    if (gXbeeInterStruct.aPIDChangedServo)
@@ -224,7 +250,6 @@ void gCompute_Execute(void)
 	{
 	TFC_BAT_LED1_OFF;
 	//TFC_HBRIDGE_DISABLE;
-
 	}
 
     //---------------------------------------------------------------------------
@@ -316,7 +341,7 @@ void gCompute_Execute(void)
 	}
     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
 
-// Test de freinage
+    // Test de freinage
     if ((mMotor1.aPIDData.commande < 0.0))
 	{
 	mMotor1.aPIDData.commande = 0.0;
@@ -329,7 +354,6 @@ void gCompute_Execute(void)
     //Test si la fréquence du moteur est supérieur à vitesse min on autorise le freinage
     if ((gInputInterStruct.gFreq[0] / 3.0) > K_SPEED_LOWEST)
 	{
-
 	if (full_break == true)
 	    {
 	    mMotor1.aPIDData.commande = kFULL_BRAKE;
@@ -345,103 +369,10 @@ void gCompute_Execute(void)
 	}
 
     gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-//gComputeInterStruct.gCommandeMoteurGauche; // mMotor1.aPIDData.commande;
     gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
-//gComputeInterStruct.gCommandeMoteurDroit; //mMotor2.aPIDData.commande;
-
     }
 
 //-----------------------------------------------------------------------------
 //fonctions statiques
 //-----------------------------------------------------------------------------
-
-uint32_t median_filter_n(uint32_t *aTab, char aSize)
-    {
-    uint32_t aCpyTab[20];
-    signed char i = 0, j = 0;
-    uint32_t aTemp;
-
-//Copie du tableau
-    for (i = 0; i < aSize; i++)
-	{
-	aCpyTab[i] = aTab[i];
-	}
-
-//On trie le tableau
-    for (i = 0; i < aSize; i++)
-	{
-	for (j = 0; j < (aSize - 1); j++)
-	    {
-	    if (aCpyTab[j] > aCpyTab[j + 1])
-		{
-		// On swap les deux
-		aTemp = aCpyTab[j + 1];
-		aCpyTab[j + 1] = aCpyTab[j];
-		aCpyTab[j] = aTemp;
-		}
-	    }
-	}
-
-//On prend la valeur du milieu
-    return aCpyTab[(aSize - 1) / 2];
-    }
-
-static void compute_differential(const float aAngleServo,
-	tPIDStruct* thePIDStruct)
-    {
-
-    float m = -0.8;
-    //Moyenne des erreurs
-    float aMoyenneError = tAbs_float(
-	    (1.0 / 3)
-		    * (thePIDStruct->thePastError[0]
-			    + thePIDStruct->thePastError[1]
-			    + thePIDStruct->thePastError[2]));
-
-    if (aMoyenneError < 0.3)
-	{
-	aMoyenneError = 0;
-	full_break = false;
-	half_break = false;
-	TFC_BAT_LED2_OFF;
-	TFC_BAT_LED3_OFF;
-	}
-    // Si on a perdu la ligne plus de ~30ms et que l'on braque à fond , on freine comme des porcs
-    else if ((aMoyenneError > 0.25) && (tAbs_float(aAngleServo) > 0.35)
-	    && ((gInputInterStruct.gFreq[0] / 3.0) > (K_SPEED_LOWEST - 15)))
-	{
-	TFC_BAT_LED2_ON;
-	full_break = true;
-	}
-    // Sinon on freine un peu moins si on se trouve au bord et on corrige assez fort
-    else if ((aMoyenneError > 0.20) && (tAbs_float(aAngleServo) > 0.15)
-	    && ((gInputInterStruct.gFreq[0] / 3.0) > (K_SPEED_LOWEST - 15)))
-	{
-	TFC_BAT_LED3_ON;
-	half_break = true;
-	}
-    else
-	{
-	TFC_BAT_LED2_OFF;
-	TFC_BAT_LED3_OFF;
-	full_break = false;
-	half_break = false;
-	}
-
-    float speedScaleFactor = -K_BRAKE_FACTOR * aMoyenneError + 1.0;
-
-    if (aAngleServo >= 0.0)
-	{
-	mMotor1.aDifferential = speedScaleFactor;
-	mMotor2.aDifferential = (m * tAbs_float(aAngleServo) + 1.0)
-		* speedScaleFactor;
-
-	}
-    else
-	{
-	mMotor1.aDifferential = (m * tAbs_float(aAngleServo) + 1.0)
-		* speedScaleFactor;
-	mMotor2.aDifferential = speedScaleFactor;
-	}
-    }
 

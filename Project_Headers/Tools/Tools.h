@@ -87,7 +87,14 @@ int16_t tMean(int16_t* tab, uint16_t size);
 // parametres : x	: valeur d'entree
 //--------------------------------------------------------
 int16_t tAbs(int16_t x);
-
 float tAbs_float(float x);
+
+//--------------------------------------------------------
+// renvoie la valeur mediane du tableau passe en entree
+// parametre de retour	: valeur médiane
+// parametres : *aTab	: tableau a filtrer
+// 	      : aSize	: longueur du tableau
+//--------------------------------------------------------
+uint32_t median_filter_n(uint32_t *aTab, char aSize);
 
 #endif /* TOOLS_H_ */

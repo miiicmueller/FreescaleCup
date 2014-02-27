@@ -11,10 +11,6 @@
 #include "Modules\mMotor.h"
 #include "Modules/hal_dev_mma8451.h"
 
-/* prototypes des fonctions statiques (propres au fichier) */
-static void accel_init(void);
-static void accel_read(void);
-
 //-----------------------------------------------------------------------------
 // fonctions publiques
 //-----------------------------------------------------------------------------
@@ -25,16 +21,6 @@ void gInput_Setup(void)
     {
     gInputInterStruct.gFreq[0] = (float) 0.0;
     gInputInterStruct.gFreq[1] = (float) 0.0;
-
-    //init de l'accéléromètre
-    gInputInterStruct.gAccelXYZ[0] = 0;
-    gInputInterStruct.gAccelXYZ[1] = 0;
-    gInputInterStruct.gAccelXYZ[2] = 0;
-
-    gInputInterStruct.gAccelResXYZ[0] = 0;
-    gInputInterStruct.gAccelResXYZ[1] = 0;
-    gInputInterStruct.gAccelResXYZ[2] = 0;
-
     }
 
 //------------------------------------------------------------------------

@@ -5,6 +5,6 @@
 ################################################################################
 
 export GNU_Make_Install_DirEnv=$(CWInstallLocationEnv)/gnu/bin
-export ProjDirPath=D:/Module_ProjetP3/Software/Fscup
-export CWInstallLocationEnv=C:/Freescale/CW MCU v10.4
+export ProjDirPath=C:/Users/cyrille.savy/Desktop/Projet P3/FreeScaleCupCodeWarrior/FreescaleCup
+export CWInstallLocationEnv=C:/Freescale/CW MCU v10.5
 export ARMSourceryDirEnv=$(CWInstallLocationEnv)/Cross_Tools/arm-none-eabi-gcc-4_7_3/bin
