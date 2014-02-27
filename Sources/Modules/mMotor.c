@@ -18,6 +18,9 @@
 
 #define DT_MIN 							5000
 
+// On veut lire les bits 12 et 16. On obtient soit 0 soit 1, avec n pour le canal(1 ou 2)
+#define getQuadSigValue(n)	((n==1)?((GPIOC_PDIR &  0x00001000)>>12): (n==2?((GPIOC_PDIR &  0x00001000)>>16):0))
+
 /**
  * Instanciation des deux moteurs de propulsion
  */
@@ -67,6 +70,10 @@ void mMotor_mSetup()
     PORTA_PCR1 = PORT_PCR_MUX(3);
     PORTA_PCR2 = PORT_PCR_MUX(3);
 
+    // On configure les pin PTC12 et PTC16 en entrée
+    PORTC_PCR12 = PORT_PCR_MUX(1);
+    PORTC_PCR16 = PORT_PCR_MUX(1);
+
     //Config des moteurs
     TFC_InitMotorPWM();
 
@@ -86,9 +93,9 @@ void mMotor_mSetup()
     mMotor1.aPIDData.thePastError[0] = 0.0;
     mMotor1.aPIDData.thePastError[1] = 0.0;
     mMotor1.aPIDData.thePastError[2] = 0.0;
-
     mMotor1.aOverflowOld = 0;
     mMotor1.aNumEchantillonsMot = 0;
+    mMotor1.aDir = 1;
 
     mMotor2.aCapt = 0;
     mMotor2.aStopped = 1;
@@ -104,6 +111,7 @@ void mMotor_mSetup()
     mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aOverflowOld = 0;
     mMotor2.aNumEchantillonsMot = 0;
+    mMotor2.aDir = 1;
     }
 
 /**
@@ -157,6 +165,9 @@ void FTM2_IRQHandler()
 
     static uint32_t dt = 0;
 
+    static uint8_t aSigQuadState_1 = 0;
+    static uint8_t aSigQuadState_2 = 0;
+
     bool isSignalOk1 = false;
     bool isSignalOk2 = false;
 
@@ -206,6 +217,9 @@ void FTM2_IRQHandler()
 
 	    dt = mMotor1_CaptFlancPos - mMotor1_CaptFlancNeg;
 
+	    //On teste l'autre entrée
+	    aSigQuadState_1 = getQuadSigValue(1);
+
 	    //C'est un parasite
 	    if (dt > DT_MIN)
 		{
@@ -231,6 +245,17 @@ void FTM2_IRQHandler()
 
 	    mMotor1_CaptFlancNeg = 0;
 	    mMotor1_CaptFlancPos = 0;
+
+	    // On peut tenir compte de la direction
+	    if (aSigQuadState_1 > 0)
+		{
+		mMotor1.aDir = 1;
+		}
+	    else
+		{
+		mMotor1.aDir = -1;
+		}
+
 	    }
 
 	//Clear du flag
@@ -245,6 +270,9 @@ void FTM2_IRQHandler()
 	    mMotor2_CaptFlancPos = (TPM2_C1V + (65535 * mMotor2.aOverflowOld));
 
 	    dt = mMotor2_CaptFlancPos - mMotor2_CaptFlancNeg;
+
+	    //On teste l'autre entrée
+	    aSigQuadState_2 = getQuadSigValue(1);
 
 	    //C'est un parasite
 	    if (dt > DT_MIN)
@@ -271,6 +299,16 @@ void FTM2_IRQHandler()
 
 	    mMotor2_CaptFlancNeg = 0;
 	    mMotor2_CaptFlancPos = 0;
+
+	    // On peut tenir compte de la direction
+	    if (aSigQuadState_2 > 0)
+		{
+		mMotor2.aDir = 1;
+		}
+	    else
+		{
+		mMotor2.aDir = -1;
+		}
 	    }
 	//Clear du flag
 	TPM2_C1SC |= TPM_CnSC_CHF_MASK;

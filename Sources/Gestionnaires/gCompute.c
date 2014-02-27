@@ -91,8 +91,12 @@ void gCompute_Setup(void)
 //------------------------------------------------------------------------
 void gCompute_Execute(void)
     {
-    //---------------------------------------------------------------------------
-    //lecture des donnees provenant du monitoring
+
+    gXbeeInterStruct.aMotorSpeedCons = kSPEED_DUTY_1
+	    * tAbs_float(TFC_ReadPot(1)); //53.0
+
+	    //---------------------------------------------------------------------------
+	    //lecture des donnees provenant du monitoring
 //    if (gXbeeInterStruct.aPIDChangedServo)
 //	{
 //	thePIDServo.kp = gXbeeInterStruct.aGainPIDServo.gProprortionalGain;
@@ -272,7 +276,7 @@ void gCompute_Execute(void)
 	aSpeedTotFactor =
 		((K_SPEED_LOWEST - aSpeedFact) < 0.0) ?
 			0.0 : (K_SPEED_LOWEST - aSpeedFact);
-	aSpeedTotFactor = K_SPEED_LOWEST;
+	aSpeedTotFactor = K_SPEED_LOWEST + 5;
 
 	if (mMotor1.aPIDData.consigne <= aSpeedTotFactor)
 	    {

@@ -18,6 +18,7 @@ typedef struct
 	float aDifferential; //rapport a appliquer a la vitesse  domaine [0.66 ; 1]
 	tPIDStruct aPIDData;
 	uint8_t aStopped;
+	int8_t aDir ; // Direction : 1 ou -1  
 	uint16_t aOverflowOld;
 	uint32_t aCapt;
 	float aFreq;
