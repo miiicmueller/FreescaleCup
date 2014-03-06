@@ -8,8 +8,6 @@
 #ifndef TDIFFERENTIAL_H_
 #define TDIFFERENTIAL_H_
 
-#include "Tools/tPID.h"
-
 //-----------------------------------------------------------------------------
 // Compute differential
 // param : aAngleServo --> Consigne du servoMoteur
@@ -20,6 +18,6 @@
 //					Cette fonction calcul le differentiel à appliquer
 //					aux moteurs selon aAngleServo.
 //-----------------------------------------------------------------------------
-void compute_differential(const float aAngleServo, tPIDStruct* thePIDStruct);
+void compute_differential(const float aAngleServo);
 
 #endif /* TDIFFERENTIAL_H_ */

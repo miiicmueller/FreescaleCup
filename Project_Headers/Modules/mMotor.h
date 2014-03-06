@@ -8,7 +8,7 @@
 #ifndef MMOTOR_H_
 #define MMOTOR_H_
 
-#include "Tools/tPID.h"
+#include "Tools/tRegulateurs.h"
 
 #define FILTER_SIZE	7
 #define F_COUNT		6000000.0
@@ -16,9 +16,9 @@
 typedef struct
     {
 	float aDifferential; //rapport a appliquer a la vitesse  domaine [0.66 ; 1]
-	tPIDStruct aPIDData;
+	tRegulateurPIDStruct aPIDData;
 	uint8_t aStopped;
-	int8_t aDir ; // Direction : 1 ou -1  
+	int8_t aDir; // Direction : 1 ou -1  
 	uint16_t aOverflowOld;
 	uint32_t aCapt;
 	float aFreq;

@@ -19,7 +19,7 @@
 #define DT_MIN 							5000
 
 // On veut lire les bits 12 et 16. On obtient soit 0 soit 1, avec n pour le canal(1 ou 2)
-#define getQuadSigValue(n)	((n==1)?((GPIOC_PDIR &  0x00001000)>>12): (n==2?((GPIOC_PDIR &  0x00001000)>>16):0))
+#define getQuadSigValue(n)	((n==1)?((GPIOC_PDIR &  0x00001000)>>12): (n==2?((GPIOC_PDIR &  0x00010000)>>16):0))
 
 /**
  * Instanciation des deux moteurs de propulsion
@@ -83,32 +83,12 @@ void mMotor_mSetup()
     //initialaisation des moterus
     mMotor1.aCapt = 0;
     mMotor1.aStopped = 1;
-    mMotor1.aPIDData.consigne = 0.4;
-    mMotor1.aPIDData.erreurPrecedente = 0;
-    mMotor1.aPIDData.kd = 0.045;
-    mMotor1.aPIDData.kp = 2;
-    mMotor1.aPIDData.ki = 0.32;
-    mMotor1.aPIDData.coeffNormalisation = 0.01;
-    mMotor1.aPIDData.sommeErreurs = 0;
-    mMotor1.aPIDData.thePastError[0] = 0.0;
-    mMotor1.aPIDData.thePastError[1] = 0.0;
-    mMotor1.aPIDData.thePastError[2] = 0.0;
     mMotor1.aOverflowOld = 0;
     mMotor1.aNumEchantillonsMot = 0;
     mMotor1.aDir = 1;
 
     mMotor2.aCapt = 0;
     mMotor2.aStopped = 1;
-    mMotor2.aPIDData.consigne = 0.4;
-    mMotor2.aPIDData.erreurPrecedente = 0;
-    mMotor2.aPIDData.kd = 0.045;
-    mMotor2.aPIDData.kp = 2.0;
-    mMotor2.aPIDData.ki = 0.32;
-    mMotor2.aPIDData.sommeErreurs = 0;
-    mMotor2.aPIDData.thePastError[0] = 0.0;
-    mMotor2.aPIDData.thePastError[1] = 0.0;
-    mMotor2.aPIDData.thePastError[2] = 0.0;
-    mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aOverflowOld = 0;
     mMotor2.aNumEchantillonsMot = 0;
     mMotor2.aDir = 1;

@@ -1,5 +1,6 @@
 #include "derivative.h" /* include peripheral declarations */
 #include "TFC/TFC.h"
+#include "parameters.h"
 #include "Modules/mLeds.h"
 #include "Modules/mTrackLine.h"
 #include "Modules/mMotor.h"
@@ -7,9 +8,10 @@
 #include "Gestionnaires/gInput.h"
 #include "Gestionnaires/gCompute.h"
 #include "Gestionnaires/gOutput.h"
-#include "Gestionnaires/gXBEE.h"
 
-#define FREEDOM 
+#ifdef MONITORING_ENABLED
+#include "Gestionnaires/gXBEE.h"
+#endif
 
 int main(void)
     {
@@ -36,7 +38,9 @@ int main(void)
 		gInput_Setup();
 		gCompute_Setup();
 		gOutput_Setup();
+#ifdef MONITORING_ENABLED
 		gXBEE_Setup();
+#endif
 		autoMode = true;
 		}
 	    else
@@ -53,11 +57,13 @@ int main(void)
 		    gOutput_Execute();
 
 		    }
+#ifdef MONITORING_ENABLED
 		if (TFC_Ticker[1] >= 40)
 		    {
 		    TFC_Ticker[1] = 0;
 		    gXBEE_Execute();
 		    }
+#endif
 		}
 
 	    break;

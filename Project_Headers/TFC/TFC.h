@@ -26,9 +26,8 @@
 #include "TFC\TFC_Queue.h"
 #include "TFC\TFC_UART.h"
 #include "TFC\TFC_Terminal.h"
-#include "Tools/tPID.h"
-#include "Modules/mLeds.h"
-
+#include "Tools\tRegulateurs.h"
+#include "Modules\mLeds.h"
 
 void TFC_Task();
 void TFC_Init();
