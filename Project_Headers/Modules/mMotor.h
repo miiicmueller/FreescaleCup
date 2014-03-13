@@ -23,7 +23,6 @@ typedef struct
 	uint32_t aCapt;
 	float aFreq;
 	char aNumEchantillonsMot;
-	uint32_t aCaptTab[FILTER_SIZE];
 	void (*mMotor_mesure)(void);
     } mMotorStruct;
 

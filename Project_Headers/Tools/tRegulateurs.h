@@ -30,8 +30,7 @@ typedef struct
 
 typedef struct
     {
-	float kBraquageMax; //valeur max 
-	float kCoeffRegExp; //facteur integral
+	float coefficient; //coefficient multiplicateur
 	int16_t consigne; //valeur cible de la grandeur mesuree
 	float commande; //commande a appliquer a l'actionneur
     } tRegulateurQuadStruct;
@@ -45,7 +44,7 @@ typedef struct
 //--------------------------------------------------------
 void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure);
 
-void tRegExpo(tRegulateurQuadStruct* theExpStruct, int16_t theMesure);
+void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure);
 
 #endif /* TPID_H_ */
 

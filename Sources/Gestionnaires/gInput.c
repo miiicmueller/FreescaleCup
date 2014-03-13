@@ -10,6 +10,8 @@
 #include "Gestionnaires\gMbox.h"
 #include "Modules\mMotor.h"
 #include "Modules/hal_dev_mma8451.h"
+#include "parameters.h"
+#include "Tools/Tools.h"
 
 //-----------------------------------------------------------------------------
 // fonctions publiques
@@ -29,23 +31,12 @@ void gInput_Setup(void)
 //------------------------------------------------------------------------
 void gInput_Execute(void)
     {
-
-    //Moteur 1 et 2 ;
-    static uint8_t posFiltre = 0;
-
-    mMotor1.aCaptTab[posFiltre] = mMotor1.aCapt;
-    mMotor2.aCaptTab[posFiltre] = mMotor2.aCapt;
-    if (posFiltre < FILTER_SIZE - 1)
-	{
-	posFiltre++;
-	}
-    else
-	{
-	posFiltre = 0;
-	}
-
+#ifdef MONITORING_ENABLED
     mMotor1.aPIDData.consigne = (int16_t) (gXbeeInterStruct.aMotorSpeedCons);
     mMotor2.aPIDData.consigne = (int16_t) (gXbeeInterStruct.aMotorSpeedCons);
-
+#else
+    mMotor1.aPIDData.consigne = kSPEED_DUTY_1 * tAbs_float(TFC_ReadPot(1)); //53.0
+    mMotor2.aPIDData.consigne = kSPEED_DUTY_1 * tAbs_float(TFC_ReadPot(1)); //53.0
+#endif
     }
 

@@ -226,6 +226,23 @@ float tAbs_float(float x)
     }
 
 //--------------------------------------------------------
+// renvoie le signe de x (-1 ou 1)
+// parametre de retour	: -1 ou 1
+// parametres : x	: valeur d'entree
+//--------------------------------------------------------
+int16_t tSign(int16_t x)
+    {
+    if (x < 0)
+	{
+	return (-1);
+	}
+    else
+	{
+	return 1;
+	}
+    }
+
+//--------------------------------------------------------
 // renvoie la valeur mediane du tableau passe en entree
 // parametre de retour	: valeur mediane
 // parametres : *aTab	: tableau a filtrer

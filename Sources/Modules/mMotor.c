@@ -218,11 +218,11 @@ void FTM2_IRQHandler()
 	    // On peut tenir compte de la direction
 	    if (aSigQuadState_1 > 0)
 		{
-		mMotor1.aDir = 1;
+		mMotor1.aDir = -1;
 		}
 	    else
 		{
-		mMotor1.aDir = -1;
+		mMotor1.aDir = 1;
 		}
 
 	    }
@@ -272,11 +272,11 @@ void FTM2_IRQHandler()
 	    // On peut tenir compte de la direction
 	    if (aSigQuadState_2 > 0)
 		{
-		mMotor2.aDir = 1;
+		mMotor2.aDir = -1;
 		}
 	    else
 		{
-		mMotor2.aDir = -1;
+		mMotor2.aDir = 1;
 		}
 	    }
 	//Clear du flag

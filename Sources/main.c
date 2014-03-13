@@ -46,7 +46,7 @@ int main(void)
 	    else
 		{
 		//Notre magnifique programme
-		if ((TFC_Ticker[0] >= 10) && (LineScanImageReady == 1))
+		if ((TFC_Ticker[0] >= kGEST_CYCLETIME) && (LineScanImageReady == 1))
 		    {
 
 		    TFC_Ticker[0] = 0;

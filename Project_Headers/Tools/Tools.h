@@ -90,6 +90,14 @@ int16_t tAbs(int16_t x);
 float tAbs_float(float x);
 
 //--------------------------------------------------------
+// renvoie le signe de x (-1 ou 1)
+// parametre de retour	: -1 ou 1
+// parametres : x	: valeur d'entree
+//--------------------------------------------------------
+int16_t tSign(int16_t x);
+
+
+//--------------------------------------------------------
 // renvoie la valeur mediane du tableau passe en entree
 // parametre de retour	: valeur médiane
 // parametres : *aTab	: tableau a filtrer

@@ -47,7 +47,7 @@ void gXBEE_Setup(void)
     gXbeeInterStruct.aGainPIDMotors.gDerivativeGain = 0.045;
 
     // Config de la vitesse maximale des moteurs
-    gXbeeInterStruct.aMotorSpeedCons = kSPEED_DUTY_1  * tAbs_float(TFC_ReadPot(1)); //53.0
+    gXbeeInterStruct.aMotorSpeedCons = 0;
 
     // Config des gain du servo
     gXbeeInterStruct.aGainPIDServo.gProprortionalGain = 0.0;

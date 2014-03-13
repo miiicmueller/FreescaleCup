@@ -6,6 +6,7 @@
 //*****************************************************************************
 
 //fichiers utilises
+#include "parameters.h"
 #include "Tools/tRegulateurs.h"
 #include "Tools/Tools.h"
 
@@ -58,8 +59,20 @@ void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure)
 //				    informations necessaires au regulateur (cf. tPID.h)
 // 	      : theMesure	  : derniere mesure
 //--------------------------------------------------------
-void tRegExpo(tRegulateurQuadStruct* theExpStruct, int16_t theMesure)
+void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure)
     {
     int16_t erreur = theExpStruct->consigne - theMesure;
-    theExpStruct->commande = theExpStruct->kCoeffRegExp * (erreur * erreur);
+    theExpStruct->commande = theExpStruct->coefficient
+	    * ((float) (erreur * erreur)) * tSign(erreur);
+    if (tAbs_float(theExpStruct->commande) > kREGQUAD_BRAQUAGEMAX)
+	{
+	if (theExpStruct->commande < 0)
+	    {
+	    theExpStruct->commande = kREGQUAD_BRAQUAGEMAX * (-1.0);
+	    }
+	else
+	    {
+	    theExpStruct->commande = kREGQUAD_BRAQUAGEMAX;
+	    }
+	}
     }
