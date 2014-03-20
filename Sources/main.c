@@ -127,8 +127,7 @@ int main(void)
 		TFC_Ticker[1] = 0;
 		// pour pouvoir ajuster le temps d'exposition du capteur CCD de 0 à 10ms (valeur par défaut : 5ms)
 		static uint32_t oldvalExposure = 5000;
-		uint32_t valExposure = (uint32_t) (((TFC_ReadPot(0) + 1.0)
-			* 5000.0) + 1.0);
+		uint32_t valExposure = (uint32_t) (((TFC_ReadPot(0) + 1.0) * 5000.0) + 1.0);
 		if (valExposure != oldvalExposure)
 		    {
 		    TFC_SetLineScanExposureTime(valExposure);
@@ -148,14 +147,13 @@ int main(void)
 
 		//recherche de la ligne
 		int16_t LineAnalyze[128];
-		int16_t positionLine;
+		static int16_t positionLine;
 		for (uint16_t i = 0; i < 128; i++)
 		    {
 		    LineAnalyze[i] = LineScanImage0[i];
 		    }
 
-		mTrackLine_FindLine(LineAnalyze, 128, &positionLine,
-			&isLineFound, &isStartStopFound);
+		mTrackLine_FindLine(LineAnalyze, 128, &positionLine, &isLineFound, &isStartStopFound, positionLine);
 		if (isLineFound)
 		    {
 		    TFC_BAT_LED0_ON;

@@ -19,7 +19,8 @@
 #define DT_MIN 							5000
 
 // On veut lire les bits 12 et 16. On obtient soit 0 soit 1, avec n pour le canal(1 ou 2)
-#define getQuadSigValue(n)	((n==1)?((GPIOC_PDIR &  0x00001000)>>12): (n==2?((GPIOC_PDIR &  0x00010000)>>16):0))
+#define getQuadSigValue2	((GPIOC_PDIR &  0x00001000)>>12)
+#define getQuadSigValue1	((GPIOC_PDIR &  0x00010000)>>16)
 
 /**
  * Instanciation des deux moteurs de propulsion
@@ -187,7 +188,7 @@ void FTM2_IRQHandler()
 	    dt = mMotor1_CaptFlancPos - mMotor1_CaptFlancNeg;
 
 	    //On teste l'autre entrée
-	    aSigQuadState_1 = getQuadSigValue(1);
+	    aSigQuadState_1 = getQuadSigValue1;
 
 	    //C'est un parasite
 	    if (dt > DT_MIN)
@@ -241,7 +242,7 @@ void FTM2_IRQHandler()
 	    dt = mMotor2_CaptFlancPos - mMotor2_CaptFlancNeg;
 
 	    //On teste l'autre entrée
-	    aSigQuadState_2 = getQuadSigValue(1);
+	    aSigQuadState_2 = getQuadSigValue2;
 
 	    //C'est un parasite
 	    if (dt > DT_MIN)

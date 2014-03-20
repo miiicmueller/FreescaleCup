@@ -12,7 +12,7 @@
 //#define MONITORING_ENABLED
 
 //temps de cycle d'execution des gestionnaires
-#define kGEST_CYCLETIME 10 //en ms
+#define kGEST_CYCLETIME 15 //en ms
 //
 //parametres concernant le freinage
 #define kFULL_BRAKE -0.75
@@ -25,8 +25,9 @@
 //parametres des gains du PID moteurs
 
 //parametres du regulateur de direction
+#define kCONSIGNEPROCHECORRECTION (float)0.9 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
 #define kREGQUAD_BRAQUAGEMAX (float)0.8 //valeur a laquelle les roues sont tournees a fond
-#define kREGQUAD_ERREURMAX (float)64.0 //erreur a laquelle le braquage est max
+#define kREGQUAD_ERREURMAX (float)64.0*kCONSIGNEPROCHECORRECTION //erreur a laquelle le braquage est max
 //
 //parametres de l'eclairement des LEDs et du temps d'exposition des cameras
 #define kLEDSPWM (float)0.8 //de -1 a 1 ------- (0% a 100%) ----- 0 : 50% de duty cycle

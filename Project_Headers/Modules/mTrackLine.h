@@ -16,8 +16,8 @@
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition,
-	bool* isLineFound, bool* isStartStopFound);
+void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition, bool* isLineFound, bool* isStartStopFound,
+	int16_t oldLinePosition);
 
 //--------------------------------------------------------
 // trouve la position de la ligne sur l'image de la camera
@@ -26,7 +26,7 @@ void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition,
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-void mTrackLine_Correlation(int16_t* tab, uint16_t size, int16_t* thePosition,
-	bool* isLineFound, bool* isStartStopFound);
+void mTrackLine_Correlation(int16_t* tabNear, int16_t* tabFar, uint16_t size, int16_t* thePositionNear,
+	int16_t* thePositionFar, bool* isLineNearFound, bool* isLineFarFound, bool* isStartStopFound);
 
 #endif /* TTRACKLINE_H_ */

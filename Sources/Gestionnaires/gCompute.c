@@ -45,8 +45,7 @@ void gCompute_Setup(void)
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0.0;
 
-    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX )
-	    / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
+    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
     theRegServo.consigne = 0;
     theRegServo.commande = 0;
 
@@ -119,27 +118,32 @@ void gCompute_Execute(void)
     // 1 : analyse des lignes (camera proche : ligne et arrivee)
     //			      (camera lointaine : ligne)
     //---------------------------------------------------------------------------
+    TFC_BAT_LED2_ON;
     //Donnees des lignes
     static int16_t theLineNearPosition = 0;
     bool isLineNearFound = false;
     bool isStartStopNearFound = false;
-    int16_t LineNear[128];
+    int16_t LineNear[kLENGTHLINESCAN];
 
     static int16_t theLineFarPosition = 0;
     bool isLineFarFound = false;
     bool isStartStopFarFound = false;
-    int16_t LineFar[128];
+    int16_t LineFar[kLENGTHLINESCAN];
 
-    for (uint16_t i = 0; i < 128; i++)
+    for (uint16_t i = 0; i < kLENGTHLINESCAN; i++)
 	{
 	LineNear[i] = LineScanImage1[127 - i]; //une des deux cameras est montee la tete en bas, alors on l'inverse
 	LineFar[i] = LineScanImage0[i];
 	}
 
-    mTrackLine_FindLine(LineNear, kLENGTHLINESCAN, &theLineNearPosition,
-	    &isLineNearFound, &isStartStopNearFound);
-    mTrackLine_FindLine(LineFar, kLENGTHLINESCAN, &theLineFarPosition,
-	    &isLineFarFound, &isStartStopFarFound);
+    mTrackLine_Correlation(LineNear, LineFar, kLENGTHLINESCAN, &theLineNearPosition, &theLineFarPosition,
+	    &isLineNearFound, &isLineFarFound, &isStartStopNearFound);
+
+//    mTrackLine_FindLine(LineNear, kLENGTHLINESCAN, &theLineNearPosition, &isLineNearFound, &isStartStopNearFound,
+//	    theLineNearPosition);
+
+//    mTrackLine_FindLine(LineFar, kLENGTHLINESCAN, &theLineFarPosition, &isLineFarFound, &isStartStopFarFound,
+//	    theLineFarPosition);
 
     TFC_BAT_LED0_OFF;
     TFC_BAT_LED1_OFF;
@@ -150,6 +154,10 @@ void gCompute_Execute(void)
     if (isLineFarFound)
 	{
 	TFC_BAT_LED1_ON;
+	}
+    else
+	{
+	TFC_BAT_LED1_OFF;
 	}
 
     //---------------------------------------------------------------------------
@@ -215,11 +223,11 @@ void gCompute_Execute(void)
 
     if (isInRace > 0)
 	{
-	TFC_BAT_LED1_ON;
+	TFC_BAT_LED3_ON;
 	}
     else
 	{
-	TFC_BAT_LED1_OFF;
+	TFC_BAT_LED3_OFF;
 	}
 
     //---------------------------------------------------------------------------
@@ -264,7 +272,7 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     else
 	{
-	theRegServo.consigne = (theLineFarPosition - 64) * (-1);
+	theRegServo.consigne = (int16_t) ((theLineFarPosition - 64) * (-kCONSIGNEPROCHECORRECTION));
 	perteLigne = 0;
 	}
 
@@ -290,9 +298,9 @@ void gCompute_Execute(void)
     // PIDs Moteurs
     tRegPID(&mMotor1.aPIDData, (int16_t) (theSpeedMotor1 / 3.0)); // Frequence entre 0 et 100
     tRegPID(&mMotor2.aPIDData, (int16_t) (theSpeedMotor2 / 3.0));
-    gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-    gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
-
+    gComputeInterStruct.gCommandeMoteurGauche = mMotor2.aPIDData.commande;
+    gComputeInterStruct.gCommandeMoteurDroit = mMotor1.aPIDData.commande;
+    TFC_BAT_LED2_OFF;
     //---------------------------------------------------------------------------
     //===========================================================================
     // FIN
