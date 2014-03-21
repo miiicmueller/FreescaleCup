@@ -30,7 +30,8 @@
 #define kFINISH_PATTERN_SIZE 35
 #define kFINISH_PATTERN {-6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6} 
 
-#define kSEUIL_LIGNE 		8000
+#define kSEUIL_LIGNEFAR		6600
+#define kSEUIL_LIGNENEAR	8000
 #define kSEUIL_LIGNE_ARR 	180000
 
 #define kOFFSET_LIGNE 		kLINE_PATTERN_SIZE/2
@@ -236,7 +237,7 @@ void mTrackLine_Correlation(int16_t* tabNear, int16_t* tabFar, uint16_t size, in
     //On parcourt le tableau resultant de la convolution et on recherche un max
     uint8_t aMaxIndex = tMax_32(aLineNearResult, kLINE_SCAN_SIZE);
     //On teste si ca passe le seuil
-    if (aLineNearResult[aMaxIndex] >= kSEUIL_LIGNE)
+    if (aLineNearResult[aMaxIndex] >= kSEUIL_LIGNENEAR)
 	{
 	*isLineNearFound = true;
 	*thePositionNear = aMaxIndex - kOFFSET_LIGNE;
@@ -250,7 +251,7 @@ void mTrackLine_Correlation(int16_t* tabNear, int16_t* tabFar, uint16_t size, in
     //On parcourt le tableau resultant de la convolution et on recherche un max
     aMaxIndex = tMax_32(aLineFarResult, kLINE_SCAN_SIZE);
     //On teste si ca passe le seuil
-    if (aLineFarResult[aMaxIndex] >= kSEUIL_LIGNE)
+    if (aLineFarResult[aMaxIndex] >= kSEUIL_LIGNEFAR)
 	{
 	*isLineFarFound = true;
 	*thePositionFar = aMaxIndex - kOFFSET_LIGNE;

@@ -17,7 +17,7 @@
 #include "Tools/tDifferential.h"
 
 #define kLENGTHLINESCAN 128
-#define kMEDIANFILTERSIZE 7
+#define kMEDIANFILTERSIZE 13
 #define T_ERROR_MAX_BREAK 30
 #define K_BRAKE_FACTOR 0.4
 #define K_BRAKE_FACTOR_DER 0.0
@@ -141,7 +141,6 @@ void gCompute_Execute(void)
 
 //    mTrackLine_FindLine(LineNear, kLENGTHLINESCAN, &theLineNearPosition, &isLineNearFound, &isStartStopNearFound,
 //	    theLineNearPosition);
-
 //    mTrackLine_FindLine(LineFar, kLENGTHLINESCAN, &theLineFarPosition, &isLineFarFound, &isStartStopFarFound,
 //	    theLineFarPosition);
 

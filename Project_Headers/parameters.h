@@ -19,15 +19,15 @@
 #define kHALF_BRAKE -0.45
 
 //parametres concernant la vitesse
-#define kSPEED_DUTY_1 25.0
+#define kSPEED_DUTY_1 60.0
 #define k_SPEED_LOWEST 28.0
 
 //parametres des gains du PID moteurs
 
 //parametres du regulateur de direction
-#define kCONSIGNEPROCHECORRECTION (float)0.9 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
+#define kCONSIGNEPROCHECORRECTION (float)1.0 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
 #define kREGQUAD_BRAQUAGEMAX (float)0.8 //valeur a laquelle les roues sont tournees a fond
-#define kREGQUAD_ERREURMAX (float)64.0*kCONSIGNEPROCHECORRECTION //erreur a laquelle le braquage est max
+#define kREGQUAD_ERREURMAX (float)64.0 //erreur a laquelle le braquage est max
 //
 //parametres de l'eclairement des LEDs et du temps d'exposition des cameras
 #define kLEDSPWM (float)0.8 //de -1 a 1 ------- (0% a 100%) ----- 0 : 50% de duty cycle
