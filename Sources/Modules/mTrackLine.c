@@ -24,14 +24,16 @@
 #define kINIT_VAL 304
 #define kLINE_SCAN_SIZE 128
 
-#define kLINE_PATTERN_SIZE 35
-#define kLINE_PATTERN {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -4, -4, -4, -4, -4, -4, -4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} 
+//#define kLINE_PATTERN_SIZE 35
+//#define kLINE_PATTERN {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -4, -4, -4, -4, -4, -4, -4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} 
+#define kLINE_PATTERN_SIZE 17
+#define kLINE_PATTERN {7/10, 7/10, 7/10, 7/10, 7/10, -1, -1, -1, -1, -1, -1, -1, 7/10, 7/10, 7/10, 7/10, 7/10} 
 
 #define kFINISH_PATTERN_SIZE 35
 #define kFINISH_PATTERN {-6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6} 
 
-#define kSEUIL_LIGNEFAR		6600
-#define kSEUIL_LIGNENEAR	8000
+#define kSEUIL_LIGNEFAR		6000
+#define kSEUIL_LIGNENEAR	6600
 #define kSEUIL_LIGNE_ARR 	180000
 
 #define kOFFSET_LIGNE 		kLINE_PATTERN_SIZE/2

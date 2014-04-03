@@ -20,8 +20,7 @@ void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure)
     {
     //calcul de la nouvelle erreur
     //la mesure doit etre convertie dans la grandeur de la consigne
-    float nouvelleErreur = (float) ((thePIDStruct->consigne) - theMesure)
-	    * thePIDStruct->coeffNormalisation;
+    float nouvelleErreur = (float) ((thePIDStruct->consigne) - theMesure) * thePIDStruct->coeffNormalisation;
 
     // Fenêtre glissante pour rendre le régulateur I plus stable
     thePIDStruct->theIntegratorError[thePIDStruct->posFiltre] = nouvelleErreur;
@@ -45,8 +44,7 @@ void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure)
     //nouvelle consigne avec un regulateur PID
     thePIDStruct->commande = (thePIDStruct->kp * nouvelleErreur); //partie proportionelle
     thePIDStruct->commande += (thePIDStruct->ki * thePIDStruct->sommeErreurs); //partie intégrale
-    thePIDStruct->commande += (thePIDStruct->kd
-	    * (nouvelleErreur - thePIDStruct->erreurPrecedente)); //partie dérivée
+    thePIDStruct->commande += (thePIDStruct->kd * (nouvelleErreur - thePIDStruct->erreurPrecedente)); //partie dérivée
 
     //mettre a jour l'erreur precedente pour la partie derivee
     thePIDStruct->erreurPrecedente = nouvelleErreur;
@@ -62,8 +60,7 @@ void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure)
 void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure)
     {
     int16_t erreur = theExpStruct->consigne - theMesure;
-    theExpStruct->commande = theExpStruct->coefficient
-	    * ((float) (erreur * erreur)) * tSign(erreur);
+    theExpStruct->commande = theExpStruct->coefficient * ((float) (erreur * erreur * erreur * erreur)) * tSign(erreur);
     if (tAbs_float(theExpStruct->commande) > kREGQUAD_BRAQUAGEMAX)
 	{
 	if (theExpStruct->commande < 0)
