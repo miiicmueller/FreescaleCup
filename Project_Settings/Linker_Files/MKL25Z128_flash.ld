@@ -15,8 +15,8 @@ _estack = 0x20003000;    /* end of SRAM */
 __SP_INIT = _estack;
 
 /* Generate a link error if heap and stack don't fit into RAM */
-__heap_size = 0x2000;				/* required amount of heap  */
-__stack_size = 0x800; 				/* required amount of stack */
+__heap_size = 0x800;				/* required amount of heap  */
+__stack_size = 0x2000; 				/* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY

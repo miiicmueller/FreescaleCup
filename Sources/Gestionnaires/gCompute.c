@@ -120,7 +120,6 @@ void gCompute_Execute(void)
     // 1 : analyse des lignes (camera proche : ligne et arrivee)
     //			      (camera lointaine : ligne)
     //---------------------------------------------------------------------------
-    TFC_BAT_LED2_ON;
     //Donnees des lignes
     static int16_t theLineNearPosition = 0;
     static bool isLineNearFound = false;
@@ -136,15 +135,16 @@ void gCompute_Execute(void)
 
     for (uint16_t i = 0; i < kLENGTHLINESCAN ; i++)
 	{
-	LineNear[i] = LineScanImage1[127 - i]; //une des deux cameras est montee la tete en bas, alors on l'inverse
-	LineFar[i] = LineScanImage0[i];
+	LineNear[i] = LineScanImage1[127 - i] << 3; //une des deux cameras est montee la tete en bas, alors on l'inverse
+	LineFar[i] = LineScanImage0[i] << 3; //shift de 3 parce que la correlation travaille en q1.15 et que nos nombres sont sur 12bits (ADC)
 	}
 
+    TFC_BAT_LED2_ON;
 //    mTrackLine_Correlation(LineNear, LineFar, kLENGTHLINESCAN, &theLineNearPosition, &theLineFarPosition,
 //	    &isLineNearFound, &isLineFarFound, &isStartStopNearFound);
-    mTrackLine_CorrelationFFT(LineNear, LineFar, kLENGTHLINESCAN,
-	    &theLineNearPosition, &theLineFarPosition, &isLineNearFound,
-	    &isLineFarFound, &isStartStopNearFound);
+    mTrackLine_CorrelationFFT(LineNear, LineFar, kLENGTHLINESCAN, &theLineNearPosition, &theLineFarPosition,
+	    &isLineNearFound, &isLineFarFound, &isStartStopNearFound);
+    TFC_BAT_LED2_OFF;
 
 //    mTrackLine_FindLine(LineNear, kLENGTHLINESCAN, &theLineNearPosition, &isLineNearFound, &isStartStopNearFound,
 //	    theLineNearPosition);
@@ -314,268 +314,10 @@ void gCompute_Execute(void)
     tRegPID(&mMotor2.aPIDData, (int16_t) (theSpeedMotor2 / 3.0));
     gComputeInterStruct.gCommandeMoteurGauche = mMotor2.aPIDData.commande;
     gComputeInterStruct.gCommandeMoteurDroit = mMotor1.aPIDData.commande;
-    TFC_BAT_LED2_OFF;
-    //---------------------------------------------------------------------------
-    //===========================================================================
-    // FIN
-    //===========================================================================
-    //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//===========================================================================
+// FIN
+//===========================================================================
+//---------------------------------------------------------------------------
 
-    /*
-     //    if (gXbeeInterStruct.aPIDChangedServo)
-     //	{
-     //	thePIDServo.kp = gXbeeInterStruct.aGainPIDServo.gProprortionalGain;
-     //	thePIDServo.ki = gXbeeInterStruct.aGainPIDServo.gIntegraleGain;
-     //	thePIDServo.kd = gXbeeInterStruct.aGainPIDServo.gDerivativeGain;
-     //	thePIDServo.kp_init = thePIDServo.kp;
-     //	}
-
-     //---------------------------------------------------------------------------
-     //lecture des donnees provenant du monitoring
-     //    if (gXbeeInterStruct.aPIDChangedMotors)
-     //	{
-     //	//Motor1
-     //	mMotor1.aPIDData.kp =
-     //		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
-     //	mMotor1.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
-     //	mMotor1.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
-     //
-     //	//Motor 2
-     //	mMotor2.aPIDData.kp =
-     //		gXbeeInterStruct.aGainPIDMotors.gProprortionalGain;
-     //	mMotor2.aPIDData.ki = gXbeeInterStruct.aGainPIDMotors.gIntegraleGain;
-     //	mMotor2.aPIDData.kd = gXbeeInterStruct.aGainPIDMotors.gDerivativeGain;
-     //	}
-
-     //---------------------------------------------------------------------------
-     //recherche de la ligne
-     static int16_t theLinePosition = 0;
-     static int16_t theLinePositionLostComp = 0;
-
-     bool isLineFound = false;
-     bool isStartStopFound = false;
-     int16_t LineAnalyze[128];
-
-     for (uint16_t i = 0; i < 128; i++)
-     {
-     LineAnalyze[i] = LineScanImage0[i];
-     }
-     mTrackLine_FindLine(LineAnalyze, 128, &theLinePosition, &isLineFound,
-     &isStartStopFound);
-     // mTrackLine_Correlation(LineAnalyze, 128, &theLinePosition, &isLineFound,
-     //	    &isStartStopFound);
-
-     //---------------------------------------------------------------------------
-
-     //---------------------------------------------------------------------------
-     //si la ligne est trouvee
-     if (isLineFound)
-     {
-     TFC_BAT_LED0_ON;
-     //On reset le compteur de perte de ligne
-     theLinePositionLostComp = 0;
-
-     //filtrage de la position de la ligne
-     static uint8_t posFiltre = 0;
-     static uint32_t theLinePositionTab[kTailleFiltre];
-
-     theLinePositionTab[posFiltre] = theLinePosition;
-     if (posFiltre < kTailleFiltre - 1)
-     {
-     posFiltre++;
-     }
-     else
-     {
-     posFiltre = 0;
-     }
-
-     //On enregistre l'ancienne valeur de la ligne
-     theLinePosition = median_filter_n(theLinePositionTab, kTailleFiltre);
-     }
-     else
-     {
-     //On test si on est arrivé sur la bosse
-     if (tAbs(theLinePosition - 64) > 6)
-     {
-     //Si on pert la ligne, on interpole
-     // ON sélectionne le sens de correction
-     if (theLinePosition > 64)
-     {
-     theLinePosition += 10;
-     }
-     else
-     {
-     theLinePosition -= 10;
-     }
-     theLinePositionLostComp++;
-     TFC_BAT_LED0_OFF;
-     }
-     }
-     thePIDServo.kp = thePIDServo.kp_init;
-
-     // On diminue l'effet de P avec la vitesse
-     // Consigne va de 0-1 => *2 => kp = 1/2 * kp si consigne max sinon kp=1/1 * kp si consigne =0.5 ;
-     // Elle augmente si on va lentement
-     // thePIDServo.kp /= (thePIDServo. * 0.05) + 1.0;
-
-     // Mettre a jour le PID
-     //if (tAbs((theLinePosition - 64)) < 20)
-     //{
-     //theLinePosition = 64;
-     //}
-
-     tPID(&thePIDServo, (theLinePosition - 64));
-     //tPID_v2(&thePIDServo, (theLinePosition - 64));
-     //---------------------------------------------------------------------------
-     //si la ligne d'arrivee est trouvee
-     static uint8_t isInRace = 0;
-     static bool oldIsStartStopFound = false;
-     if ((isStartStopFound && !(oldIsStartStopFound))
-     || ((theLinePositionLostComp >= K_LOST_MAX_NUM)))
-     {
-     if (isInRace > 0)
-     {
-     isInRace--;
-     }
-     }
-     oldIsStartStopFound = isStartStopFound;
-
-     if (TFC_PUSH_BUTTON_0_PRESSED)
-     {
-     isInRace = 2;
-     }
-
-     if (isInRace > 0)
-     {
-     TFC_BAT_LED1_ON;
-     }
-     else
-     {
-     TFC_BAT_LED1_OFF;
-     //TFC_HBRIDGE_DISABLE;
-     }
-
-     //---------------------------------------------------------------------------
-     //Filtrage des valeur du moteur
-     //Moteur 1 ;
-     uint32_t aCaptMedian = 0;
-     aCaptMedian = median_filter_n(mMotor1.aCaptTab, FILTER_SIZE);
-     if (aCaptMedian != 0)
-     {
-     gInputInterStruct.gFreq[0] = (float) (F_COUNT) / aCaptMedian;
-     }
-     else
-     {
-     gInputInterStruct.gFreq[0] = 0.0;
-     }
-
-     //Moteur 2 ;
-     aCaptMedian = median_filter_n(mMotor2.aCaptTab, FILTER_SIZE);
-     if (aCaptMedian != 0)
-     {
-     gInputInterStruct.gFreq[1] = (float) (F_COUNT) / aCaptMedian;
-     }
-     else
-     {
-     gInputInterStruct.gFreq[1] = 0.0;
-     }
-
-     compute_differential(gComputeInterStruct.gCommandeServoDirection,
-     &thePIDServo);
-
-     if (isInRace > 0)
-     {
-     float aSpeedFact = 0.0;
-     float aSpeedTotFactor = 0.0;
-
-     mMotor1.aPIDData.consigne *= mMotor1.aDifferential;
-     mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
-
-     if ((thePIDServo.thePastError[0] - thePIDServo.thePastError[1]) < 0.0)
-     {
-     aSpeedFact = (thePIDServo.thePastError[1]
-     - thePIDServo.thePastError[0]) * 6.5;
-     }
-
-     aSpeedTotFactor =
-     ((K_SPEED_LOWEST - aSpeedFact) < 0.0) ?
-     0.0 : (K_SPEED_LOWEST - aSpeedFact);
-     aSpeedTotFactor = K_SPEED_LOWEST + 5;
-
-     if (mMotor1.aPIDData.consigne <= aSpeedTotFactor)
-     {
-     mMotor1.aPIDData.consigne = aSpeedTotFactor;
-     }
-
-     if (mMotor2.aPIDData.consigne <= aSpeedTotFactor)
-     {
-     mMotor2.aPIDData.consigne = aSpeedTotFactor;
-     }
-
-     }
-     else
-     {
-     mMotor1.aPIDData.consigne = 0;
-     mMotor2.aPIDData.consigne = 0;
-     }
-
-     //---------------------------------------------------------------------------
-     //Appel des PID des moteurs
-     // PID Moteur 1
-     tPID(&mMotor1.aPIDData, (int16_t) (gInputInterStruct.gFreq[0] / 3.0)); // Frequence entre 0 et 100
-     // PID Moteur 2
-     tPID(&mMotor2.aPIDData, (int16_t) (gInputInterStruct.gFreq[1] / 3.0));
-
-     //---------------------------------------------------------------------------
-     //mise à jour des sorties de gCompute
-     gInputInterStruct.gPosCam1 = theLinePosition;
-
-     // Limitation des servo moteurs
-     if (tAbs_float(thePIDServo.commande) > 0.8)
-     {
-     if (thePIDServo.commande < 0.0)
-     {
-     thePIDServo.commande = -0.8;
-     }
-     else
-     {
-     thePIDServo.commande = 0.8;
-     }
-     }
-     gComputeInterStruct.gCommandeServoDirection = thePIDServo.commande;
-
-     // Test de freinage
-     if ((mMotor1.aPIDData.commande < 0.0))
-     {
-     mMotor1.aPIDData.commande = 0.0;
-     }
-     if ((mMotor2.aPIDData.commande < 0.0))
-     {
-     mMotor2.aPIDData.commande = 0.0;
-     }
-
-     //Test si la fréquence du moteur est supérieur à vitesse min on autorise le freinage
-     if ((gInputInterStruct.gFreq[0] / 3.0) > K_SPEED_LOWEST)
-     {
-     if (full_break == true)
-     {
-     mMotor1.aPIDData.commande = kFULL_BRAKE;
-     mMotor2.aPIDData.commande = kFULL_BRAKE;
-     }
-     else if (half_break == true)
-     {
-     mMotor1.aPIDData.commande = kHALF_BRAKE;
-     mMotor2.aPIDData.commande = kHALF_BRAKE;
-     }
-     half_break = false;
-     full_break = false;
-     }
-
-     gComputeInterStruct.gCommandeMoteurGauche = mMotor1.aPIDData.commande;
-     gComputeInterStruct.gCommandeMoteurDroit = mMotor2.aPIDData.commande;
-     */
     }
-
-//-----------------------------------------------------------------------------
-//fonctions statiques
-//-----------------------------------------------------------------------------
