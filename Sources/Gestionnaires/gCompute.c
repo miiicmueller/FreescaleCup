@@ -16,8 +16,8 @@
 #include "parameters.h"
 #include "Tools/tDifferential.h"
 
-#define kLENGTHLINESCAN 128
-#define kMEDIANFILTERSIZE 13
+#define kLENGTHLINESCAN (uint16_t)128
+#define kMEDIANFILTERSIZE 7
 #define T_ERROR_MAX_BREAK 30
 #define K_BRAKE_FACTOR 0.4
 #define K_BRAKE_FACTOR_DER 0.0
@@ -45,8 +45,9 @@ void gCompute_Setup(void)
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0.0;
 
-    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX)
-	    / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX);
+    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX )
+	    / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
+
     theRegServo.consigne = 0;
     theRegServo.commande = 0;
 
@@ -122,16 +123,18 @@ void gCompute_Execute(void)
     TFC_BAT_LED2_ON;
     //Donnees des lignes
     static int16_t theLineNearPosition = 0;
-    bool isLineNearFound = false;
-    bool isStartStopNearFound = false;
-    int16_t LineNear[kLENGTHLINESCAN];
+    static bool isLineNearFound = false;
+    static bool isStartStopNearFound = false;
+    static int16_t LineNear[kLENGTHLINESCAN ];
 
     static int16_t theLineFarPosition = 0;
-    bool isLineFarFound = false;
-    bool isStartStopFarFound = false;
-    int16_t LineFar[kLENGTHLINESCAN];
+    static bool isLineFarFound = false;
+    //bool isStartStopFarFound = false;
+    static int16_t LineFar[kLENGTHLINESCAN ];
 
-    for (uint16_t i = 0; i < kLENGTHLINESCAN; i++)
+    static int16_t theLineMesure = 0;
+
+    for (uint16_t i = 0; i < kLENGTHLINESCAN ; i++)
 	{
 	LineNear[i] = LineScanImage1[127 - i]; //une des deux cameras est montee la tete en bas, alors on l'inverse
 	LineFar[i] = LineScanImage0[i];
@@ -249,6 +252,8 @@ void gCompute_Execute(void)
 	    {
 	    isInRace = 0;
 	    }
+
+	theLineMesure = theLineNearPosition;
 	}
 
     //-----------------------------------------------------------------------
@@ -258,6 +263,7 @@ void gCompute_Execute(void)
     else if ((isLineNearFound == true) && (isLineFarFound == false))
 	{
 	perteLigne = 0;
+	theLineMesure = theLineNearPosition;
 	}
 
     //-----------------------------------------------------------------------
@@ -265,7 +271,7 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     else if ((isLineNearFound == false) && (isLineFarFound == true))
 	{
-	theLineNearPosition = theLineFarPosition; //TODO : a tester!!! pas sur...
+	theLineMesure = theLineFarPosition; //TODO : a tester!!! pas sur...
 	perteLigne = 0;
 	}
 
@@ -275,8 +281,11 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     else
 	{
-	theRegServo.consigne = (int16_t) ((theLineFarPosition - 64)
-		* (-kCONSIGNEPROCHECORRECTION));
+
+	theRegServo.consigne = (int16_t) ((theLineFarPosition - (int16_t) (kLENGTHLINESCAN / 2))
+		* (-kCONSIGNEPROCHECORRECTION ));
+	theLineMesure = theLineNearPosition;
+
 	perteLigne = 0;
 	}
 
@@ -284,7 +293,8 @@ void gCompute_Execute(void)
     // 5 : application des regulateurs
     //---------------------------------------------------------------------------
     //regulation camera proche
-    tRegQuadratic(&theRegServo, (theLineNearPosition - 64));
+    theLineMesure -= (int16_t) (kLENGTHLINESCAN / 2);
+    tRegQuadratic(&theRegServo, (theLineMesure));
     gComputeInterStruct.gCommandeServoDirection = theRegServo.commande;
 
     //on avance que si on est en course!!!!!
