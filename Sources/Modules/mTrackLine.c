@@ -7,6 +7,7 @@
 //fichiers utilises
 #include "Modules\mTrackLine.h"
 #include "Tools\Tools.h"
+#include "arm_math.h"
 
 //definitions de constantes pour le calcul par DERIVEE
 #define kScaleTab	100	//echelle a laquelle on veut mettre le tableau
@@ -24,8 +25,8 @@
 #define kINIT_VAL 304
 #define kLINE_SCAN_SIZE 128
 
-#define kLINE_PATTERN_SIZE 35
-#define kLINE_PATTERN {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -4, -4, -4, -4, -4, -4, -4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} 
+#define kLINE_PATTERN_SIZE 256
+#define kLINE_PATTERN {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, -14, -14, -14, -14, -14, -14, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} 
 
 #define kFINISH_PATTERN_SIZE 35
 #define kFINISH_PATTERN {-6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6} 
@@ -36,6 +37,10 @@
 
 #define kOFFSET_LIGNE 		kLINE_PATTERN_SIZE/2
 #define kOFFSET_LIGNE_ARR 	kFINISH_PATTERN_SIZE/2
+
+#define kTab_Size  256
+#define DELTA           (0.000001f)
+#define SNR_THRESHOLD   90
 
 //definitions de types et structures
 typedef enum
@@ -63,7 +68,8 @@ typedef struct
 	uint16_t location;
     } mTrackLineEdges;
 
-static uint16_t mTrackLine_FindEdges(int16_t* tab, uint16_t sizeTab, mTrackLineEdges* theEdgesTab);
+static uint16_t mTrackLine_FindEdges(int16_t* tab, uint16_t sizeTab,
+	mTrackLineEdges* theEdgesTab);
 
 //definition des fonctions
 //--------------------------------------------------------
@@ -76,8 +82,8 @@ static uint16_t mTrackLine_FindEdges(int16_t* tab, uint16_t sizeTab, mTrackLineE
 //		isStartStopFound: true si la ligne est presente, false sinon
 //		oldLinePosition	: ancienne position de la ligne (utilise si l'algorithme detecte plusieurs lignes)
 //--------------------------------------------------------
-void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition, bool* isLineFound, bool* isStartStopFound,
-	int16_t oldLinePosition)
+void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition,
+	bool* isLineFound, bool* isStartStopFound, int16_t oldLinePosition)
     {
     mTrackLineEdges theEdges[kSizeEdgesTab];
     uint16_t nbOfEdges;
@@ -103,16 +109,21 @@ void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition, bool
 	    {
 	    for (uint8_t i = 0; i < (nbOfEdges - 1); i++)
 		{
-		if ((theEdges[i].edgeType == falling) && (theEdges[i + 1].edgeType == rising))
+		if ((theEdges[i].edgeType == falling)
+			&& (theEdges[i + 1].edgeType == rising))
 		    {
-		    if (((theEdges[i + 1].location - theEdges[i].location) > kLengthLineMin)
-			    && ((theEdges[i + 1].location - theEdges[i].location) < kLengthLineMax))
+		    if (((theEdges[i + 1].location - theEdges[i].location)
+			    > kLengthLineMin)
+			    && ((theEdges[i + 1].location - theEdges[i].location)
+				    < kLengthLineMax))
 			{
 //			*isLineFound = true;
 //			*thePosition = (theEdges[i + 1].location
 //				+ theEdges[i].location) / 2;
-			linesLocationTab[nbOfLines] = (theEdges[i + 1].location + theEdges[i].location) / 2;
-			linesLengthTab[nbOfLines] = theEdges[i + 1].location - theEdges[i].location;
+			linesLocationTab[nbOfLines] = (theEdges[i + 1].location
+				+ theEdges[i].location) / 2;
+			linesLengthTab[nbOfLines] = theEdges[i + 1].location
+				- theEdges[i].location;
 			nbOfLines++;
 			}
 		    }
@@ -144,15 +155,25 @@ void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition, bool
 	if (nbOfEdges >= 4)
 	    {
 	    for (uint16_t i = 0; i < (nbOfEdges - 3); i++)
-		if ((theEdges[i].edgeType == rising) && (theEdges[i + 1].edgeType == falling)
-			&& (theEdges[i + 2].edgeType == rising) && (theEdges[i + 3].edgeType == falling))
+		if ((theEdges[i].edgeType == rising)
+			&& (theEdges[i + 1].edgeType == falling)
+			&& (theEdges[i + 2].edgeType == rising)
+			&& (theEdges[i + 3].edgeType == falling))
 		    {
-		    if (((theEdges[i + 1].location - theEdges[i].location) > kLengthStartStopMin)
-			    && ((theEdges[i + 1].location - theEdges[i].location) < kLengthStartStopMax)
-			    && ((theEdges[i + 2].location - theEdges[i + 1].location) > kLengthLineMin)
-			    && ((theEdges[i + 2].location - theEdges[i + 1].location) < kLengthLineMax)
-			    && ((theEdges[i + 3].location - theEdges[i + 2].location) > kLengthStartStopMin)
-			    && ((theEdges[i + 3].location - theEdges[i + 2].location) < kLengthStartStopMax))
+		    if (((theEdges[i + 1].location - theEdges[i].location)
+			    > kLengthStartStopMin)
+			    && ((theEdges[i + 1].location - theEdges[i].location)
+				    < kLengthStartStopMax)
+			    && ((theEdges[i + 2].location
+				    - theEdges[i + 1].location) > kLengthLineMin)
+			    && ((theEdges[i + 2].location
+				    - theEdges[i + 1].location) < kLengthLineMax)
+			    && ((theEdges[i + 3].location
+				    - theEdges[i + 2].location)
+				    > kLengthStartStopMin)
+			    && ((theEdges[i + 3].location
+				    - theEdges[i + 2].location)
+				    < kLengthStartStopMax))
 			{
 			*isStartStopFound = true;
 			}
@@ -175,18 +196,17 @@ void mTrackLine_FindLine(int16_t* tab, uint16_t size, int16_t* thePosition, bool
 //
 //
 //--------------------------------------------------------
-void mTrackLine_Correlation(int16_t* tabNear, int16_t* tabFar, uint16_t size, int16_t* thePositionNear,
-	int16_t* thePositionFar, bool* isLineNearFound, bool* isLineFarFound, bool* isStartStopFound)
+void mTrackLine_Correlation(int16_t* tabNear, int16_t* tabFar, uint16_t size,
+	int16_t* thePositionNear, int16_t* thePositionFar,
+	bool* isLineNearFound, bool* isLineFarFound, bool* isStartStopFound)
     {
     // Variable nécessaire à la convolution
     int32_t aLineNearResult[kLINE_SCAN_SIZE + kLINE_PATTERN_SIZE]; // ATTENTION : kLINE_PATTERN_SIZE >= kFINISH_PATTERN_SIZE, sinon il y aura des problemes
     int32_t aLineFarResult[kLINE_SCAN_SIZE + kLINE_PATTERN_SIZE]; // ATTENTION : kLINE_PATTERN_SIZE >= kFINISH_PATTERN_SIZE, sinon il y aura des problemes
     int32_t aLineFinishResult[kLINE_SCAN_SIZE + kLINE_PATTERN_SIZE];
 
-    int32_t aLinePattern[kLINE_PATTERN_SIZE] = kLINE_PATTERN
-    ;
-    int32_t aFinishPattern[kFINISH_PATTERN_SIZE] = kFINISH_PATTERN
-    ;
+    int32_t aLinePattern[kLINE_PATTERN_SIZE] = kLINE_PATTERN;
+    int32_t aFinishPattern[kFINISH_PATTERN_SIZE] = kFINISH_PATTERN;
 
     //Variable de convolution
     uint8_t n = 0;
@@ -230,7 +250,8 @@ void mTrackLine_Correlation(int16_t* tabNear, int16_t* tabFar, uint16_t size, in
 	    // y[n] = Somme[h[k]*x[n*k]]
 	    aLineNearResult[n] += (int32_t) (aLinePattern[k] * aElem_n_k_Near);
 	    aLineFarResult[n] += (int32_t) (aLinePattern[k] * aElem_n_k_Far);
-	    aLineFinishResult[n] += (int32_t) (aFinishPattern[k] * aElem_n_k_Near);
+	    aLineFinishResult[n] += (int32_t) (aFinishPattern[k]
+		    * aElem_n_k_Near);
 	    }
 	}
 
@@ -285,7 +306,8 @@ void mTrackLine_Correlation(int16_t* tabNear, int16_t* tabFar, uint16_t size, in
 //		sizeTab		: longueur du tableau
 //		theEdgesTab	: adresse du tableau qui contient les objets Edges
 //--------------------------------------------------------
-static uint16_t mTrackLine_FindEdges(int16_t* tab, uint16_t sizeTab, mTrackLineEdges* theEdgesTab)
+static uint16_t mTrackLine_FindEdges(int16_t* tab, uint16_t sizeTab,
+	mTrackLineEdges* theEdgesTab)
     {
     uint16_t indexTab = 0;
     uint16_t indexEdgesTab = 0;
@@ -294,14 +316,16 @@ static uint16_t mTrackLine_FindEdges(int16_t* tab, uint16_t sizeTab, mTrackLineE
     while ((indexTab < sizeTab) && (indexEdgesTab < kSizeEdgesTab))
 	{
 	//on cherche un flanc descendant
-	if (((tab[indexTab - 1] == 0) || (tab[indexTab - 1] == 1)) && (tab[indexTab] == -1))
+	if (((tab[indexTab - 1] == 0) || (tab[indexTab - 1] == 1))
+		&& (tab[indexTab] == -1))
 	    {
 	    theEdgesTab[indexEdgesTab].edgeType = falling;
 	    theEdgesTab[indexEdgesTab].location = indexTab;
 	    indexEdgesTab++;
 	    }
 	//on cherche un flanc montant
-	if (((tab[indexTab - 1] == 0) || (tab[indexTab - 1] == -1)) && (tab[indexTab] == 1))
+	if (((tab[indexTab - 1] == 0) || (tab[indexTab - 1] == -1))
+		&& (tab[indexTab] == 1))
 	    {
 	    theEdgesTab[indexEdgesTab].edgeType = rising;
 	    theEdgesTab[indexEdgesTab].location = indexTab;
@@ -311,4 +335,59 @@ static uint16_t mTrackLine_FindEdges(int16_t* tab, uint16_t sizeTab, mTrackLineE
 	}
 
     return indexEdgesTab;
+    }
+
+void mTrackLine_CorrelationFFT(int16_t* tabNear, int16_t* tabFar, uint16_t size,
+	int16_t* thePositionNear, int16_t* thePositionFar,
+	bool* isLineNearFound, bool* isLineFarFound, bool* isStartStopFound)
+    {
+    /* ----------------------------------------------------------------------
+     * Declare I/O buffers
+     * ------------------------------------------------------------------- */
+    q15_t aDualImgTab[kTab_Size]; /* tabFar + tabNear */
+    q15_t aImgKernelTab[kTab_Size] = kLINE_PATTERN; /* Kernel */
+    q15_t aOutConvTab[kTab_Size * 2]; /* Convolution output */
+
+    /* ----------------------------------------------------------------------
+     * Declare Global variables
+     * ------------------------------------------------------------------- */
+    uint32_t aDualImgTabLen = kTab_Size; /* Length of  dual image tab */
+    uint32_t aImgKernelTabLen = kTab_Size; /* Length of  kernel */
+    uint32_t aOutConvTabLen; /* Length of convolution output */
+
+    arm_status status; /* Status of the example */
+    arm_cfft_radix4_instance_q15 cfft_instance; /* CFFT Structure instance */
+
+    /* CFFT Structure instance pointer */
+    arm_cfft_radix4_instance_q15 *cfft_instance_ptr =
+	    (arm_cfft_radix4_instance_q15*) &cfft_instance;
+
+    /* output length of convolution */
+    aOutConvTabLen = aDualImgTabLen + aImgKernelTabLen - 1;
+
+    /* Initialise the fft input buffers with all zeros */
+    arm_fill_q15(0, aDualImgTab, kTab_Size);
+    arm_fill_q15(0, aOutConvTab, kTab_Size*2);
+ 
+    /* Copy the input values to the fft input buffers */
+    arm_copy_q15(aDualImgTab, tabNear, 128);
+    arm_copy_q15(aDualImgTab + 128, tabNear, 128);
+
+    /* Initialize the CFFT function to compute 64 point fft */
+    status = arm_cfft_radix4_init_q15(cfft_instance_ptr, 256u, 0, 1);
+    /* Transform input a[n] from time domain to frequency domain A[k] */
+    arm_cfft_radix4_q15(cfft_instance_ptr, aDualImgTab);
+    /* Transform input b[n] from time domain to frequency domain B[k] */
+    arm_cfft_radix4_q15(cfft_instance_ptr, aImgKernelTab);
+
+    /* Complex Multiplication of the two input buffers in frequency domain */
+    arm_cmplx_mult_cmplx_q15(aDualImgTab, aImgKernelTab, aOutConvTab, kTab_Size);
+
+    /* Initialize the CIFFT function to compute 64 point ifft */
+    status = arm_cfft_radix4_init_q15(cfft_instance_ptr, 256u, 1, 1);
+
+    /* Transform the multiplication output from frequency domain to time domain,
+     that gives the convolved output  */
+    arm_cfft_radix4_q15(cfft_instance_ptr, aOutConvTab);
+
     }

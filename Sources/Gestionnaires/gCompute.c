@@ -45,7 +45,8 @@ void gCompute_Setup(void)
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0.0;
 
-    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
+    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX)
+	    / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX);
     theRegServo.consigne = 0;
     theRegServo.commande = 0;
 
@@ -136,8 +137,11 @@ void gCompute_Execute(void)
 	LineFar[i] = LineScanImage0[i];
 	}
 
-    mTrackLine_Correlation(LineNear, LineFar, kLENGTHLINESCAN, &theLineNearPosition, &theLineFarPosition,
-	    &isLineNearFound, &isLineFarFound, &isStartStopNearFound);
+//    mTrackLine_Correlation(LineNear, LineFar, kLENGTHLINESCAN, &theLineNearPosition, &theLineFarPosition,
+//	    &isLineNearFound, &isLineFarFound, &isStartStopNearFound);
+    mTrackLine_CorrelationFFT(LineNear, LineFar, kLENGTHLINESCAN,
+	    &theLineNearPosition, &theLineFarPosition, &isLineNearFound,
+	    &isLineFarFound, &isStartStopNearFound);
 
 //    mTrackLine_FindLine(LineNear, kLENGTHLINESCAN, &theLineNearPosition, &isLineNearFound, &isStartStopNearFound,
 //	    theLineNearPosition);
@@ -271,7 +275,8 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     else
 	{
-	theRegServo.consigne = (int16_t) ((theLineFarPosition - 64) * (-kCONSIGNEPROCHECORRECTION));
+	theRegServo.consigne = (int16_t) ((theLineFarPosition - 64)
+		* (-kCONSIGNEPROCHECORRECTION));
 	perteLigne = 0;
 	}
 
