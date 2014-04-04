@@ -27,7 +27,8 @@
 
 #define kLINE_PATTERN_SIZE 35
 //#define kLINE_PATTERN {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -6, -6, -6, -6, -6, -6, -6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-#define kLINE_PATTERN {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, -384, -384, -384, -384, -384, -384, -384, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
+//#define kLINE_PATTERN {8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, -384, -384, -384, -384, -384, -384, -384, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8}
+#define kLINE_PATTERN {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}
 
 #define kFINISH_PATTERN_SIZE 35
 #define kFINISH_PATTERN {-6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6, 9, 9, 9, 9, 9, 9, 9, -6, -6, -6, -6, -6, -6, -6} 
@@ -328,13 +329,15 @@ void mTrackLine_CorrelationFFT(int16_t* tabNear, int16_t* tabFar, uint16_t size,
     q15_t aImgKernelTab[35] = kLINE_PATTERN
     ; // Kernel 
     q15_t aOutConvTab[255]; /* Convolution output */
+    float aOutConvTab2[255]; /* Convolution output */
     q15_t aPscratch[196];
 
     /* ----------------------------------------------------------------------
      * Declare Global variables
      * ------------------------------------------------------------------- */
 
-    arm_correlate_opt_q15(tabNear, 128, aImgKernelTab, 35, aOutConvTab, aPscratch);
+    arm_conv_q15(tabNear, 128, aImgKernelTab, 35, aOutConvTab);
     arm_correlate_opt_q15(tabFar, 128, aImgKernelTab, 35, aOutConvTab, aPscratch);
 
+    arm_q15_to_float(aOutConvTab, aOutConvTab2, 255);
     }

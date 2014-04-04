@@ -135,8 +135,8 @@ void gCompute_Execute(void)
 
     for (uint16_t i = 0; i < kLENGTHLINESCAN ; i++)
 	{
-	LineNear[i] = LineScanImage1[127 - i] << 3; //une des deux cameras est montee la tete en bas, alors on l'inverse
-	LineFar[i] = LineScanImage0[i] << 3; //shift de 3 parce que la correlation travaille en q1.15 et que nos nombres sont sur 12bits (ADC)
+	LineNear[i] = LineScanImage1[127 - i]; //<< 3; //une des deux cameras est montee la tete en bas, alors on l'inverse
+	LineFar[i] = LineScanImage0[i]; //<< 3; //shift de 3 parce que la correlation travaille en q1.15 et que nos nombres sont sur 12bits (ADC)
 	}
 
     TFC_BAT_LED2_ON;
