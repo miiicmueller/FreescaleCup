@@ -12,7 +12,7 @@
 //#define MONITORING_ENABLED
 
 //temps de cycle d'execution des gestionnaires
-#define kGEST_CYCLETIME 15 //en ms
+#define kGEST_CYCLETIME 5 //en ms
 //
 //parametres concernant le freinage
 #define kFULL_BRAKE -0.75

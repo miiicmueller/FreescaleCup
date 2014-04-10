@@ -45,8 +45,7 @@ void gCompute_Setup(void)
     gComputeInterStruct.gCommandeMoteurGauche = 0.0;
     gComputeInterStruct.gCommandeServoDirection = 0.0;
 
-    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX )
-	    / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
+    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
 
     theRegServo.consigne = 0;
     theRegServo.commande = 0;
@@ -121,35 +120,30 @@ void gCompute_Execute(void)
     //			      (camera lointaine : ligne)
     //---------------------------------------------------------------------------
     //Donnees des lignes
+    static volatile int16_t* LineNear;
     static int16_t theLineNearPosition = 0;
     static bool isLineNearFound = false;
     static bool isStartStopNearFound = false;
-    static int16_t LineNear[kLENGTHLINESCAN ];
 
+    static volatile int16_t* LineFar;
     static int16_t theLineFarPosition = 0;
     static bool isLineFarFound = false;
-    //bool isStartStopFarFound = false;
-    static int16_t LineFar[kLENGTHLINESCAN ];
 
     static int16_t theLineMesure = 0;
 
-    for (uint16_t i = 0; i < kLENGTHLINESCAN ; i++)
-	{
-	LineNear[i] = LineScanImage1[127 - i]; //<< 3; //une des deux cameras est montee la tete en bas, alors on l'inverse
-	LineFar[i] = LineScanImage0[i]; //<< 3; //shift de 3 parce que la correlation travaille en q1.15 et que nos nombres sont sur 12bits (ADC)
-	}
-
     TFC_BAT_LED2_ON;
-//    mTrackLine_Correlation(LineNear, LineFar, kLENGTHLINESCAN, &theLineNearPosition, &theLineFarPosition,
-//	    &isLineNearFound, &isLineFarFound, &isStartStopNearFound);
-    mTrackLine_CorrelationFFT(LineNear, LineFar, kLENGTHLINESCAN, &theLineNearPosition, &theLineFarPosition,
-	    &isLineNearFound, &isLineFarFound, &isStartStopNearFound);
-    TFC_BAT_LED2_OFF;
 
-//    mTrackLine_FindLine(LineNear, kLENGTHLINESCAN, &theLineNearPosition, &isLineNearFound, &isStartStopNearFound,
-//	    theLineNearPosition);
-//    mTrackLine_FindLine(LineFar, kLENGTHLINESCAN, &theLineFarPosition, &isLineFarFound, &isStartStopFarFound,
-//	    theLineFarPosition);
+    LineNear = (int16_t*) LineScanImage1;
+    LineFar = (int16_t*) LineScanImage0;
+
+    //on recherche la ligne par corrélation
+    mTrackLine_CorrelationFFT(LineNear, LineFar, &theLineNearPosition, &theLineFarPosition, &isLineNearFound,
+	    &isLineFarFound, &isStartStopNearFound);
+
+    if (isLineNearFound)
+	{
+	theLineNearPosition = kLENGTHLINESCAN - theLineNearPosition;
+	} //une des deux cameras est montee la tete en bas, alors on l'inverse
 
     TFC_BAT_LED0_OFF;
     TFC_BAT_LED1_OFF;
@@ -191,8 +185,8 @@ void gCompute_Execute(void)
 	posFiltre = 0;
 	}
 
-    theLineNearPosition = median_filter_n(theLineNearTab, kMEDIANFILTERSIZE);
-    theLineFarPosition = median_filter_n(theLineFarTab, kMEDIANFILTERSIZE);
+//    theLineNearPosition = median_filter_n(theLineNearTab, kMEDIANFILTERSIZE);
+//    theLineFarPosition = median_filter_n(theLineFarTab, kMEDIANFILTERSIZE);
     theSpeedMotor1 = median_filter_n(theMotor1Tab, kMEDIANFILTERSIZE);
     theSpeedMotor2 = median_filter_n(theMotor2Tab, kMEDIANFILTERSIZE);
 
@@ -211,7 +205,7 @@ void gCompute_Execute(void)
     //---------------------------------------------------------------------------
     // 3 : ligne d'arrivee trouvee (machine d'etat + temps) -> on s'arrete
     //---------------------------------------------------------------------------
-    static uint8_t isInRace = 0;
+    static int8_t isInRace = 0;
     static bool oldIsStartStopNearFound = false;
     if (isStartStopNearFound && !(oldIsStartStopNearFound))
 	{
@@ -227,7 +221,15 @@ void gCompute_Execute(void)
 	isInRace = 2;
 	}
 
-    if (isInRace > 0)
+//    if (isInRace > 0)
+//	{
+//	TFC_BAT_LED3_ON;
+//	}
+//    else
+//	{
+//	TFC_BAT_LED3_OFF;
+//	}
+    if (isStartStopNearFound)
 	{
 	TFC_BAT_LED3_ON;
 	}
@@ -314,6 +316,8 @@ void gCompute_Execute(void)
     tRegPID(&mMotor2.aPIDData, (int16_t) (theSpeedMotor2 / 3.0));
     gComputeInterStruct.gCommandeMoteurGauche = mMotor2.aPIDData.commande;
     gComputeInterStruct.gCommandeMoteurDroit = mMotor1.aPIDData.commande;
+
+    TFC_BAT_LED2_OFF;
 //---------------------------------------------------------------------------
 //===========================================================================
 // FIN

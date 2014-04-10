@@ -153,7 +153,7 @@ int main(void)
 		    LineAnalyze[i] = LineScanImage0[i];
 		    }
 
-		mTrackLine_FindLine(LineAnalyze, 128, &positionLine, &isLineFound, &isStartStopFound, positionLine);
+		//mTrackLine_FindLine(LineAnalyze, 128, &positionLine, &isLineFound, &isStartStopFound, positionLine);
 		if (isLineFound)
 		    {
 		    TFC_BAT_LED0_ON;

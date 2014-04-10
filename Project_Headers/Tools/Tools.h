@@ -18,6 +18,7 @@
 
 //fichiers utilises
 #include "TFC\TFC.h"
+#include "arm_math.h"
 
 //--------------------------------------------------------
 //calcule la derivee d'un tableau (x' = dx/dy)
@@ -43,8 +44,7 @@ void tSuppressDC(int16_t* tab, uint16_t size);
 //		theScale: valeur max (absolue) que le tableau doit prendre
 //		aEcartMin: ecart minimal pour avoir le droit de faire le rescale
 //--------------------------------------------------------
-void tRescale(int16_t* tab, uint16_t size, uint16_t theScale,
-	uint16_t aEcartMin);
+void tRescale(int16_t* tab, uint16_t size, uint16_t theScale, uint16_t aEcartMin);
 
 //--------------------------------------------------------
 // etablit un seuil : si la valeur du tableau lui est superieur il prendra 1, sinon 0
@@ -72,6 +72,8 @@ uint16_t tMin(int16_t* tab, uint16_t size);
 int8_t tMax(int16_t* tab, uint16_t size);
 int8_t tMax_f(float* tab, uint16_t size);
 int8_t tMax_32(int32_t* tab, uint16_t size);
+void tMax_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
+	uint16_t size);
 
 //--------------------------------------------------------
 // renvoie la valeur de la moyenne du tableau
@@ -95,7 +97,6 @@ float tAbs_float(float x);
 // parametres : x	: valeur d'entree
 //--------------------------------------------------------
 int16_t tSign(int16_t x);
-
 
 //--------------------------------------------------------
 // renvoie la valeur mediane du tableau passe en entree

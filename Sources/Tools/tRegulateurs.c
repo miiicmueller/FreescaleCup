@@ -60,7 +60,7 @@ void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure)
 void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure)
     {
     int16_t erreur = theExpStruct->consigne - theMesure;
-    theExpStruct->commande = theExpStruct->coefficient * ((float) (erreur * erreur * erreur * erreur)) * tSign(erreur);
+    theExpStruct->commande = theExpStruct->coefficient * ((float) (erreur * erreur)) * tSign(erreur);
     if (tAbs_float(theExpStruct->commande) > kREGQUAD_BRAQUAGEMAX)
 	{
 	if (theExpStruct->commande < 0)

@@ -13,7 +13,7 @@
 
 void compute_differential(const float aAngleServo)
     {
-    float m = -0.8;
+    float m = -0.6667;
 
     if (aAngleServo >= 0.0)
 	{

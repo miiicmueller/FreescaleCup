@@ -45,8 +45,7 @@ void tSuppressDC(int16_t* tab, uint16_t size)
 //		theScale: valeur max (absolue) que le tableau doit prendre
 //		aEcartMin: ecart minimal pour avoir le droit de faire le rescale
 //--------------------------------------------------------
-void tRescale(int16_t* tab, uint16_t size, uint16_t theScale,
-	uint16_t aEcartMin)
+void tRescale(int16_t* tab, uint16_t size, uint16_t theScale, uint16_t aEcartMin)
     {
     float theFactor;
     int16_t oldMax = tab[tMax(tab, size)];
@@ -181,6 +180,37 @@ int8_t tMax_f(float* tab, uint16_t size)
 	    }
 	}
     return indexMax;
+    }
+
+//--------------------------------------------------------
+//renvoie l'indice de la valeur max du signal
+// parametre de retour	: indice de la valeur max
+// parametres : tab	: adresse du tableau a traiter
+//		size	: longueur du tableau
+//--------------------------------------------------------
+void tMax_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
+	uint16_t size)
+    {
+    *tabIndex1 = 0;
+    *tabIndex2 = 0;
+    *tabIndex3 = 0;
+
+    for (uint8_t i = 1; i < size; i++)
+	{
+	if (tab1[i] > tab1[*tabIndex1])
+	    {
+	    *tabIndex1 = i;
+	    }
+	if (tab2[i] > tab2[*tabIndex2])
+	    {
+	    *tabIndex2 = i;
+	    }
+	if (tab3[i] > tab3[*tabIndex3])
+	    {
+	    *tabIndex3 = i;
+	    }
+	}
+    return;
     }
 
 //--------------------------------------------------------

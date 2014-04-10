@@ -264,8 +264,8 @@ unsigned char ADC_Cal(ADC_MemMapPtr adcmap)
     ADC_SC3_REG(adcmap) |= (ADC_SC3_AVGE_MASK | ADC_SC3_AVGS(AVGS_32)); // Turn averaging ON and set at max value ( 32 )
 
     ADC_SC3_REG(adcmap) |= ADC_SC3_CAL_MASK; // Start CAL
-    while ((ADC_SC1_REG(adcmap,A) & ADC_SC1_COCO_MASK) == COCO_NOT)
-	; // Wait calibration end
+    while ((ADC_SC1_REG(adcmap,A)& ADC_SC1_COCO_MASK) == COCO_NOT)
+    ; // Wait calibration end
 
     if ((ADC_SC3_REG(adcmap) & ADC_SC3_CALF_MASK) == CALF_FAIL)
 	{
@@ -325,8 +325,8 @@ void ADC_Config_Alt(ADC_MemMapPtr adcmap, tADC_ConfigPtr ADC_CfgPtr)
     ADC_SC2_REG(adcmap) = ADC_CfgPtr->STATUS2;
     ADC_SC3_REG(adcmap) = ADC_CfgPtr->STATUS3;
     //ADC_PGA_REG(adcmap)  = ADC_CfgPtr->PGA;
-    ADC_SC1_REG(adcmap,A) = ADC_CfgPtr->STATUS1A;
-    ADC_SC1_REG(adcmap,B) = ADC_CfgPtr->STATUS1B;
+    ADC_SC1_REG(adcmap,A)= ADC_CfgPtr->STATUS1A;
+    ADC_SC1_REG(adcmap,B)= ADC_CfgPtr->STATUS1B;
     }
 
 void ADC_Read_Cal(ADC_MemMapPtr adcmap, tADC_Cal_Blk *blk)
@@ -363,9 +363,9 @@ void InitADC0()
 
     Master_Adc0_Config.CONFIG1 = ADLPC_NORMAL //No low power mode
     | ADC_CFG1_ADIV(ADIV_1) //divide input by 1
-    | ADLSMP_SHORT //short sample time
-    | ADC_CFG1_MODE(MODE_12) //single ended 8-bit conversion
-    | ADC_CFG1_ADICLK(ADICLK_BUS);
+	    | ADLSMP_SHORT //short sample time
+	    | ADC_CFG1_MODE(MODE_12) //single ended 8-bit conversion
+	    | ADC_CFG1_ADICLK(ADICLK_BUS);
 
     Master_Adc0_Config.CONFIG2 = MUXSEL_ADCA // select the A side of the ADC channel.
     | ADACKEN_DISABLED | ADHSC_HISPEED | ADC_CFG2_ADLSTS(ADLSTS_2); //Extra long sample Time (2 extra clocks)
@@ -375,11 +375,10 @@ void InitADC0()
 
     Master_Adc0_Config.STATUS2 = ADTRG_HW //hardware triggers for calibration
     | ACFE_DISABLED //disable comparator
-    | ACFGT_GREATER | ACREN_ENABLED | DMAEN_DISABLED //Disable DMA
-    | ADC_SC2_REFSEL(REFSEL_EXT); //External Reference
+	    | ACFGT_GREATER | ACREN_ENABLED | DMAEN_DISABLED //Disable DMA
+	    | ADC_SC2_REFSEL(REFSEL_EXT); //External Reference
 
-    Master_Adc0_Config.STATUS3 = CAL_OFF | ADCO_SINGLE | AVGE_ENABLED
-	    | ADC_SC3_AVGS(AVGS_4);
+    Master_Adc0_Config.STATUS3 = CAL_OFF | ADCO_SINGLE | AVGE_ENABLED | ADC_SC3_AVGS(AVGS_4);
 
     Master_Adc0_Config.PGA = 0; // Disable the PGA
 
@@ -392,11 +391,11 @@ void InitADC0()
     ADC_Config_Alt(ADC0_BASE_PTR, &Master_Adc0_Config); // config ADC
 
     // Calibrate the ADC in the configuration in which it will be used:
-    ADC_Cal(ADC0_BASE_PTR); // do the calibration
+    ADC_Cal(ADC0_BASE_PTR ); // do the calibration
 
     Master_Adc0_Config.STATUS2 = ACFE_DISABLED //disable comparator
     | ACFGT_GREATER | ACREN_ENABLED | DMAEN_DISABLED //Disable DMA
-    | ADC_SC2_REFSEL(REFSEL_EXT); //External Reference
+	    | ADC_SC2_REFSEL(REFSEL_EXT); //External Reference
 
     Master_Adc0_Config.STATUS3 = CAL_OFF | ADCO_SINGLE;
 
@@ -441,8 +440,8 @@ void PIT_IRQHandler()
     //Prime the ADC pump and start capturing POT 0
     CurrentADC_State = ADC_STATE_CAPTURE_POT_0;
 
-    ADC0_CFG2 &= ~ADC_CFG2_MUXSEL_MASK; //Select the A side of the mux
-    ADC0_SC1A = TFC_POT_0_ADC_CHANNEL | ADC_SC1_AIEN_MASK; //Start the State machine at POT0
+    ADC0_CFG2 &= ~ADC_CFG2_MUXSEL_MASK;//Select the A side of the mux
+    ADC0_SC1A = TFC_POT_0_ADC_CHANNEL | ADC_SC1_AIEN_MASK;//Start the State machine at POT0
     }
 
 void ADC0_IRQHandler()
@@ -451,119 +450,119 @@ void ADC0_IRQHandler()
     switch (CurrentADC_State)
 	{
     default:
-	Junk = ADC0_RA;
+	Junk = ADC0_RA ;
 	break;
 
-    case ADC_STATE_CAPTURE_POT_0:
+	case ADC_STATE_CAPTURE_POT_0:
 
 	PotADC_Value[0] = ADC0_RA;
 	ADC0_CFG2 &= ~ADC_CFG2_MUXSEL_MASK; //Select the A side of the mux
-	ADC0_SC1A = TFC_POT_1_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
-	CurrentADC_State = ADC_STATE_CAPTURE_POT_1;
+		ADC0_SC1A = TFC_POT_1_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
+		CurrentADC_State = ADC_STATE_CAPTURE_POT_1;
 
-	break;
+		break;
 
-    case ADC_STATE_CAPTURE_POT_1:
+		case ADC_STATE_CAPTURE_POT_1:
 
-	PotADC_Value[1] = ADC0_RA;
-	ADC0_CFG2 |= ADC_CFG2_MUXSEL_MASK; //Select the B side of the mux
-	ADC0_SC1A = TFC_BAT_SENSE_CHANNEL | ADC_SC1_AIEN_MASK;
-	CurrentADC_State = ADC_STATE_CAPTURE_BATTERY_LEVEL;
+		PotADC_Value[1] = ADC0_RA;
+		ADC0_CFG2 |= ADC_CFG2_MUXSEL_MASK;//Select the B side of the mux
+		ADC0_SC1A = TFC_BAT_SENSE_CHANNEL | ADC_SC1_AIEN_MASK;
+		CurrentADC_State = ADC_STATE_CAPTURE_BATTERY_LEVEL;
 
-	break;
+		break;
 
-    case ADC_STATE_CAPTURE_BATTERY_LEVEL:
+		case ADC_STATE_CAPTURE_BATTERY_LEVEL:
 
-	BatSenseADC_Value = ADC0_RA;
+		BatSenseADC_Value = ADC0_RA;
 
-	//Now we will start the sequence for the Linescan camera
+		//Now we will start the sequence for the Linescan camera
 
-	TAOS_CLK_HIGH;
-
-	for (Junk = 0; Junk < 3; Junk++)
-	    {
-	    }
-
-	TAOS_SI_LOW;
-
-	CurrentLineScanPixel = 0;
-	CurrentLineScanChannel = 0;
-	CurrentADC_State = ADC_STATE_CAPTURE_LINE_SCAN;
-	ADC0_CFG2 |= ADC_CFG2_MUXSEL_MASK; //Select the B side of the mux
-	ADC0_SC1A = TFC_LINESCAN0_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
-
-	break;
-
-    case ADC_STATE_CAPTURE_LINE_SCAN:
-
-	if (CurrentLineScanPixel < 128)
-	    {
-	    if (CurrentLineScanChannel == 0)
-		{
-		LineScanImage0WorkingBuffer[CurrentLineScanPixel] = ADC0_RA;
-		ADC0_SC1A = TFC_LINESCAN1_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
-		CurrentLineScanChannel = 1;
-
-		}
-	    else
-		{
-		LineScanImage1WorkingBuffer[CurrentLineScanPixel] = ADC0_RA;
-		ADC0_SC1A = TFC_LINESCAN0_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
-		CurrentLineScanChannel = 0;
-		CurrentLineScanPixel++;
-
-		TAOS_CLK_LOW;
-		for (Junk = 0; Junk < 2; Junk++)
-		    {
-		    }
 		TAOS_CLK_HIGH;
 
+		for (Junk = 0; Junk < 3; Junk++)
+		    {
+		    }
+
+		TAOS_SI_LOW;
+
+		CurrentLineScanPixel = 0;
+		CurrentLineScanChannel = 0;
+		CurrentADC_State = ADC_STATE_CAPTURE_LINE_SCAN;
+		ADC0_CFG2 |= ADC_CFG2_MUXSEL_MASK; //Select the B side of the mux
+		ADC0_SC1A = TFC_LINESCAN0_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
+
+		break;
+
+		case ADC_STATE_CAPTURE_LINE_SCAN:
+
+		if (CurrentLineScanPixel < 128)
+		    {
+		    if (CurrentLineScanChannel == 0)
+			{
+			LineScanImage0WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2; //TODO vérifier si le décalage fonctionne
+			ADC0_SC1A = TFC_LINESCAN1_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
+			CurrentLineScanChannel = 1;
+
+			}
+		    else
+			{
+			LineScanImage1WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2; //TODO vérifier si le décalage fonctionne
+			ADC0_SC1A = TFC_LINESCAN0_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
+			CurrentLineScanChannel = 0;
+			CurrentLineScanPixel++;
+
+			TAOS_CLK_LOW;
+			for (Junk = 0; Junk < 2; Junk++)
+			    {
+			    }
+			TAOS_CLK_HIGH;
+
+			}
+
+		    }
+		else
+		    {
+		    // done with the capture sequence.  we can wait for the PIT0 IRQ to restart
+
+		    TAOS_CLK_HIGH;
+
+		    for (Junk = 0; Junk < 2; Junk++)
+			{
+			}
+
+		    TAOS_CLK_LOW;
+		    CurrentADC_State = ADC_STATE_INIT;
+
+		    //swap the buffer
+
+		    if (LineScanWorkingBuffer == 0)
+			{
+			LineScanWorkingBuffer = 1;
+
+			LineScanImage0WorkingBuffer = &LineScanImage0Buffer[1][0];
+			LineScanImage1WorkingBuffer = &LineScanImage1Buffer[1][0];
+
+			LineScanImage0 = &LineScanImage0Buffer[0][0];
+			LineScanImage1 = &LineScanImage1Buffer[0][0];
+			}
+		    else
+			{
+			LineScanWorkingBuffer = 0;
+			LineScanImage0WorkingBuffer = &LineScanImage0Buffer[0][0];
+			LineScanImage1WorkingBuffer = &LineScanImage1Buffer[0][0];
+
+			LineScanImage0 = &LineScanImage0Buffer[1][0];
+			LineScanImage1 = &LineScanImage1Buffer[1][0];
+			}
+
+		    LineScanImageReady = TRUE;
+		    }
+
+		break;
+
 		}
 
 	    }
-	else
-	    {
-	    // done with the capture sequence.  we can wait for the PIT0 IRQ to restart
-
-	    TAOS_CLK_HIGH;
-
-	    for (Junk = 0; Junk < 2; Junk++)
-		{
-		}
-
-	    TAOS_CLK_LOW;
-	    CurrentADC_State = ADC_STATE_INIT;
-
-	    //swap the buffer
-
-	    if (LineScanWorkingBuffer == 0)
-		{
-		LineScanWorkingBuffer = 1;
-
-		LineScanImage0WorkingBuffer = &LineScanImage0Buffer[1][0];
-		LineScanImage1WorkingBuffer = &LineScanImage1Buffer[1][0];
-
-		LineScanImage0 = &LineScanImage0Buffer[0][0];
-		LineScanImage1 = &LineScanImage1Buffer[0][0];
-		}
-	    else
-		{
-		LineScanWorkingBuffer = 0;
-		LineScanImage0WorkingBuffer = &LineScanImage0Buffer[0][0];
-		LineScanImage1WorkingBuffer = &LineScanImage1Buffer[0][0];
-
-		LineScanImage0 = &LineScanImage0Buffer[1][0];
-		LineScanImage1 = &LineScanImage1Buffer[1][0];
-		}
-
-	    LineScanImageReady = TRUE;
-	    }
-
-	break;
-
-	}
-
-    }
 
 //Pot Reading is Scaled to return a value of -1.0 to 1.0
 float TFC_ReadPot(uint8_t Channel)
@@ -576,6 +575,6 @@ float TFC_ReadPot(uint8_t Channel)
 
 float TFC_ReadBatteryVoltage()
     {
-    return (((float) BatSenseADC_Value / (float) (ADC_MAX_CODE)) * 3.0); // * ((47000.0+10000.0)/10000.0);
+    return (((float) BatSenseADC_Value / (float) (ADC_MAX_CODE))* 3.0); // * ((47000.0+10000.0)/10000.0);
     }
 
