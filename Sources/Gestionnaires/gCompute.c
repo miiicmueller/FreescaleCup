@@ -17,12 +17,8 @@
 #include "Tools/tDifferential.h"
 
 #define kLENGTHLINESCAN (uint16_t)128
-#define kMEDIANFILTERSIZE 7
-#define T_ERROR_MAX_BREAK 30
-#define K_BRAKE_FACTOR 0.4
-#define K_BRAKE_FACTOR_DER 0.0
+#define kMEDIANFILTERSIZE 9
 
-#define K_LOST_MAX_NUM 300  // 3s
 /* prototypes des fonctions statiques (propres au fichier) */
 static tRegulateurQuadStruct theRegServo;
 
@@ -65,17 +61,17 @@ void gCompute_Setup(void)
     //sans monitoring on fixe des constantes
     mMotor1.aPIDData.consigne = 0.4;
     mMotor1.aPIDData.erreurPrecedente = 0;
-    mMotor1.aPIDData.kd = 0.015;
-    mMotor1.aPIDData.kp = 1.0;
-    mMotor1.aPIDData.ki = 0.32;
+    mMotor1.aPIDData.kd = 0.012;
+    mMotor1.aPIDData.kp = 0.8;
+    mMotor1.aPIDData.ki = 0.12;
     mMotor1.aPIDData.coeffNormalisation = 0.01;
     mMotor1.aPIDData.sommeErreurs = 0;
 
     mMotor2.aPIDData.consigne = 0.4;
     mMotor2.aPIDData.erreurPrecedente = 0;
-    mMotor2.aPIDData.kd = 0.015;
-    mMotor2.aPIDData.kp = 1.0;
-    mMotor2.aPIDData.ki = 0.32;
+    mMotor2.aPIDData.kd = 0.012;
+    mMotor2.aPIDData.kp = 0.8;
+    mMotor2.aPIDData.ki = 0.12;
     mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aPIDData.sommeErreurs = 0;
 
@@ -164,15 +160,15 @@ void gCompute_Execute(void)
     // 2 : filtrage des positions des lignes et des vitesse des moteurs
     //---------------------------------------------------------------------------
     static uint8_t posFiltre = 0;
-    static uint32_t theLineNearTab[kMEDIANFILTERSIZE];
-    static uint32_t theLineFarTab[kMEDIANFILTERSIZE];
+//    static uint32_t theLineNearTab[kMEDIANFILTERSIZE];
+//    static uint32_t theLineFarTab[kMEDIANFILTERSIZE];
     static uint32_t theMotor1Tab[kMEDIANFILTERSIZE];
     static uint32_t theMotor2Tab[kMEDIANFILTERSIZE];
     static float theSpeedMotor1 = 0;
     static float theSpeedMotor2 = 0;
 
-    theLineNearTab[posFiltre] = theLineNearPosition;
-    theLineFarTab[posFiltre] = theLineFarPosition;
+//    theLineNearTab[posFiltre] = theLineNearPosition;
+//    theLineFarTab[posFiltre] = theLineFarPosition;
     theMotor1Tab[posFiltre] = mMotor1.aCapt;
     theMotor2Tab[posFiltre] = mMotor2.aCapt;
 
@@ -221,7 +217,7 @@ void gCompute_Execute(void)
 	isInRace = 2;
 	}
 
-//    if (isInRace > 0)
+//    if (isInRace > 0)//TODO : remettre quand on aura la ligne d'arrivée
 //	{
 //	TFC_BAT_LED3_ON;
 //	}
@@ -229,7 +225,7 @@ void gCompute_Execute(void)
 //	{
 //	TFC_BAT_LED3_OFF;
 //	}
-    if (isStartStopNearFound)
+    if (isStartStopNearFound)    //TODO : enlever quand on aura la ligne d'arrivée
 	{
 	TFC_BAT_LED3_ON;
 	}
@@ -283,7 +279,6 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     else
 	{
-
 	theRegServo.consigne = (int16_t) ((theLineFarPosition - (int16_t) (kLENGTHLINESCAN / 2))
 		* (-kCONSIGNEPROCHECORRECTION ));
 	theLineMesure = theLineNearPosition;
@@ -292,7 +287,56 @@ void gCompute_Execute(void)
 	}
 
     //---------------------------------------------------------------------------
-    // 5 : application des regulateurs
+    // 5 : freinage dans les virages
+    //---------------------------------------------------------------------------
+    static int16_t aDerivee = 0;
+    static int16_t theOldLineFarPosition = 0;
+    static int16_t aMoyenneDerivees = 0;
+    static bool freinage = false;
+    static int16_t aVitesseFreinage = 0;
+
+    aDerivee = theLineFarPosition - theOldLineFarPosition;    //dérivée de l'erreur
+    theOldLineFarPosition = theLineFarPosition;
+    aMoyenneDerivees = (aMoyenneDerivees * (kNMOY_DERIVEE - 1) + aDerivee);    //moyenne des dérivées
+
+    //on teste si on entre dans un virage
+    freinage = false;
+    if ((aMoyenneDerivees * theLineFarPosition) > 0) //seul le signe nous intéresse (dérivée dans le même sens que l'éch -> on s'éloigne du centre)
+	{
+	if (aMoyenneDerivees > kSEUIL_DERIVEE_VIRAGE)
+	    {
+	    freinage = true;
+	    }
+	}
+    aMoyenneDerivees /= kNMOY_DERIVEE; //on divise après la comparaison pour ne pas perdre de résolution
+
+    //on freine en fonction de la moyenne des dérivées (plus elle est grande, plus on freine)
+    if (freinage)
+	{
+	//aVitesseFreinage = (int16_t) ((float) aMoyenneDerivees * kBRAKE_COEFF + kSPEED_MAX);
+	//aVitesseFreinage = (int16_t) ((float) aMoyenneDerivees * kBRAKE_COEFF + kSPEED_MAX);
+	//aVitesseFreinage = kSPEED_MAX - gInputInterStruct.vMax + kSPEED_MIN;
+	aVitesseFreinage = kSPEED_MIN;
+	}
+    else
+	{
+	aVitesseFreinage = gInputInterStruct.vMax;
+	}
+
+    //on teste si la vitesse n'est pas supérieure à la vitesse max autorisée
+    if (aVitesseFreinage < gInputInterStruct.vMax)
+	{
+	mMotor1.aPIDData.consigne = aVitesseFreinage;
+	mMotor2.aPIDData.consigne = aVitesseFreinage;
+	}
+    else
+	{
+	mMotor1.aPIDData.consigne = gInputInterStruct.vMax;
+	mMotor2.aPIDData.consigne = gInputInterStruct.vMax;
+	}
+
+    //---------------------------------------------------------------------------
+    // 6 : application des regulateurs
     //---------------------------------------------------------------------------
     //regulation camera proche
     theLineMesure -= (int16_t) (kLENGTHLINESCAN / 2);
@@ -308,8 +352,8 @@ void gCompute_Execute(void)
 
     // 5 : differentiel
     compute_differential(gComputeInterStruct.gCommandeServoDirection);
-    mMotor1.aPIDData.consigne *= mMotor1.aDifferential;
-    mMotor2.aPIDData.consigne *= mMotor2.aDifferential;
+    mMotor1.aPIDData.consigne = (int16_t) ((float) mMotor1.aPIDData.consigne * mMotor1.aDifferential);
+    mMotor2.aPIDData.consigne = (int16_t) ((float) mMotor2.aPIDData.consigne * mMotor2.aDifferential);
 
     // PIDs Moteurs
     tRegPID(&mMotor1.aPIDData, (int16_t) (theSpeedMotor1 / 3.0)); // Frequence entre 0 et 100

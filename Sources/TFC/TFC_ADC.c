@@ -499,14 +499,14 @@ void ADC0_IRQHandler()
 		    {
 		    if (CurrentLineScanChannel == 0)
 			{
-			LineScanImage0WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2; //TODO vérifier si le décalage fonctionne
+			LineScanImage0WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2;
 			ADC0_SC1A = TFC_LINESCAN1_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
 			CurrentLineScanChannel = 1;
 
 			}
 		    else
 			{
-			LineScanImage1WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2; //TODO vérifier si le décalage fonctionne
+			LineScanImage1WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2;
 			ADC0_SC1A = TFC_LINESCAN0_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
 			CurrentLineScanChannel = 0;
 			CurrentLineScanPixel++;

@@ -35,8 +35,7 @@ void gInput_Execute(void)
     mMotor1.aPIDData.consigne = (int16_t) (gXbeeInterStruct.aMotorSpeedCons);
     mMotor2.aPIDData.consigne = (int16_t) (gXbeeInterStruct.aMotorSpeedCons);
 #else
-    mMotor1.aPIDData.consigne = kSPEED_DUTY_1 * tAbs_float(TFC_ReadPot(1)); //53.0
-    mMotor2.aPIDData.consigne = kSPEED_DUTY_1 * tAbs_float(TFC_ReadPot(1)); //53.0
+    gInputInterStruct.vMax = (int16_t) (kSPEED_MAX * (TFC_ReadPot(1) + 1));
 #endif
     }
 

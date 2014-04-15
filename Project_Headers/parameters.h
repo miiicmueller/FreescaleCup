@@ -14,20 +14,21 @@
 //temps de cycle d'execution des gestionnaires
 #define kGEST_CYCLETIME 5 //en ms
 //
-//parametres concernant le freinage
-#define kFULL_BRAKE -0.75
-#define kHALF_BRAKE -0.45
 
 //parametres concernant la vitesse
-#define kSPEED_DUTY_1 60.0
-#define k_SPEED_LOWEST 28.0
-
-//parametres des gains du PID moteurs
+#define kSPEED_MAX 60.0
+#define kSPEED_MIN 20.0
 
 //parametres du regulateur de direction
-#define kCONSIGNEPROCHECORRECTION (float)1.0 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
-#define kREGQUAD_BRAQUAGEMAX (float)0.8 //valeur a laquelle les roues sont tournees a fond
+#define kCONSIGNEPROCHECORRECTION (float)1.15 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
+#define kREGQUAD_BRAQUAGEMAX (float)0.60 //valeur a laquelle les roues sont tournees a fond
 #define kREGQUAD_ERREURMAX (float)64.0 //erreur a laquelle le braquage est max
+//
+//parametres concernant le freinage
+#define kNMOY_DERIVEE 3
+#define kBRAKE_COEFF -((float)kSPEED_MAX-(float)kSPEED_MIN)/(kREGQUAD_ERREURMAX/(kNMOY_DERIVEE+2))
+#define kSEUIL_DERIVEE_VIRAGE 15
+
 //
 //parametres de l'eclairement des LEDs et du temps d'exposition des cameras
 #define kLEDSPWM (float)0.8 //de -1 a 1 ------- (0% a 100%) ----- 0 : 50% de duty cycle

@@ -25,6 +25,7 @@ typedef struct
 	uint8_t gPosCam2; //position de la ligne sur l'image de la caméra 2
 	uint8_t gBattLev;
 	float gFreq[2]; // 0 : freq moteur gauche, 1 : freq moteur droit
+	int16_t vMax;
     } InpInterStruct;
 
 // Création du type de la structure contenant les outputs

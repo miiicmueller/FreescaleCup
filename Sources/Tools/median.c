@@ -20,8 +20,6 @@
  * \brief   Calculates the median of 8 integer samples
  * \author  Luis Puebla
  * \param   new_value, struct tipo_mediana *medicion
- * \return   a median value of the last 8 samples
- * \warning
  */
 int median(int new_value, struct tipo_mediana *medicion)
     {
