@@ -241,6 +241,7 @@ volatile uint16_t BatSenseADC_Value;
 static uint8_t CurrentADC_State = ADC_STATE_INIT;
 
 volatile uint8_t CurrentLineScanPixel = 0;
+volatile uint8_t CurrentLineScanPixel2 = 0;
 volatile uint8_t CurrentLineScanChannel = 0;
 
 void InitADC0();
@@ -486,6 +487,7 @@ void ADC0_IRQHandler()
 		TAOS_SI_LOW;
 
 		CurrentLineScanPixel = 0;
+		CurrentLineScanPixel2 = 0;
 		CurrentLineScanChannel = 0;
 		CurrentADC_State = ADC_STATE_CAPTURE_LINE_SCAN;
 		ADC0_CFG2 |= ADC_CFG2_MUXSEL_MASK; //Select the B side of the mux
@@ -499,17 +501,18 @@ void ADC0_IRQHandler()
 		    {
 		    if (CurrentLineScanChannel == 0)
 			{
-			LineScanImage0WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2;
+			LineScanImage0WorkingBuffer[CurrentLineScanPixel2] = ADC0_RA << 2;
 			ADC0_SC1A = TFC_LINESCAN1_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
 			CurrentLineScanChannel = 1;
 
 			}
 		    else
 			{
-			LineScanImage1WorkingBuffer[CurrentLineScanPixel] = ADC0_RA << 2;
+			LineScanImage1WorkingBuffer[CurrentLineScanPixel2] = ADC0_RA << 2;
 			ADC0_SC1A = TFC_LINESCAN0_ADC_CHANNEL | ADC_SC1_AIEN_MASK;
 			CurrentLineScanChannel = 0;
 			CurrentLineScanPixel++;
+			CurrentLineScanPixel2=CurrentLineScanPixel/2;
 
 			TAOS_CLK_LOW;
 			for (Junk = 0; Junk < 2; Junk++)

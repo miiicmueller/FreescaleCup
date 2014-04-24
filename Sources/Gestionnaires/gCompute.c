@@ -61,17 +61,17 @@ void gCompute_Setup(void)
     //sans monitoring on fixe des constantes
     mMotor1.aPIDData.consigne = 0.4;
     mMotor1.aPIDData.erreurPrecedente = 0;
-    mMotor1.aPIDData.kd = 0.012;
+    mMotor1.aPIDData.kd = 0.03;
     mMotor1.aPIDData.kp = 0.8;
-    mMotor1.aPIDData.ki = 0.12;
+    mMotor1.aPIDData.ki = 0.024;
     mMotor1.aPIDData.coeffNormalisation = 0.01;
     mMotor1.aPIDData.sommeErreurs = 0;
 
     mMotor2.aPIDData.consigne = 0.4;
     mMotor2.aPIDData.erreurPrecedente = 0;
-    mMotor2.aPIDData.kd = 0.012;
+    mMotor2.aPIDData.kd = 0.03;
     mMotor2.aPIDData.kp = 0.8;
-    mMotor2.aPIDData.ki = 0.12;
+    mMotor2.aPIDData.ki = 0.024;
     mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aPIDData.sommeErreurs = 0;
 
@@ -127,8 +127,6 @@ void gCompute_Execute(void)
 
     static int16_t theLineMesure = 0;
 
-    TFC_BAT_LED2_ON;
-
     LineNear = (int16_t*) LineScanImage1;
     LineFar = (int16_t*) LineScanImage0;
 
@@ -160,15 +158,15 @@ void gCompute_Execute(void)
     // 2 : filtrage des positions des lignes et des vitesse des moteurs
     //---------------------------------------------------------------------------
     static uint8_t posFiltre = 0;
-//    static uint32_t theLineNearTab[kMEDIANFILTERSIZE];
-//    static uint32_t theLineFarTab[kMEDIANFILTERSIZE];
+    static uint32_t theLineNearTab[kMEDIANFILTERSIZE];
+    static uint32_t theLineFarTab[kMEDIANFILTERSIZE];
     static uint32_t theMotor1Tab[kMEDIANFILTERSIZE];
     static uint32_t theMotor2Tab[kMEDIANFILTERSIZE];
     static float theSpeedMotor1 = 0;
     static float theSpeedMotor2 = 0;
 
-//    theLineNearTab[posFiltre] = theLineNearPosition;
-//    theLineFarTab[posFiltre] = theLineFarPosition;
+    theLineNearTab[posFiltre] = theLineNearPosition;
+    theLineFarTab[posFiltre] = theLineFarPosition;
     theMotor1Tab[posFiltre] = mMotor1.aCapt;
     theMotor2Tab[posFiltre] = mMotor2.aCapt;
 
@@ -181,8 +179,8 @@ void gCompute_Execute(void)
 	posFiltre = 0;
 	}
 
-//    theLineNearPosition = median_filter_n(theLineNearTab, kMEDIANFILTERSIZE);
-//    theLineFarPosition = median_filter_n(theLineFarTab, kMEDIANFILTERSIZE);
+    theLineNearPosition = median_filter_n(theLineNearTab, kMEDIANFILTERSIZE);
+    theLineFarPosition = median_filter_n(theLineFarTab, kMEDIANFILTERSIZE);
     theSpeedMotor1 = median_filter_n(theMotor1Tab, kMEDIANFILTERSIZE);
     theSpeedMotor2 = median_filter_n(theMotor2Tab, kMEDIANFILTERSIZE);
 
@@ -217,15 +215,7 @@ void gCompute_Execute(void)
 	isInRace = 2;
 	}
 
-//    if (isInRace > 0)//TODO : remettre quand on aura la ligne d'arrivée
-//	{
-//	TFC_BAT_LED3_ON;
-//	}
-//    else
-//	{
-//	TFC_BAT_LED3_OFF;
-//	}
-    if (isStartStopNearFound)    //TODO : enlever quand on aura la ligne d'arrivée
+    if (isInRace > 0)
 	{
 	TFC_BAT_LED3_ON;
 	}
@@ -269,7 +259,7 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     else if ((isLineNearFound == false) && (isLineFarFound == true))
 	{
-	theLineMesure = theLineFarPosition; //TODO : a tester!!! pas sur...
+	theLineMesure = theLineFarPosition;
 	perteLigne = 0;
 	}
 
@@ -361,7 +351,6 @@ void gCompute_Execute(void)
     gComputeInterStruct.gCommandeMoteurGauche = mMotor2.aPIDData.commande;
     gComputeInterStruct.gCommandeMoteurDroit = mMotor1.aPIDData.commande;
 
-    TFC_BAT_LED2_OFF;
 //---------------------------------------------------------------------------
 //===========================================================================
 // FIN

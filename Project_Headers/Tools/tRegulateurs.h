@@ -10,7 +10,7 @@
 
 //fichiers utilises
 #include "TFC/TFC.h"
-#define WINDOWPID_SIZE 10
+#define WINDOWPID_SIZE 20
 
 //structure
 typedef struct

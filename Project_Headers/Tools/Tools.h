@@ -61,7 +61,8 @@ void tThreshold(int16_t* tab, uint16_t size, uint16_t Threshold);
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-uint16_t tMin(int16_t* tab, uint16_t size);
+uint8_t tMin(int16_t* tab, uint16_t size);
+uint8_t tMin_q15(q15_t* tab, uint16_t size);
 
 //--------------------------------------------------------
 //renvoie l'indice de la valeur max du signal
@@ -69,10 +70,10 @@ uint16_t tMin(int16_t* tab, uint16_t size);
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-int8_t tMax(int16_t* tab, uint16_t size);
-int8_t tMax_f(float* tab, uint16_t size);
-int8_t tMax_32(int32_t* tab, uint16_t size);
-void tMax_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
+uint8_t tMax(int16_t* tab, uint16_t size);
+uint8_t tMax_f(float* tab, uint16_t size);
+uint8_t tMax_32(int32_t* tab, uint16_t size);
+void tMaxMin_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
 	uint16_t size);
 
 //--------------------------------------------------------

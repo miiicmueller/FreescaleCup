@@ -108,11 +108,31 @@ void tThreshold(int16_t* tab, uint16_t size, uint16_t Threshold)
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-uint16_t tMin(int16_t* tab, uint16_t size)
+uint8_t tMin(int16_t* tab, uint16_t size)
     {
-    uint16_t indexMin = 0;
+    uint8_t indexMin = 0;
 
-    for (uint16_t i = 1; i < size; i++)
+    for (uint8_t i = 1; i < size; i++)
+	{
+	if (tab[i] < tab[indexMin])
+	    {
+	    indexMin = i;
+	    }
+	}
+    return indexMin;
+    }
+
+//--------------------------------------------------------
+//renvoie l'indice de la valeur min du signal
+// parametre de retour	: indice de la valeur min
+// parametres : tab	: adresse du tableau a traiter
+//		size	: longueur du tableau
+//--------------------------------------------------------
+uint8_t tMin_q15(q15_t* tab, uint16_t size)
+    {
+    uint8_t indexMin = 0;
+
+    for (uint8_t i = 1; i < size; i++)
 	{
 	if (tab[i] < tab[indexMin])
 	    {
@@ -128,47 +148,7 @@ uint16_t tMin(int16_t* tab, uint16_t size)
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-int8_t tMax(int16_t* tab, uint16_t size)
-    {
-    uint16_t indexMax = 0;
-
-    for (uint16_t i = 1; i < size; i++)
-	{
-	if (tab[i] > tab[indexMax])
-	    {
-	    indexMax = i;
-	    }
-	}
-    return indexMax;
-    }
-
-//--------------------------------------------------------
-//renvoie l'indice de la valeur max du signal
-// parametre de retour	: indice de la valeur max
-// parametres : tab	: adresse du tableau a traiter
-//		size	: longueur du tableau
-//--------------------------------------------------------
-int8_t tMax_32(int32_t* tab, uint16_t size)
-    {
-    uint16_t indexMax = 0;
-
-    for (uint16_t i = 1; i < size; i++)
-	{
-	if (tab[i] > tab[indexMax])
-	    {
-	    indexMax = i;
-	    }
-	}
-    return indexMax;
-    }
-
-//--------------------------------------------------------
-//renvoie l'indice de la valeur max du signal
-// parametre de retour	: indice de la valeur max
-// parametres : tab	: adresse du tableau a traiter
-//		size	: longueur du tableau
-//--------------------------------------------------------
-int8_t tMax_f(float* tab, uint16_t size)
+uint8_t tMax(int16_t* tab, uint16_t size)
     {
     uint8_t indexMax = 0;
 
@@ -188,7 +168,67 @@ int8_t tMax_f(float* tab, uint16_t size)
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-void tMax_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
+uint8_t tMax_32(int32_t* tab, uint16_t size)
+    {
+    uint8_t indexMax = 0;
+
+    for (uint8_t i = 1; i < size; i++)
+	{
+	if (tab[i] > tab[indexMax])
+	    {
+	    indexMax = i;
+	    }
+	}
+    return indexMax;
+    }
+
+//--------------------------------------------------------
+//renvoie l'indice de la valeur max du signal
+// parametre de retour	: indice de la valeur max
+// parametres : tab	: adresse du tableau a traiter
+//		size	: longueur du tableau
+//--------------------------------------------------------
+uint8_t tMax_f(float* tab, uint16_t size)
+    {
+    uint8_t indexMax = 0;
+
+    for (uint8_t i = 1; i < size; i++)
+	{
+	if (tab[i] > tab[indexMax])
+	    {
+	    indexMax = i;
+	    }
+	}
+    return indexMax;
+    }
+
+//--------------------------------------------------------
+//renvoie l'indice de la valeur max du signal
+// parametre de retour	: indice de la valeur max
+// parametres : tab	: adresse du tableau a traiter
+//		size	: longueur du tableau
+//--------------------------------------------------------
+uint8_t tMax_q15(q15_t* tab, uint16_t size)
+    {
+    uint8_t indexMax = 0;
+
+    for (uint8_t i = 1; i < size; i++)
+	{
+	if (tab[i] > tab[indexMax])
+	    {
+	    indexMax = i;
+	    }
+	}
+    return indexMax;
+    }
+
+//--------------------------------------------------------
+//renvoie l'indice de la valeur max du signal
+// parametre de retour	: indice de la valeur max
+// parametres : tab	: adresse du tableau a traiter
+//		size	: longueur du tableau
+//--------------------------------------------------------
+void tMaxMin_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
 	uint16_t size)
     {
     *tabIndex1 = 0;
@@ -205,7 +245,8 @@ void tMax_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2,
 	    {
 	    *tabIndex2 = i;
 	    }
-	if (tab3[i] > tab3[*tabIndex3])
+	//min pour la ligne d'arrivée
+	if (tab3[i] < tab3[*tabIndex3])
 	    {
 	    *tabIndex3 = i;
 	    }

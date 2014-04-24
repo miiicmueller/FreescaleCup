@@ -48,13 +48,14 @@ int main(void)
 		//Notre magnifique programme
 		if ((TFC_Ticker[0] >= kGEST_CYCLETIME) && (LineScanImageReady == 1))
 		    {
-
+		    TFC_BAT_LED2_ON;
 		    TFC_Ticker[0] = 0;
 		    LineScanImageReady = 0;
 
 		    gInput_Execute();
 		    gCompute_Execute();
 		    gOutput_Execute();
+		    TFC_BAT_LED2_OFF;
 
 		    }
 #ifdef MONITORING_ENABLED
