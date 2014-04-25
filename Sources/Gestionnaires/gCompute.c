@@ -61,17 +61,17 @@ void gCompute_Setup(void)
     //sans monitoring on fixe des constantes
     mMotor1.aPIDData.consigne = 0.4;
     mMotor1.aPIDData.erreurPrecedente = 0;
-    mMotor1.aPIDData.kd = 0.03;
+    mMotor1.aPIDData.kd = 0.05;
     mMotor1.aPIDData.kp = 0.8;
-    mMotor1.aPIDData.ki = 0.024;
+    mMotor1.aPIDData.ki = 0.09;
     mMotor1.aPIDData.coeffNormalisation = 0.01;
     mMotor1.aPIDData.sommeErreurs = 0;
 
     mMotor2.aPIDData.consigne = 0.4;
     mMotor2.aPIDData.erreurPrecedente = 0;
-    mMotor2.aPIDData.kd = 0.03;
+    mMotor2.aPIDData.kd = 0.05;
     mMotor2.aPIDData.kp = 0.8;
-    mMotor2.aPIDData.ki = 0.024;
+    mMotor2.aPIDData.ki = 0.09;
     mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aPIDData.sommeErreurs = 0;
 
@@ -201,6 +201,7 @@ void gCompute_Execute(void)
     //---------------------------------------------------------------------------
     static int8_t isInRace = 0;
     static bool oldIsStartStopNearFound = false;
+    static int16_t aDirConsigne = 0;
     if (isStartStopNearFound && !(oldIsStartStopNearFound))
 	{
 	if (isInRace > 0)
@@ -269,36 +270,57 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     else
 	{
-	theRegServo.consigne = (int16_t) ((theLineFarPosition - (int16_t) (kLENGTHLINESCAN / 2))
-		* (-kCONSIGNEPROCHECORRECTION ));
+	aDirConsigne =
+		(int16_t) ((theLineFarPosition - (int16_t) (kLENGTHLINESCAN / 2)) * (-kCONSIGNEPROCHECORRECTION ));
 	theLineMesure = theLineNearPosition;
 
 	perteLigne = 0;
 	}
+
+    //-----------------------------------------------------------------------
+    // 4.5 : filtrage de la consigne de direction
+    //-----------------------------------------------------------------------
+    theRegServo.consigne = (theRegServo.consigne * 4 + aDirConsigne);
+    theRegServo.consigne /= 5;
 
     //---------------------------------------------------------------------------
     // 5 : freinage dans les virages
     //---------------------------------------------------------------------------
     static int16_t aDerivee = 0;
     static int16_t theOldLineFarPosition = 0;
-    static int16_t aMoyenneDerivees = 0;
+    static float aMoyenneDerivees = 0;
     static bool freinage = false;
     static int16_t aVitesseFreinage = 0;
 
-    aDerivee = theLineFarPosition - theOldLineFarPosition;    //dérivée de l'erreur
-    theOldLineFarPosition = theLineFarPosition;
-    aMoyenneDerivees = (aMoyenneDerivees * (kNMOY_DERIVEE - 1) + aDerivee);    //moyenne des dérivées
+//    aDerivee = theLineFarPosition - theOldLineFarPosition;    //dérivée de l'erreur
+//    theOldLineFarPosition = theLineFarPosition;
+//    aMoyenneDerivees = (aMoyenneDerivees * (kNMOY_DERIVEE - 1) + aDerivee);    //moyenne des dérivées
+//
+//    //on teste si on entre dans un virage
+//    if (TFC_Ticker[2] >= kTEMPS_FREINAGE)
+//	{
+//	freinage = false;
+//	}
+//    if ((aMoyenneDerivees * (theLineFarPosition - (kLENGTHLINESCAN / 2))) > 0) //seul le signe nous intéresse (dérivée dans le même sens que l'éch -> on s'éloigne du centre)
+//	{
+//	if (aMoyenneDerivees > kSEUIL_DERIVEE_VIRAGE)
+//	    {
+//	    freinage = true;
+//	    TFC_Ticker[2] = 0;
+//	    }
+//	}
+//    aMoyenneDerivees = aMoyenneDerivees / kNMOY_DERIVEE; //on divise après la comparaison pour ne pas perdre de résolution
 
     //on teste si on entre dans un virage
-    freinage = false;
-    if ((aMoyenneDerivees * theLineFarPosition) > 0) //seul le signe nous intéresse (dérivée dans le même sens que l'éch -> on s'éloigne du centre)
+    if (tAbs(theRegServo.consigne) > kSEUIL_CONSIGNE_FREINAGE)
 	{
-	if (aMoyenneDerivees > kSEUIL_DERIVEE_VIRAGE)
-	    {
-	    freinage = true;
-	    }
+	freinage = true;
+	TFC_Ticker[2] = 0;
 	}
-    aMoyenneDerivees /= kNMOY_DERIVEE; //on divise après la comparaison pour ne pas perdre de résolution
+    else if (TFC_Ticker[2] >= kTEMPS_FREINAGE)
+	{
+	freinage = false;
+	}
 
     //on freine en fonction de la moyenne des dérivées (plus elle est grande, plus on freine)
     if (freinage)
@@ -307,10 +329,12 @@ void gCompute_Execute(void)
 	//aVitesseFreinage = (int16_t) ((float) aMoyenneDerivees * kBRAKE_COEFF + kSPEED_MAX);
 	//aVitesseFreinage = kSPEED_MAX - gInputInterStruct.vMax + kSPEED_MIN;
 	aVitesseFreinage = kSPEED_MIN;
+	TFC_BAT_LED2_ON;
 	}
     else
 	{
 	aVitesseFreinage = gInputInterStruct.vMax;
+	TFC_BAT_LED2_OFF;
 	}
 
     //on teste si la vitesse n'est pas supérieure à la vitesse max autorisée

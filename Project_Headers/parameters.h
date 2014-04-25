@@ -16,18 +16,20 @@
 //
 
 //parametres concernant la vitesse
-#define kSPEED_MAX 60.0
-#define kSPEED_MIN 20.0
+#define kSPEED_MAX 100.0
+#define kSPEED_MIN 50.0
 
 //parametres du regulateur de direction
-#define kCONSIGNEPROCHECORRECTION (float)1.15 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
+#define kCONSIGNEPROCHECORRECTION (float)1.1 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
 #define kREGQUAD_BRAQUAGEMAX (float)0.60 //valeur a laquelle les roues sont tournees a fond
 #define kREGQUAD_ERREURMAX (float)64.0 //erreur a laquelle le braquage est max
 //
 //parametres concernant le freinage
 #define kNMOY_DERIVEE 3
 #define kBRAKE_COEFF -((float)kSPEED_MAX-(float)kSPEED_MIN)/(kREGQUAD_ERREURMAX/(kNMOY_DERIVEE+2))
-#define kSEUIL_DERIVEE_VIRAGE 6
+#define kSEUIL_DERIVEE_VIRAGE 3.5
+#define kTEMPS_FREINAGE 40
+#define kSEUIL_CONSIGNE_FREINAGE 20
 
 //
 //parametres de l'eclairement des LEDs et du temps d'exposition des cameras

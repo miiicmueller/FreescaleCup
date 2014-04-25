@@ -17,84 +17,11 @@
 #define kLINE_PATTERN_SIZE 17
 #define kSTART_STOP_MINS_GAP 11
 
-#define kSEUIL_LIGNEFAR		3000
-#define kSEUIL_LIGNENEAR	8000
+#define kSEUIL_LIGNEFAR		2000
+#define kSEUIL_LIGNENEAR	5000
 #define kSEUIL_LIGNE_ARR 	-13000
 
 #define kOFFSET_LIGNE 		kLINE_PATTERN_SIZE/2
-
-//static const q15_t kLINE_PATTERN_Q15_FAR[] =
-//    {
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    ~(17920) | 0x8000,
-//	    ~(17920) | 0x8000,
-//	    ~(17920) | 0x8000,
-//	    ~(17920) | 0x8000,
-//	    ~(17920) | 0x8000,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200,
-//	    3200
-//    };
-//static const q15_t kLINE_PATTERN_Q15_NEAR[] =
-//    {
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    ~(8192) | 0x8000,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096,
-//	    4096
-//    };
 
 static const q15_t kLINE_PATTERN_Q15_NEAR[] =
     {
@@ -172,6 +99,7 @@ void mTrackLine_CorrelationFFT(int16_t* tabNear, int16_t* tabFar, int16_t* thePo
     aMaxIndexNear += kOFFSET_LIGNE;
     aMaxIndexFar += kOFFSET_LIGNE;
     aMinIndexStop1 += kOFFSET_LIGNE;
+
     //cherche deux mins pour la ligne d'arrivée
     if (aMinIndexStop1 >= kLINE_PATTERN_SIZE)
 	{
@@ -191,14 +119,14 @@ void mTrackLine_CorrelationFFT(int16_t* tabNear, int16_t* tabFar, int16_t* thePo
     if (aOutConvTabNear[aMaxIndexNear] >= kSEUIL_LIGNENEAR)
 	{
 	*isLineNearFound = true;
-	*thePositionNear = aMaxIndexNear * 2;
+	*thePositionNear = (aMaxIndexNear - kOFFSET_LIGNE) * 2;
 	}
     //On teste si ca passe le seuil
     *isLineFarFound = false;
     if (aOutConvTabFar[aMaxIndexFar] >= kSEUIL_LIGNEFAR)
 	{
 	*isLineFarFound = true;
-	*thePositionFar = aMaxIndexFar * 2;
+	*thePositionFar = (aMaxIndexFar - kOFFSET_LIGNE) * 2;
 	}
     //On teste si ca passe le seuil
     *isStartStopFound = false;
