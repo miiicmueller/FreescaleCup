@@ -61,17 +61,17 @@ void gCompute_Setup(void)
     //sans monitoring on fixe des constantes
     mMotor1.aPIDData.consigne = 0.4;
     mMotor1.aPIDData.erreurPrecedente = 0;
-    mMotor1.aPIDData.kd = 0.05;
+    mMotor1.aPIDData.kd = 0.06;
     mMotor1.aPIDData.kp = 0.8;
-    mMotor1.aPIDData.ki = 0.09;
+    mMotor1.aPIDData.ki = 0.15;
     mMotor1.aPIDData.coeffNormalisation = 0.01;
     mMotor1.aPIDData.sommeErreurs = 0;
 
     mMotor2.aPIDData.consigne = 0.4;
     mMotor2.aPIDData.erreurPrecedente = 0;
-    mMotor2.aPIDData.kd = 0.05;
+    mMotor2.aPIDData.kd = 0.06;
     mMotor2.aPIDData.kp = 0.8;
-    mMotor2.aPIDData.ki = 0.09;
+    mMotor2.aPIDData.ki = 0.15;
     mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aPIDData.sommeErreurs = 0;
 
@@ -274,6 +274,23 @@ void gCompute_Execute(void)
 		(int16_t) ((theLineFarPosition - (int16_t) (kLENGTHLINESCAN / 2)) * (-kCONSIGNEPROCHECORRECTION ));
 	theLineMesure = theLineNearPosition;
 
+	if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_1)
+	    {
+	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.20;
+	    }
+	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_2)
+	    {
+	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.50;
+	    }
+	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_3)
+	    {
+	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.80;
+	    }
+	else
+	    {
+	    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
+	    }
+
 	perteLigne = 0;
 	}
 
@@ -286,56 +303,35 @@ void gCompute_Execute(void)
     //---------------------------------------------------------------------------
     // 5 : freinage dans les virages
     //---------------------------------------------------------------------------
-    static int16_t aDerivee = 0;
-    static int16_t theOldLineFarPosition = 0;
-    static float aMoyenneDerivees = 0;
     static bool freinage = false;
+    static bool oldFreinage = false;
     static int16_t aVitesseFreinage = 0;
-
-//    aDerivee = theLineFarPosition - theOldLineFarPosition;    //dérivée de l'erreur
-//    theOldLineFarPosition = theLineFarPosition;
-//    aMoyenneDerivees = (aMoyenneDerivees * (kNMOY_DERIVEE - 1) + aDerivee);    //moyenne des dérivées
-//
-//    //on teste si on entre dans un virage
-//    if (TFC_Ticker[2] >= kTEMPS_FREINAGE)
-//	{
-//	freinage = false;
-//	}
-//    if ((aMoyenneDerivees * (theLineFarPosition - (kLENGTHLINESCAN / 2))) > 0) //seul le signe nous intéresse (dérivée dans le même sens que l'éch -> on s'éloigne du centre)
-//	{
-//	if (aMoyenneDerivees > kSEUIL_DERIVEE_VIRAGE)
-//	    {
-//	    freinage = true;
-//	    TFC_Ticker[2] = 0;
-//	    }
-//	}
-//    aMoyenneDerivees = aMoyenneDerivees / kNMOY_DERIVEE; //on divise après la comparaison pour ne pas perdre de résolution
 
     //on teste si on entre dans un virage
     if (tAbs(theRegServo.consigne) > kSEUIL_CONSIGNE_FREINAGE)
 	{
 	freinage = true;
-	TFC_Ticker[2] = 0;
 	}
-    else if (TFC_Ticker[2] >= kTEMPS_FREINAGE)
+    else if (TFC_Ticker[2] >= kTEMPS_FREINAGE_2)
 	{
 	freinage = false;
-	}
-
-    //on freine en fonction de la moyenne des dérivées (plus elle est grande, plus on freine)
-    if (freinage)
-	{
-	//aVitesseFreinage = (int16_t) ((float) aMoyenneDerivees * kBRAKE_COEFF + kSPEED_MAX);
-	//aVitesseFreinage = (int16_t) ((float) aMoyenneDerivees * kBRAKE_COEFF + kSPEED_MAX);
-	//aVitesseFreinage = kSPEED_MAX - gInputInterStruct.vMax + kSPEED_MIN;
-	aVitesseFreinage = kSPEED_MIN;
-	TFC_BAT_LED2_ON;
-	}
-    else
-	{
 	aVitesseFreinage = gInputInterStruct.vMax;
 	TFC_BAT_LED2_OFF;
 	}
+
+    //on freine en fonction de la moyenne des dérivées (plus elle est grande, plus on freine)
+    if (freinage && (!oldFreinage))
+	{
+	TFC_Ticker[2] = 0;
+	aVitesseFreinage = kSPEED_MIN_1;
+	TFC_BAT_LED2_ON;
+	}
+    else if ((TFC_Ticker[2] >= kTEMPS_FREINAGE_1) && ((freinage == true) && (oldFreinage == true)))
+	{
+	aVitesseFreinage = kSPEED_MIN_2;
+	}
+
+    oldFreinage = freinage;
 
     //on teste si la vitesse n'est pas supérieure à la vitesse max autorisée
     if (aVitesseFreinage < gInputInterStruct.vMax)
@@ -370,7 +366,7 @@ void gCompute_Execute(void)
     mMotor2.aPIDData.consigne = (int16_t) ((float) mMotor2.aPIDData.consigne * mMotor2.aDifferential);
 
     // PIDs Moteurs
-    tRegPID(&mMotor1.aPIDData, (int16_t) (theSpeedMotor1 / 3.0)); // Frequence entre 0 et 100
+    tRegPID(&mMotor1.aPIDData, (int16_t) (theSpeedMotor1 / 3.0));	    // Frequence entre 0 et 100
     tRegPID(&mMotor2.aPIDData, (int16_t) (theSpeedMotor2 / 3.0));
     gComputeInterStruct.gCommandeMoteurGauche = mMotor2.aPIDData.commande;
     gComputeInterStruct.gCommandeMoteurDroit = mMotor1.aPIDData.commande;

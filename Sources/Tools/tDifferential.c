@@ -13,16 +13,14 @@
 
 void compute_differential(const float aAngleServo)
     {
-    float m = -0.82;
-
     if (aAngleServo < 0.0)
 	{
-	mMotor2.aDifferential = (m * tAbs_float(aAngleServo) + 1.0);
+	mMotor2.aDifferential = (kCOEFF_DIFFERENTIAL * tAbs_float(aAngleServo) + 1.0);
 	mMotor1.aDifferential = 1;
 	}
     else
 	{
-	mMotor1.aDifferential = (m * tAbs_float(aAngleServo) + 1.0);
+	mMotor1.aDifferential = (kCOEFF_DIFFERENTIAL * tAbs_float(aAngleServo) + 1.0);
 	mMotor2.aDifferential = 1;
 	}
     }
