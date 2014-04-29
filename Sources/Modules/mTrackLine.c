@@ -17,9 +17,9 @@
 #define kLINE_PATTERN_SIZE 17
 #define kSTART_STOP_MINS_GAP 11
 
-#define kSEUIL_LIGNEFAR		2000
-#define kSEUIL_LIGNENEAR	5000
-#define kSEUIL_LIGNE_ARR 	-13000
+#define kSEUIL_LIGNEFAR		1500
+#define kSEUIL_LIGNENEAR	2250
+#define kSEUIL_LIGNE_ARR 	1500
 
 #define kOFFSET_LIGNE 		kLINE_PATTERN_SIZE/2
 
@@ -83,9 +83,8 @@ void mTrackLine_CorrelationFFT(int16_t* tabNear, int16_t* tabFar, int16_t* thePo
     //pour la recherche du max
     uint8_t aMaxIndexNear;
     uint8_t aMaxIndexFar;
-    uint8_t aMinIndexStop1 = 0;
-    uint8_t aMinIndexStop2 = 0;
-    uint8_t aMinIndexStop3 = 0;
+    uint8_t aMaxIndexStop2 = 0;
+    uint8_t aMaxIndexStop3 = 0;
 
     //on fait la convolution
     arm_conv_fast_opt_q15(tabNear, kLINE_SCAN_SIZE, aImgKernelTabNear, kLINE_PATTERN_SIZE, aOutConvTabNear, aPscratch1,
@@ -94,24 +93,22 @@ void mTrackLine_CorrelationFFT(int16_t* tabNear, int16_t* tabFar, int16_t* thePo
 	    aPscratch2);
 
 //On parcourt le tableau resultant de la convolution et on recherche un max
-    tMaxMin_3Tab((aOutConvTabNear + kOFFSET_LIGNE), &aMaxIndexNear, (aOutConvTabFar + kOFFSET_LIGNE), &aMaxIndexFar,
-	    (aOutConvTabNear + kOFFSET_LIGNE), &aMinIndexStop1, kLINE_SCAN_SIZE);
-    aMaxIndexNear += kOFFSET_LIGNE;
-    aMaxIndexFar += kOFFSET_LIGNE;
-    aMinIndexStop1 += kOFFSET_LIGNE;
+    tMaxMin_3Tab((aOutConvTabNear + kOFFSET_LIGNE + 1), &aMaxIndexNear, (aOutConvTabFar + kOFFSET_LIGNE + 1),
+	    &aMaxIndexFar, kLINE_SCAN_SIZE);
+    aMaxIndexNear += kOFFSET_LIGNE + 1;
+    aMaxIndexFar += kOFFSET_LIGNE + 1;
 
-    //cherche deux mins pour la ligne d'arrivée
-    if (aMinIndexStop1 >= kLINE_PATTERN_SIZE)
+    //cherche deux maxs pour la ligne d'arrivée
+    if (aMaxIndexNear >= kLINE_PATTERN_SIZE)
 	{
-	aMinIndexStop3 = tMin_q15(
-		&aOutConvTabNear[aMinIndexStop1 - ((kSTART_STOP_MINS_GAP / 2) + kSTART_STOP_MINS_GAP)],
+	aMaxIndexStop3 = tMax_q15(&aOutConvTabNear[aMaxIndexNear - ((kSTART_STOP_MINS_GAP / 2) + kSTART_STOP_MINS_GAP)],
 		kSTART_STOP_MINS_GAP);
-	aMinIndexStop3 += aMinIndexStop1 - ((kSTART_STOP_MINS_GAP / 2) + kSTART_STOP_MINS_GAP);
+	aMaxIndexStop3 += aMaxIndexNear - ((kSTART_STOP_MINS_GAP / 2) + kSTART_STOP_MINS_GAP);
 	}
-    if (aMinIndexStop1 <= (kLINE_SCAN_SIZE - 2))
+    if (aMaxIndexNear <= (kLINE_SCAN_SIZE - 2))
 	{
-	aMinIndexStop2 = tMin_q15(&aOutConvTabNear[aMinIndexStop1 + (kSTART_STOP_MINS_GAP / 2)], kSTART_STOP_MINS_GAP);
-	aMinIndexStop2 += aMinIndexStop1 + (kSTART_STOP_MINS_GAP / 2);
+	aMaxIndexStop2 = tMax_q15(&aOutConvTabNear[aMaxIndexNear + (kSTART_STOP_MINS_GAP / 2)], kSTART_STOP_MINS_GAP);
+	aMaxIndexStop2 += aMaxIndexNear + (kSTART_STOP_MINS_GAP / 2);
 	}
 
     //On teste si ca passe le seuil
@@ -130,13 +127,11 @@ void mTrackLine_CorrelationFFT(int16_t* tabNear, int16_t* tabFar, int16_t* thePo
 	}
     //On teste si ca passe le seuil
     *isStartStopFound = false;
-    if (aOutConvTabNear[aMinIndexStop1] <= kSEUIL_LIGNE_ARR)
+    if (aOutConvTabNear[aMaxIndexNear] >= kSEUIL_LIGNE_ARR)
 	{
-	if ((aMinIndexStop2 > 0) && (aOutConvTabNear[aMinIndexStop2] <= kSEUIL_LIGNE_ARR))
-	    {
-	    *isStartStopFound = true;
-	    }
-	else if ((aMinIndexStop3 > 0) && (aOutConvTabNear[aMinIndexStop3] <= kSEUIL_LIGNE_ARR))
+	if ((aMaxIndexStop2 > 0) && (aMaxIndexStop2 < 71) && (aOutConvTabNear[aMaxIndexStop2] >= kSEUIL_LIGNE_ARR)
+		&& (aMaxIndexStop3 > 0) && (aMaxIndexStop3 < 71)
+		&& (aOutConvTabNear[aMaxIndexStop3] >= kSEUIL_LIGNE_ARR))
 	    {
 	    *isStartStopFound = true;
 	    }

@@ -63,7 +63,7 @@ void gCompute_Setup(void)
     mMotor1.aPIDData.erreurPrecedente = 0;
     mMotor1.aPIDData.kd = 0.06;
     mMotor1.aPIDData.kp = 0.8;
-    mMotor1.aPIDData.ki = 0.15;
+    mMotor1.aPIDData.ki = 0.09;
     mMotor1.aPIDData.coeffNormalisation = 0.01;
     mMotor1.aPIDData.sommeErreurs = 0;
 
@@ -71,7 +71,7 @@ void gCompute_Setup(void)
     mMotor2.aPIDData.erreurPrecedente = 0;
     mMotor2.aPIDData.kd = 0.06;
     mMotor2.aPIDData.kp = 0.8;
-    mMotor2.aPIDData.ki = 0.15;
+    mMotor2.aPIDData.ki = 0.09;
     mMotor2.aPIDData.coeffNormalisation = 0.01;
     mMotor2.aPIDData.sommeErreurs = 0;
 
@@ -131,6 +131,8 @@ void gCompute_Execute(void)
     LineFar = (int16_t*) LineScanImage0;
 
     //on recherche la ligne par corrélation
+    tRescale(LineNear, 64, 3000, 0);
+    tRescale(LineFar, 64, 3000, 0);
     mTrackLine_CorrelationFFT(LineNear, LineFar, &theLineNearPosition, &theLineFarPosition, &isLineNearFound,
 	    &isLineFarFound, &isStartStopNearFound);
 
@@ -277,10 +279,12 @@ void gCompute_Execute(void)
 	if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_1)
 	    {
 	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.20;
+	    aDirConsigne *= 0.5;
 	    }
 	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_2)
 	    {
 	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.50;
+	    aDirConsigne *= 0.85;
 	    }
 	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_3)
 	    {

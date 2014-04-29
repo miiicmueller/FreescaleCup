@@ -47,29 +47,39 @@ void tSuppressDC(int16_t* tab, uint16_t size)
 //--------------------------------------------------------
 void tRescale(int16_t* tab, uint16_t size, uint16_t theScale, uint16_t aEcartMin)
     {
+//    float theFactor;
+//    int16_t oldMax = tab[tMax(tab, size)];
+//    int16_t oldMin = tab[tMin(tab, size)];
+//
+//    //on le fait seulement si l'ecart min est garanti
+//    if ((oldMax - oldMin) > aEcartMin)
+//	{
+//	oldMax = tAbs(oldMax);
+//	oldMin = tAbs(oldMin);
+//
+//	if (oldMax > oldMin)
+//	    {
+//	    theFactor = (float) theScale / (float) oldMax;
+//	    }
+//	else
+//	    {
+//	    theFactor = (float) theScale / (float) oldMin;
+//	    }
+//
+//	for (uint16_t i = 0; i < size; i++)
+//	    {
+//	    tab[i] = (int16_t) ((float) tab[i] * theFactor);
+//	    }
+//	}
     float theFactor;
     int16_t oldMax = tab[tMax(tab, size)];
-    int16_t oldMin = tab[tMin(tab, size)];
 
     //on le fait seulement si l'ecart min est garanti
-    if ((oldMax - oldMin) > aEcartMin)
+    theFactor = (float) theScale / (float) oldMax;
+
+    for (uint16_t i = 0; i < size; i++)
 	{
-	oldMax = tAbs(oldMax);
-	oldMin = tAbs(oldMin);
-
-	if (oldMax > oldMin)
-	    {
-	    theFactor = (float) theScale / (float) oldMax;
-	    }
-	else
-	    {
-	    theFactor = (float) theScale / (float) oldMin;
-	    }
-
-	for (uint16_t i = 0; i < size; i++)
-	    {
-	    tab[i] = (int16_t) ((float) tab[i] * theFactor);
-	    }
+	tab[i] = (int16_t) ((float) tab[i] * theFactor);
 	}
     }
 
@@ -228,12 +238,10 @@ uint8_t tMax_q15(q15_t* tab, uint16_t size)
 // parametres : tab	: adresse du tableau a traiter
 //		size	: longueur du tableau
 //--------------------------------------------------------
-void tMaxMin_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
-	uint16_t size)
+void tMaxMin_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, uint16_t size)
     {
     *tabIndex1 = 0;
     *tabIndex2 = 0;
-    *tabIndex3 = 0;
 
     for (uint8_t i = 1; i < size; i++)
 	{
@@ -244,11 +252,6 @@ void tMaxMin_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabInde
 	if (tab2[i] > tab2[*tabIndex2])
 	    {
 	    *tabIndex2 = i;
-	    }
-	//min pour la ligne d'arrivée
-	if (tab3[i] < tab3[*tabIndex3])
-	    {
-	    *tabIndex3 = i;
 	    }
 	}
     return;

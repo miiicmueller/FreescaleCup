@@ -71,10 +71,10 @@ uint8_t tMin_q15(q15_t* tab, uint16_t size);
 //		size	: longueur du tableau
 //--------------------------------------------------------
 uint8_t tMax(int16_t* tab, uint16_t size);
+uint8_t tMax_q15(q15_t* tab, uint16_t size);
 uint8_t tMax_f(float* tab, uint16_t size);
 uint8_t tMax_32(int32_t* tab, uint16_t size);
-void tMaxMin_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, q15_t* tab3, uint8_t* tabIndex3,
-	uint16_t size);
+void tMaxMin_3Tab(q15_t* tab1, uint8_t* tabIndex1, q15_t* tab2, uint8_t* tabIndex2, uint16_t size);
 
 //--------------------------------------------------------
 // renvoie la valeur de la moyenne du tableau
