@@ -276,24 +276,24 @@ void gCompute_Execute(void)
 		(int16_t) ((theLineFarPosition - (int16_t) (kLENGTHLINESCAN / 2)) * (-kCONSIGNEPROCHECORRECTION ));
 	theLineMesure = theLineNearPosition;
 
-	if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_1)
-	    {
-	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.20;
-	    aDirConsigne *= 0.5;
-	    }
-	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_2)
-	    {
-	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.50;
-	    aDirConsigne *= 0.85;
-	    }
-	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_3)
-	    {
-	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.80;
-	    }
-	else
-	    {
-	    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
-	    }
+//	if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_1)
+//	    {
+//	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.20;
+//	    aDirConsigne *= 0.5;
+//	    }
+//	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_2)
+//	    {
+//	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.50;
+//	    aDirConsigne *= 0.85;
+//	    }
+//	else if (tAbs(aDirConsigne) < kCONSIGNE_MIN_VIRAGE_3)
+//	    {
+//	    theRegServo.coefficient = ((kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX )) * 0.80;
+//	    }
+//	else
+//	    {
+//	    theRegServo.coefficient = (kREGQUAD_BRAQUAGEMAX ) / (kREGQUAD_ERREURMAX * kREGQUAD_ERREURMAX );
+//	    }
 
 	perteLigne = 0;
 	}
@@ -301,8 +301,9 @@ void gCompute_Execute(void)
     //-----------------------------------------------------------------------
     // 4.5 : filtrage de la consigne de direction
     //-----------------------------------------------------------------------
-    theRegServo.consigne = (theRegServo.consigne * 4 + aDirConsigne);
-    theRegServo.consigne /= 5;
+    static int16_t aConsigneFiltree = 0;
+    aConsigneFiltree = (aConsigneFiltree * 4 + aDirConsigne);
+    aConsigneFiltree /= 5;
 
     //---------------------------------------------------------------------------
     // 5 : freinage dans les virages
@@ -310,9 +311,10 @@ void gCompute_Execute(void)
     static bool freinage = false;
     static bool oldFreinage = false;
     static int16_t aVitesseFreinage = 0;
+    theRegServo.consigne = aConsigneFiltree;
 
     //on teste si on entre dans un virage
-    if (tAbs(theRegServo.consigne) > kSEUIL_CONSIGNE_FREINAGE)
+    if (tAbs(aConsigneFiltree) > kSEUIL_CONSIGNE_FREINAGE)
 	{
 	freinage = true;
 	}
@@ -320,6 +322,7 @@ void gCompute_Execute(void)
 	{
 	freinage = false;
 	aVitesseFreinage = gInputInterStruct.vMax;
+	//theRegServo.consigne = 0;
 	TFC_BAT_LED2_OFF;
 	}
 
@@ -354,7 +357,7 @@ void gCompute_Execute(void)
     //---------------------------------------------------------------------------
     //regulation camera proche
     theLineMesure -= (int16_t) (kLENGTHLINESCAN / 2);
-    tRegQuadratic(&theRegServo, (theLineMesure));
+    tRegQuadratic(&theRegServo, (theLineMesure), isLineFarFound);
     gComputeInterStruct.gCommandeServoDirection = theRegServo.commande;
 
     //on avance que si on est en course!!!!!

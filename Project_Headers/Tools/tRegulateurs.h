@@ -44,7 +44,7 @@ typedef struct
 //--------------------------------------------------------
 void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure);
 
-void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure);
+void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure, bool isLineFarFound);
 
 #endif /* TPID_H_ */
 

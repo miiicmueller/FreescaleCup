@@ -10,6 +10,13 @@
 #include "Tools/tRegulateurs.h"
 #include "Tools/Tools.h"
 
+#define kSEUIL_PENTE 8
+#define kREGQUAD_ERREURMAX_2 175
+#define kREGQUAD_ERREURMAX_3 73
+
+#define kPENTE_1 kREGQUAD_BRAQUAGEMAX/kREGQUAD_ERREURMAX_2
+#define kPENTE_2 (kREGQUAD_BRAQUAGEMAX-(kPENTE_1*kSEUIL_PENTE))/(kREGQUAD_ERREURMAX_3-kSEUIL_PENTE)
+
 //--------------------------------------------------------
 // regulateur PID
 // parametre de retour	: int16_t : la valeur de la commande a assigner
@@ -57,19 +64,30 @@ void tRegPID(tRegulateurPIDStruct* thePIDStruct, int16_t theMesure)
 //				    informations necessaires au regulateur (cf. tPID.h)
 // 	      : theMesure	  : derniere mesure
 //--------------------------------------------------------
-void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure)
+void tRegQuadratic(tRegulateurQuadStruct* theExpStruct, int16_t theMesure, bool isLineFarFound)
     {
     int16_t erreur = theExpStruct->consigne - theMesure;
     theExpStruct->commande = theExpStruct->coefficient * ((float) (erreur * erreur)) * tSign(erreur);
-    if (tAbs_float(theExpStruct->commande) > kREGQUAD_BRAQUAGEMAX)
+//    if (tAbs_float(theExpStruct->commande) > kREGQUAD_BRAQUAGEMAX)
+//	{
+//	if (theExpStruct->commande < 0)
+//	    {
+//	    theExpStruct->commande = kREGQUAD_BRAQUAGEMAX * (-1.0);
+//	    }
+//	else
+//	    {
+//	    theExpStruct->commande = kREGQUAD_BRAQUAGEMAX;
+//	    }
+//	}
+//    if (tAbs(erreur) < kSEUIL_PENTE)
+//	{
+    theExpStruct->commande = erreur * kPENTE_1;
+//	}
+
+    if ((!isLineFarFound) && (tAbs(erreur) > kSEUIL_PENTE))
 	{
-	if (theExpStruct->commande < 0)
-	    {
-	    theExpStruct->commande = kREGQUAD_BRAQUAGEMAX * (-1.0);
-	    }
-	else
-	    {
-	    theExpStruct->commande = kREGQUAD_BRAQUAGEMAX;
-	    }
+	theExpStruct->commande = (erreur - tSign(erreur) * kSEUIL_PENTE) * kPENTE_2
+		+ tSign(erreur) * (kPENTE_1 * kSEUIL_PENTE);
 	}
+
     }

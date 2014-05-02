@@ -17,8 +17,8 @@
 
 //parametres concernant la vitesse
 #define kSPEED_MAX 100.0
-#define kSPEED_MIN_1 25.0
-#define kSPEED_MIN_2 57.0
+#define kSPEED_MIN_1 -10.0
+#define kSPEED_MIN_2 60.0
 
 //parametres du regulateur de direction
 #define kCONSIGNEPROCHECORRECTION (float)1.2 //facteur de correction appliqué à la consigne de la ligne proche par rapport à l'erreur de la ligne lointaine
@@ -32,12 +32,12 @@
 #define kNMOY_DERIVEE 3
 #define kBRAKE_COEFF -((float)kSPEED_MAX-(float)kSPEED_MIN)/(kREGQUAD_ERREURMAX/(kNMOY_DERIVEE+2))
 #define kSEUIL_DERIVEE_VIRAGE 3.5
-#define kTEMPS_FREINAGE_1 60
-#define kTEMPS_FREINAGE_2 100
-#define kSEUIL_CONSIGNE_FREINAGE 20
+#define kTEMPS_FREINAGE_1 70
+#define kTEMPS_FREINAGE_2 120
+#define kSEUIL_CONSIGNE_FREINAGE 25
 
 //parametre du differentiel
-#define kCOEFF_DIFFERENTIAL (float)-0.75
+#define kCOEFF_DIFFERENTIAL (float)-0.82
 
 //
 //parametres de l'eclairement des LEDs et du temps d'exposition des cameras
